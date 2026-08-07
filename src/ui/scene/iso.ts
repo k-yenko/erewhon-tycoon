@@ -14,8 +14,8 @@ export function poly(pts: [number, number][]): string {
 }
 
 export const INK = '#1a1a18';
-export const ASPHALT = '#8f8d88';
-export const ASPHALT_D = '#7c7a75';
-export const CONCRETE = '#d8d2c4';
-export const CONCRETE_D = '#c4beb0';
-export const DASH = '#f0e9da';
+export const ASPHALT = '#757572';
+export const ASPHALT_D = '#646460';
+export const CONCRETE = '#dcdcd2';
+export const CONCRETE_D = '#c6c6ba';
+export const DASH = '#ffffff';

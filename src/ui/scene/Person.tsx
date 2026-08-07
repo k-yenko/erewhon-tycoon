@@ -19,13 +19,14 @@ interface Outfit {
   cap?: string; // baseball cap color
 }
 
-// pilates set, blue tee, matcha set, all-black, cream + cap
+// bright primary outfits, like the original's little sprites
 const OUTFITS: Outfit[] = [
-  { skin: '#e8c39e', hair: '#6b4a2f', top: '#e8b4c8', bottom: '#d89bb4' },
-  { skin: '#c68863', hair: '#241d16', top: '#7fb4c9', bottom: '#4a4740' },
-  { skin: '#f0d0b0', hair: '#b8863f', top: '#9db98a', bottom: '#7fa07a' },
-  { skin: '#a86a44', hair: '#141210', top: '#3a3733', bottom: '#241f1c' },
-  { skin: '#e8c39e', hair: '#3a2a1a', top: '#f0e9da', bottom: '#c9b99a', cap: '#4a4740' },
+  { skin: '#e8b48f', hair: '#5a3a22', top: '#d94436', bottom: '#2f3f66' },
+  { skin: '#c68863', hair: '#241d16', top: '#3f7fd9', bottom: '#3a3733' },
+  { skin: '#f0d0b0', hair: '#b8863f', top: '#43a047', bottom: '#2e6b33' },
+  { skin: '#a86a44', hair: '#141210', top: '#f2c53d', bottom: '#3a3733' },
+  { skin: '#e8c39e', hair: '#3a2a1a', top: '#ffffff', bottom: '#c74b3f', cap: '#d94436' },
+  { skin: '#d69a6e', hair: '#33241a', top: '#e05a7a', bottom: '#4a4740' },
 ];
 
 const PS = { stroke: INK, strokeWidth: 0.9, strokeLinejoin: 'round', strokeLinecap: 'round' } as const;

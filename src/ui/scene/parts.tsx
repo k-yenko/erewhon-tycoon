@@ -54,7 +54,7 @@ export function Windows({ x, y, w, d, h, cols, rows }: { x: number; y: number; w
   for (let r = 0; r < rows; r++)
     for (let c = 0; c < cols; c++)
       cells.push(
-        <rect key={`${r}-${c}`} x={5 + c * 13} y={-h + 8 + r * 14} width="8" height="9" fill="#cfe3ea" stroke={INK} strokeWidth="0.8" />,
+        <rect key={`${r}-${c}`} x={5 + c * 13} y={-h + 8 + r * 14} width="8" height="9" fill="#bfe0f2" stroke={INK} strokeWidth="0.8" />,
       );
   return <g transform={`translate(${px} ${py}) skewY(-26.565)`}>{cells}</g>;
 }
@@ -87,9 +87,9 @@ export function Tree({ x, y, s = 1 }: { x: number; y: number; s?: number }) {
   return (
     <g stroke={INK} strokeWidth="1.1">
       <path d={`M${px} ${py} L${px} ${py - 16 * s}`} strokeWidth={3 * s} stroke="#8a6f4d" />
-      <circle cx={px - 6 * s} cy={py - 20 * s} r={8 * s} fill="#7fa07a" />
-      <circle cx={px + 6 * s} cy={py - 21 * s} r={8.5 * s} fill="#9db98a" />
-      <circle cx={px} cy={py - 27 * s} r={8 * s} fill="#8fae8b" />
+      <circle cx={px - 6 * s} cy={py - 20 * s} r={8 * s} fill="#4c9440" />
+      <circle cx={px + 6 * s} cy={py - 21 * s} r={8.5 * s} fill="#57a84e" />
+      <circle cx={px} cy={py - 27 * s} r={8 * s} fill="#5aa552" />
     </g>
   );
 }
@@ -99,7 +99,7 @@ export function Palm({ x, y, s = 1 }: { x: number; y: number; s?: number }) {
   return (
     <g stroke={INK} strokeWidth="1.1" transform={`translate(${px} ${py}) scale(${s})`}>
       <path d="M0 0 C1 -10 0 -20 -2 -28" fill="none" stroke="#8a6f4d" strokeWidth="4" strokeLinecap="round" />
-      <g fill="#9db98a">
+      <g fill="#57a84e">
         <path d="M-2 -28 C-10 -32 -16 -31 -20 -27 C-13 -29 -7 -28 -2 -26Z" />
         <path d="M-2 -28 C-8 -35 -14 -36 -19 -34 C-12 -33 -6 -30 -2 -27Z" />
         <path d="M-2 -28 C4 -35 10 -36 15 -34 C9 -32 3 -30 -1 -27Z" />
@@ -115,8 +115,8 @@ export function Hedge({ x, y, w }: { x: number; y: number; w: number }) {
   const [qx, qy] = iso(x + w, y);
   return (
     <g stroke={INK} strokeWidth="1.1">
-      <path d={`M${px} ${py} L${qx} ${qy}`} stroke="#7fa07a" strokeWidth="14" strokeLinecap="round" />
-      <path d={`M${px} ${py - 3} L${qx} ${qy - 3}`} stroke="#9db98a" strokeWidth="8" strokeLinecap="round" />
+      <path d={`M${px} ${py} L${qx} ${qy}`} stroke="#4c9440" strokeWidth="14" strokeLinecap="round" />
+      <path d={`M${px} ${py - 3} L${qx} ${qy - 3}`} stroke="#57a84e" strokeWidth="8" strokeLinecap="round" />
     </g>
   );
 }
@@ -138,7 +138,7 @@ export function SUV({ x, y, color }: { x: number; y: number; color: string }) {
   return (
     <g transform={`translate(${px} ${py})`} stroke={INK} strokeWidth="1.1" strokeLinejoin="round">
       <path d="M-26 -6 L-24 -16 C-23 -19 -20 -20 -16 -20 L12 -20 C18 -20 22 -18 25 -13 L27 -6 C27 -3 25 -2 22 -2 H-23 C-25 -2 -26 -4 -26 -6Z" fill={color} />
-      <path d="M-17 -18 L-15 -12 H8 L5 -18Z" fill="#cfe3ea" />
+      <path d="M-17 -18 L-15 -12 H8 L5 -18Z" fill="#bfe0f2" />
       <circle cx="-15" cy="-3" r="4.5" fill="#3a3733" />
       <circle cx="16" cy="-3" r="4.5" fill="#3a3733" />
     </g>
@@ -160,8 +160,8 @@ export function Planter({ x, y }: { x: number; y: number }) {
   return (
     <g transform={`translate(${px} ${py})`} stroke={INK} strokeWidth="1">
       <rect x="-9" y="-8" width="18" height="8" fill="#c4beb0" />
-      <circle cx="-3" cy="-11" r="4.5" fill="#9db98a" />
-      <circle cx="4" cy="-12" r="5" fill="#7fa07a" />
+      <circle cx="-3" cy="-11" r="4.5" fill="#57a84e" />
+      <circle cx="4" cy="-12" r="5" fill="#4c9440" />
     </g>
   );
 }
@@ -171,7 +171,7 @@ export function LampPost({ x, y }: { x: number; y: number }) {
   return (
     <g transform={`translate(${px} ${py})`} stroke={INK} strokeWidth="1.2">
       <path d="M0 0 V-34" strokeWidth="2.2" />
-      <circle cx="0" cy="-36" r="3.5" fill="#e6c86e" />
+      <circle cx="0" cy="-36" r="3.5" fill="#f2c53d" />
     </g>
   );
 }
@@ -202,7 +202,7 @@ export function FerrisWheel({ x, y, s = 1 }: { x: number; y: number; s?: number 
         <line key={i} x1="0" y1="-34" x2={p.x} y2={-34 + p.y} />
       ))}
       {spokes.map((p, i) => (
-        <circle key={`c${i}`} cx={p.x} cy={-34 + p.y} r="3.5" fill={i % 2 ? '#e8b4c8' : '#7fb4c9'} />
+        <circle key={`c${i}`} cx={p.x} cy={-34 + p.y} r="3.5" fill={i % 2 ? '#e05a7a' : '#3f97d9'} />
       ))}
     </g>
   );
@@ -294,9 +294,9 @@ export function Cart({ x, y }: { x: number; y: number }) {
       <polygon points={poly([T0, T1, T2, T3])} fill="#c9b99a" />
       {/* jars on the right face (skewed to the face slope) */}
       <g transform="translate(12 -6) skewY(-26.565)" stroke={INK} strokeWidth="1">
-        <rect x="0" y="0" width="6.5" height="8" rx="1" fill="#e8b4c8" />
-        <rect x="9.5" y="0" width="6.5" height="8" rx="1" fill="#9db98a" />
-        <rect x="19" y="0" width="6.5" height="8" rx="1" fill="#7fb4c9" />
+        <rect x="0" y="0" width="6.5" height="8" rx="1" fill="#e05a7a" />
+        <rect x="9.5" y="0" width="6.5" height="8" rx="1" fill="#57a84e" />
+        <rect x="19" y="0" width="6.5" height="8" rx="1" fill="#3f97d9" />
       </g>
       {/* sign mounted on the front-left face */}
       <polygon

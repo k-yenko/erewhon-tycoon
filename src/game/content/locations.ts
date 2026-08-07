@@ -13,7 +13,7 @@ export const LOCATIONS: LocationDef[] = [
     wealth: 18,
     basePopularity: 0.7,
     baseSatisfaction: 0.8,
-    sceneColors: { sky: '#cfe3ea', ground: '#b9b2a4', accent: '#8fae8b' },
+    sceneColors: { sky: '#cfe3ea', ground: '#7cb85c', accent: '#4a9e46' },
   },
   {
     id: 'silverlake',
@@ -25,7 +25,7 @@ export const LOCATIONS: LocationDef[] = [
     wealth: 20,
     basePopularity: 0.6,
     baseSatisfaction: 0.5,
-    sceneColors: { sky: '#cfe3ea', ground: '#a8a094', accent: '#7fa07a' },
+    sceneColors: { sky: '#cfe3ea', ground: '#74b054', accent: '#43a047' },
   },
   {
     id: 'culver',
@@ -37,7 +37,7 @@ export const LOCATIONS: LocationDef[] = [
     wealth: 21,
     basePopularity: 0.5,
     baseSatisfaction: 0.4,
-    sceneColors: { sky: '#d5e6ee', ground: '#9aa2a8', accent: '#6f8fae' },
+    sceneColors: { sky: '#d5e6ee', ground: '#a4adb5', accent: '#3f6fd9' },
   },
   {
     id: 'studio',
@@ -49,7 +49,7 @@ export const LOCATIONS: LocationDef[] = [
     wealth: 22,
     basePopularity: 0.4,
     baseSatisfaction: 0.6,
-    sceneColors: { sky: '#e8e0cf', ground: '#b0a48f', accent: '#a58e5f' },
+    sceneColors: { sky: '#e8e0cf', ground: '#c8a96e', accent: '#c78f3f' },
   },
   {
     id: 'venice',
@@ -61,7 +61,7 @@ export const LOCATIONS: LocationDef[] = [
     wealth: 23,
     basePopularity: 0.7,
     baseSatisfaction: 0.3,
-    sceneColors: { sky: '#bfe0ec', ground: '#d8c9a3', accent: '#5f9ea0' },
+    sceneColors: { sky: '#bfe0ec', ground: '#e8cf8e', accent: '#2f9ea8' },
   },
   {
     id: 'santamonica',
@@ -73,7 +73,7 @@ export const LOCATIONS: LocationDef[] = [
     wealth: 24,
     basePopularity: 0.6,
     baseSatisfaction: 0.3,
-    sceneColors: { sky: '#bfe0ec', ground: '#cfc3a0', accent: '#4f94b0' },
+    sceneColors: { sky: '#bfe0ec', ground: '#e3ca88', accent: '#2f86c7' },
   },
   {
     id: 'calabasas',
@@ -85,7 +85,7 @@ export const LOCATIONS: LocationDef[] = [
     wealth: 26,
     basePopularity: 0.3,
     baseSatisfaction: 0.8,
-    sceneColors: { sky: '#e9ddc8', ground: '#c2b193', accent: '#b09a6e' },
+    sceneColors: { sky: '#e9ddc8', ground: '#84b660', accent: '#cf9c3f' },
   },
   {
     id: 'beverlygrove',
@@ -97,7 +97,7 @@ export const LOCATIONS: LocationDef[] = [
     wealth: 27,
     basePopularity: 0.8,
     baseSatisfaction: 0.2,
-    sceneColors: { sky: '#d8e4ea', ground: '#a9a29a', accent: '#8b7fae' },
+    sceneColors: { sky: '#d8e4ea', ground: '#b0b0a8', accent: '#7b5ec7' },
   },
   {
     id: 'beverlyhills',
@@ -109,7 +109,7 @@ export const LOCATIONS: LocationDef[] = [
     wealth: 28,
     basePopularity: 0.6,
     baseSatisfaction: 0.4,
-    sceneColors: { sky: '#d8e4ea', ground: '#b5ab9c', accent: '#ae8b7f' },
+    sceneColors: { sky: '#d8e4ea', ground: '#95bd6f', accent: '#c76f5a' },
   },
   {
     id: 'palisades',
@@ -121,7 +121,7 @@ export const LOCATIONS: LocationDef[] = [
     wealth: 30,
     basePopularity: 0.2,
     baseSatisfaction: 0.9,
-    sceneColors: { sky: '#c8e2ee', ground: '#a3b59a', accent: '#6e9a7c' },
+    sceneColors: { sky: '#c8e2ee', ground: '#79b45c', accent: '#3f9e63' },
   },
 ];
 
