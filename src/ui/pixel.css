@@ -446,6 +446,8 @@ button {
   100% { transform: translateX(900px); }
 }
 .fog-drift { animation: fog-drift 14s ease-in-out infinite alternate; }
+.fog-drift-rev { animation: fog-drift 18s ease-in-out infinite alternate-reverse; }
+.cloud-drift-slow { animation: cloud-drift 90s linear infinite; }
 @keyframes fog-drift {
   0% { transform: translateX(-40px); }
   100% { transform: translateX(50px); }

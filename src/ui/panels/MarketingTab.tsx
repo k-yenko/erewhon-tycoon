@@ -13,18 +13,23 @@ function adLabel(spend: number): string {
   return 'billboard on Sunset';
 }
 
-// What today's crowd is roughly willing to pay, and how to read the weather.
+// Directional vibes only — the exact price band is yours to discover
+// from the $-bubbles and reviews.
 function priceHint(state: GameState): string {
   const loc = LOCATION_BY_ID[state.locationId];
   const weather = state.daily ? WEATHER_BY_ID[state.daily.weatherId] : undefined;
-  const mean = loc.wealth * (weather?.payTolerance ?? 1);
-  const band = `Around here, today's crowd pays about $${Math.round(mean - 4)}–$${Math.round(mean + 3)}.`;
-  if (!weather) return band;
+  const crowd =
+    loc.wealth >= 26
+      ? 'Money is not a concern around here.'
+      : loc.wealth >= 21
+        ? 'Solid disposable income in this crowd.'
+        : 'Modest wallets around here — read the room.';
+  if (!weather) return crowd;
   if (weather.payTolerance < 0.95)
-    return `${weather.name} — people are stingy today. A discount keeps them coming. ${band}`;
+    return `${weather.name} — people are feeling stingy today. ${crowd}`;
   if (weather.payTolerance > 1.05)
-    return `${weather.name} — they'll pay up today. Don't be shy. ${band}`;
-  return band;
+    return `${weather.name} — they'll pay up today. Don't be shy. ${crowd}`;
+  return crowd;
 }
 
 export default function MarketingTab({
