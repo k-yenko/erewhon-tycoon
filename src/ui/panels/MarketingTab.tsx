@@ -78,7 +78,8 @@ export default function MarketingTab({
         <span>+{Math.round((adBoost(state.adSpend) - 1) * 100)}% traffic</span>
       </div>
       <div className="tagline" style={{ fontSize: 11, color: 'var(--ink-soft)', marginTop: 6 }}>
-        Charged each day you trade. The algorithm has no memory.
+        Charged each day you trade. The algorithm has no memory. Ads also push today's
+        shelf item{state.daily?.shelfItem.category === 'merch' ? ' — and merch LIVES on the algorithm' : ''}.
       </div>
     </div>
   );

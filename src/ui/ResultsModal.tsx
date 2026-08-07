@@ -25,6 +25,14 @@ export default function ResultsModal({
           <span className="label">Revenue</span>
           <span>{fmtMoney(result.revenue)}</span>
         </div>
+        {result.shelfSold > 0 && (
+          <div className="info-row">
+            <span className="label" style={{ fontSize: 11 }}>
+              incl. shelf: {result.shelfSold} × {result.shelfItemName}
+            </span>
+            <span style={{ fontSize: 11 }}>+{fmtMoney(result.shelfRevenue)}</span>
+          </div>
+        )}
         <div className="info-row">
           <span className="label">Stock used</span>
           <span>-{fmtMoney(result.stockUsedCost)}</span>

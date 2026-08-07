@@ -19,55 +19,55 @@ export const LAYOUTS: Record<string, SceneLayout> = {
     queueStep: [-0.55, 0],
   },
   silverlake: {
-    cart: [3.8, 6.35],
+    cart: [4.05, 6.35],
     path: [[-1.5, 6.15], [3.2, 6.15], [11.5, 6.15]],
     queueIndex: 1,
     queueStep: [-0.55, 0],
   },
   culver: {
-    cart: [3.78, 6.35],
+    cart: [4.03, 6.35],
     path: [[-1.5, 6.35], [3.0, 6.35], [11.5, 6.35]],
     queueIndex: 1,
     queueStep: [-0.55, 0],
   },
   studio: {
-    cart: [4.25, 6.35],
+    cart: [4.5, 6.35],
     path: [[-1.5, 6.15], [3.55, 6.15], [11.5, 6.15]],
     queueIndex: 1,
     queueStep: [-0.55, 0],
   },
   venice: {
-    cart: [3.85, 6.35], // on the boardwalk
+    cart: [4.1, 6.35], // on the boardwalk
     path: [[-1.5, 6.1], [3.1, 6.1], [11.5, 6.1]],
     queueIndex: 1,
     queueStep: [-0.55, 0],
   },
   santamonica: {
-    cart: [3.95, 6.35],
+    cart: [4.2, 6.35],
     path: [[-1.5, 6.35], [1.4, 5.7], [3.2, 6.1], [11.5, 6.1]],
     queueIndex: 2,
     queueStep: [-0.55, 0],
   },
   calabasas: {
-    cart: [3.6, 6.65], // just outside the gate
+    cart: [3.85, 6.65], // just outside the gate
     path: [[-1.5, 6.45], [2.9, 6.45], [11.5, 6.45]],
     queueIndex: 1,
     queueStep: [-0.55, 0],
   },
   beverlygrove: {
-    cart: [3.8, 7.15], // at the parking-lot sidewalk edge
+    cart: [4.05, 7.15], // at the parking-lot sidewalk edge
     path: [[-1.5, 7.05], [3.1, 7.05], [11.5, 7.05]],
     queueIndex: 1,
     queueStep: [-0.55, 0],
   },
   beverlyhills: {
-    cart: [3.78, 6.35],
+    cart: [4.03, 6.35],
     path: [[-1.5, 6.35], [3.0, 6.35], [11.5, 6.35]],
     queueIndex: 1,
     queueStep: [-0.55, 0],
   },
   palisades: {
-    cart: [3.95, 7.0], // on the village green's edge
+    cart: [4.2, 7.0], // on the village green's edge
     path: [[-1.5, 5.7], [1.2, 6.1], [3.2, 6.65], [5.6, 6.85], [8.2, 6.3], [11.5, 5.9]],
     queueIndex: 2,
     queueStep: [-0.5, -0.18],

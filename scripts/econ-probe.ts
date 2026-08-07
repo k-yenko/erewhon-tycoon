@@ -26,7 +26,10 @@ function makeDaily(weatherId: string, tempF: number): DailyContent {
     tempF,
     eventId: 'adaptogens-real', // mild global event, no pay modifier
     dropId: 'hailey',
-    shelfItem: { name: 'probe item', price: 20, source: 'pool' },
+    shelfItem: { name: 'probe item', price: 20, source: 'pool', category: 'snack' },
+    viralShelf: false,
+    useLive: false,
+    liveWeather: false,
   };
 }
 

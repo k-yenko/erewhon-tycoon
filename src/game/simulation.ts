@@ -24,7 +24,51 @@ export interface SimContext {
   wealthMean: number;
   patienceMult: number;
   dropPrice: number;
+  shelfAttachChance: number;
   nextId: number;
+}
+
+// The active headline: the real-LA fetch when today prefers it, else the pool event.
+export function activeEvent(daily: DailyContent, locationId: string) {
+  if (daily.useLive && daily.liveEvent) {
+    const e = daily.liveEvent;
+    return { headline: e.headline, traffic: e.traffic, pay: e.pay, patience: e.patience, vibe: e.vibe, isLive: true };
+  }
+  const event = EVENT_BY_ID[daily.eventId];
+  const applies =
+    event && (event.scope.kind === 'global' || event.scope.locationId === locationId);
+  return {
+    headline: event?.headline ?? '',
+    traffic: applies ? (event.traffic ?? 1) : 1,
+    pay: applies ? (event.pay ?? 1) : 1,
+    patience: applies ? (event.patience ?? 1) : 1,
+    vibe: applies ? event.vibe : undefined,
+    isLive: false,
+  };
+}
+
+// Today's odds that a smoothie buyer also grabs the shelf item.
+export function shelfAttachChance(state: GameState): number {
+  const daily = state.daily!;
+  const item = daily.shelfItem;
+  const loc = LOCATION_BY_ID[state.locationId];
+  const weather = weatherFor(daily);
+  const ev = activeEvent(daily, state.locationId);
+
+  let p: number = C.SHELF_BASE_ATTACH[item.category] ?? 0.12;
+  // price fit: an impulse buy vs a considered one, relative to local wealth
+  p *= Math.min(1.6, Math.max(0.25, (loc.wealth * 1.5) / Math.max(item.price, 4)));
+  // weather: heat sells cold things, rain kills merch browsing
+  if (daily.tempF >= 90 && (item.category === 'drink' || item.category === 'snack')) p *= 1.5;
+  if (weather.traffic < 0.7 && item.category === 'merch') p *= 0.6;
+  // event vibe: wellness days move supplements, hype days move merch
+  if (ev.vibe === 'wellness' && item.category === 'supplement') p *= 1.6;
+  if (ev.vibe === 'hype' && item.category === 'merch') p *= 1.8;
+  // marketing: ads push the shelf, merch most of all (the insta/tiktok effect)
+  const adLift = (adBoost(state.adSpend) - 1) * C.SHELF_AD_SENS;
+  p *= 1 + adLift * (item.category === 'merch' ? C.SHELF_MERCH_AD_MULT : 1);
+  if (daily.viralShelf) p *= C.SHELF_VIRAL_MULT;
+  return Math.min(0.85, p);
 }
 
 export function createSimContext(state: GameState): SimContext {
@@ -32,42 +76,32 @@ export function createSimContext(state: GameState): SimContext {
   const mods = computeMods(state);
   const loc = LOCATION_BY_ID[state.locationId];
   const weather = weatherFor(daily);
-  const event = EVENT_BY_ID[daily.eventId];
-  const evTraffic =
-    event && (event.scope.kind === 'global' || event.scope.locationId === state.locationId)
-      ? (event.traffic ?? 1)
-      : 1;
-  const evPay =
-    event && (event.scope.kind === 'global' || event.scope.locationId === state.locationId)
-      ? (event.pay ?? 1)
-      : 1;
-  const evPatience =
-    event && (event.scope.kind === 'global' || event.scope.locationId === state.locationId)
-      ? (event.patience ?? 1)
-      : 1;
+  const ev = activeEvent(daily, state.locationId);
 
   const { popularity: pop, satisfaction: sat } = state.locations[state.locationId];
   const repeatMult = C.SAT_TRAFFIC_MIN + C.SAT_TRAFFIC_SPAN * sat; // loyal regulars
   const expectedCustomers =
     loc.baseTraffic *
     weather.traffic *
-    evTraffic *
+    ev.traffic *
     (0.5 + pop) *
     repeatMult *
     adBoost(state.adSpend) *
-    mods.drawMult;
+    mods.drawMult *
+    (daily.viralShelf ? C.SHELF_VIRAL_TRAFFIC : 1);
 
   return {
     state,
     daily,
     mods,
     // seeded per game-day so Skip and live play agree
-    rand: mulberry32((state.day * 2654435761) ^ 0x9e3779b9),
+    rand: mulberry32(((state.day * 2654435761) ^ 0x9e3779b9 ^ state.seedNonce) >>> 0),
     spawnPerTick: expectedCustomers / C.DAY_TICKS,
-    wealthMean: loc.wealth * weather.payTolerance * evPay,
+    wealthMean: loc.wealth * weather.payTolerance * ev.pay,
     patienceMult:
-      evPatience * mods.patienceMult * (C.SAT_PATIENCE_MIN + C.SAT_PATIENCE_SPAN * sat),
+      ev.patience * mods.patienceMult * (C.SAT_PATIENCE_MIN + C.SAT_PATIENCE_SPAN * sat),
     dropPrice: DROP_BY_ID[daily.dropId]?.price ?? state.price,
+    shelfAttachChance: shelfAttachChance(state),
     nextId: 1,
   };
 }
@@ -250,7 +284,7 @@ export function stepSim(ctx: SimContext, sim: SimState): SimState {
       const paid = c.wantsDrop ? ctx.dropPrice : ctx.state.price;
       sim.revenue += paid;
       sim.cupsSold += 1;
-      if (ctx.rand() < C.SHELF_ATTACH_CHANCE) {
+      if (ctx.rand() < ctx.shelfAttachChance) {
         sim.revenue += ctx.daily.shelfItem.price;
         sim.shelfSold += 1;
       }
@@ -282,12 +316,13 @@ export function skipToEnd(ctx: SimContext, sim: SimState): SimState {
 export function settleDay(state: GameState, sim: SimState): DayResult {
   const loc = LOCATION_BY_ID[state.locationId];
   const wages = state.staff.reduce((s, id) => s + (STAFF_BY_ID[id]?.wage ?? 0), 0);
+  const shelfCogs = state.daily!.viralShelf ? C.SHELF_VIRAL_COGS : C.SHELF_COGS;
   const stockUsedCost =
     Object.entries(sim.stockUsed).reduce(
       (s, [id, n]) => s + (UNIT_VALUE[id] ?? 0) * n,
       0,
     ) +
-    sim.shelfSold * state.daily!.shelfItem.price * C.SHELF_COGS;
+    sim.shelfSold * state.daily!.shelfItem.price * shelfCogs;
 
   const marketing = state.adSpend;
   const earnings = sim.revenue - stockUsedCost - loc.rent - marketing - wages;
@@ -353,6 +388,9 @@ export function settleDay(state: GameState, sim: SimState): DayResult {
     customersTotal: sim.customersTotal,
     walkedAway: sim.walkedAway,
     soldOut: sim.soldOut,
+    shelfSold: sim.shelfSold,
+    shelfItemName: state.daily!.shelfItem.name,
+    shelfRevenue: sim.shelfSold * state.daily!.shelfItem.price,
     tips,
   };
   state.results.push(result);

@@ -132,6 +132,8 @@ function StudioScene({ loc }: { loc: LocationDef }) {
         />
       </Box>
       <SignText at={[2.2, 3.0]} dy={-62} text="STAGE 4" size={9} />
+      {/* lot gate over the wall so the movie-lot read is unmistakable */}
+      <SignText at={[8.1, 3.45]} dy={-26} text="STUDIO LOT" size={7} />
       <g transform={`translate(${iso(7.4, 2.3)[0]} ${iso(7.4, 2.3)[1]}) scale(1.35) translate(${-iso(7.4, 2.3)[0]} ${-iso(7.4, 2.3)[1]})`}>
         <WaterTower x={7.4} y={2.3} />
       </g>

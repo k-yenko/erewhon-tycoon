@@ -28,14 +28,7 @@ body {
 body {
   font-family: 'Silkscreen', monospace;
   color: var(--ink);
-  /* diagonal stripes like the original's green ones, in cream */
-  background: repeating-linear-gradient(
-    -45deg,
-    var(--cream-dark) 0px,
-    var(--cream-dark) 18px,
-    #ece7da 18px,
-    #ece7da 36px
-  );
+  background: var(--cream-dark);
   font-size: 14px;
   line-height: 1.35;
 }

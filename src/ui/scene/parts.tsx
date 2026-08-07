@@ -263,49 +263,76 @@ export function CrossRoads() {
 
 // ——— the Erewhon cart ———
 
+// The Erewhon cart, drawn as a real isometric object: iso-box body with
+// sign and jars flat on the visible faces, umbrella overhead, grounded wheels.
 export function Cart({ x, y }: { x: number; y: number }) {
   const [px, py] = iso(x, y);
+  // footprint corners (local): back, right, front(bottom), left — height 34
+  const P0: [number, number] = [0, -10];
+  const P1: [number, number] = [38, 9];
+  const P2: [number, number] = [8, 24];
+  const P3: [number, number] = [-30, 5];
+  const H = 34;
+  const up = (p: [number, number]): [number, number] => [p[0], p[1] - H];
+  const [T0, T1, T2, T3] = [P0, P1, P2, P3].map(up) as [number, number][];
   return (
-    <g transform={`translate(${px} ${py})`} stroke={INK} strokeWidth="1.3" strokeLinejoin="round">
-      <circle cx="-14" cy="-4" r="6" fill="#4a4740" />
-      <circle cx="-14" cy="-4" r="2.2" fill="#c9b99a" />
-      <circle cx="16" cy="-4" r="6" fill="#4a4740" />
-      <circle cx="16" cy="-4" r="2.2" fill="#c9b99a" />
-      <rect x="-24" y="-34" width="48" height="26" rx="2" fill="#faf7f0" />
-      <path d="M-24 -22 H24" stroke={INK} strokeWidth="1" />
-      <rect x="-18" y="-31" width="10" height="6" rx="1" fill="#e8b4c8" strokeWidth="1" />
-      <rect x="-4" y="-31" width="10" height="6" rx="1" fill="#9db98a" strokeWidth="1" />
-      <rect x="10" y="-31" width="8" height="6" rx="1" fill="#7fb4c9" strokeWidth="1" />
-      <rect x="-27" y="-37" width="54" height="4" rx="1.5" fill="#c9b99a" />
-      <path d="M22 -37 V-70" stroke="#8a6f4d" strokeWidth="3" />
-      <g strokeLinejoin="round">
-        <defs>
-          <clipPath id="canopy-clip">
-            <path d="M-14 -60 C-6 -79 50 -79 58 -60Z" />
-          </clipPath>
-        </defs>
-        <path d="M-14 -60 C-6 -79 50 -79 58 -60Z" fill="#faf7f0" stroke="none" />
-        <g clipPath="url(#canopy-clip)" stroke="none">
-          <rect x="-14" y="-80" width="14.4" height="20" fill="#c9b99a" />
-          <rect x="14.8" y="-80" width="14.4" height="20" fill="#c9b99a" />
-          <rect x="43.6" y="-80" width="14.4" height="20" fill="#c9b99a" />
-        </g>
-        <path d="M-14 -60 C-6 -79 50 -79 58 -60Z" fill="none" />
-        <circle cx="22" cy="-77" r="2.4" fill="#c9b99a" />
+    <g
+      transform={`translate(${px} ${py - 22})`}
+      stroke={INK}
+      strokeWidth="1.2"
+      strokeLinejoin="round"
+    >
+      <ellipse cx="4" cy="22" rx="40" ry="9" fill={INK} opacity="0.1" stroke="none" />
+      {/* wheels tucked under the body */}
+      <ellipse cx="24" cy="18" rx="5.5" ry="6" fill="#4a4740" />
+      <ellipse cx="24" cy="18" rx="2" ry="2.2" fill="#c9b99a" />
+      <ellipse cx="-16" cy="12" rx="5.5" ry="6" fill="#4a4740" />
+      <ellipse cx="-16" cy="12" rx="2" ry="2.2" fill="#c9b99a" />
+      {/* body: right + front faces, counter top */}
+      <polygon points={poly([T1, T2, P2, P1])} fill="#f0e9da" />
+      <polygon points={poly([T2, T3, P3, P2])} fill="#faf7f0" />
+      <polygon points={poly([T0, T1, T2, T3])} fill="#c9b99a" />
+      {/* jars on the right face (skewed to the face slope) */}
+      <g transform="translate(12 -6) skewY(-26.565)" stroke={INK} strokeWidth="1">
+        <rect x="0" y="0" width="6.5" height="8" rx="1" fill="#e8b4c8" />
+        <rect x="9.5" y="0" width="6.5" height="8" rx="1" fill="#9db98a" />
+        <rect x="19" y="0" width="6.5" height="8" rx="1" fill="#7fb4c9" />
       </g>
-      <rect x="-31" y="-56" width="52" height="14" rx="2" fill="#faf7f0" />
+      {/* sign mounted on the front-left face */}
+      <polygon
+        points={poly([[-27, -20], [4, -4.5], [4, 5.5], [-27, -10]])}
+        fill="#faf7f0"
+      />
       <text
-        x="-5"
-        y="-45.5"
+        x="-11.5"
+        y="-4.5"
         textAnchor="middle"
         fontFamily="'Press Start 2P', monospace"
-        fontSize="7"
+        fontSize="5.4"
         fill={INK}
         stroke="none"
-        letterSpacing="1"
+        letterSpacing="0.5"
+        transform="rotate(26.565 -11.5 -4.5)"
       >
         EREWHON
       </text>
+      {/* umbrella: pole from the counter, striped iso dome above */}
+      <path d="M4 -36 V-64" stroke="#8a6f4d" strokeWidth="2.8" />
+      <g strokeLinejoin="round">
+        <defs>
+          <clipPath id="cart-canopy">
+            <path d="M-34 -56 C-26 -78 34 -82 42 -62 C28 -66 12 -64 4 -63 C-8 -62 -24 -59 -34 -56Z" />
+          </clipPath>
+        </defs>
+        <path d="M-34 -56 C-26 -78 34 -82 42 -62 C28 -66 12 -64 4 -63 C-8 -62 -24 -59 -34 -56Z" fill="#faf7f0" stroke="none" />
+        <g clipPath="url(#cart-canopy)" stroke="none">
+          <rect x="-34" y="-84" width="19" height="30" fill="#c9b99a" />
+          <rect x="-4" y="-84" width="19" height="30" fill="#c9b99a" />
+          <rect x="26" y="-84" width="19" height="30" fill="#c9b99a" />
+        </g>
+        <path d="M-34 -56 C-26 -78 34 -82 42 -62 C28 -66 12 -64 4 -63 C-8 -62 -24 -59 -34 -56Z" fill="none" />
+        <circle cx="4" cy="-73" r="2.3" fill="#c9b99a" />
+      </g>
     </g>
   );
 }

@@ -1,7 +1,12 @@
 import { useCallback, useEffect, useReducer, useRef, useState } from 'react';
 import type { GameState } from './game/types';
 import { loadGame, newGame, saveGame, clearSave } from './game/save';
-import { generateDaily, fetchLiveShelfItem } from './game/dailyContent';
+import {
+  generateDaily,
+  fetchLiveShelfItem,
+  fetchLiveLAEvent,
+  fetchLiveLAWeather,
+} from './game/dailyContent';
 import { todayKey } from './game/rng';
 import { C } from './game/economy';
 import TitleScreen from './ui/TitleScreen';
@@ -30,7 +35,9 @@ export default function App() {
     const g = gsRef.current;
     const key = todayKey();
     if (!g.daily || g.daily.dateKey !== key || g.daily.gameDay !== g.day) {
-      g.daily = generateDaily(key, g.day);
+      const liveEvent = g.daily?.dateKey === key ? g.daily.liveEvent : undefined;
+      g.daily = generateDaily(key, g.day, g.seedNonce);
+      g.daily.liveEvent = liveEvent; // same real date keeps its real-LA headline
       commit();
     }
     // Try the real Erewhon new-arrivals feed (cached per date, silent fallback).
@@ -38,6 +45,24 @@ export default function App() {
       const cur = gsRef.current.daily;
       if (item && cur && cur.dateKey === key && cur.shelfItem.source !== 'live') {
         cur.shelfItem = item;
+        commit();
+      }
+    });
+    // And the real-LA news bot (cached per date, silent fallback to the deck).
+    fetchLiveLAEvent(key).then((event) => {
+      const cur = gsRef.current.daily;
+      if (event && cur && cur.dateKey === key && !cur.liveEvent) {
+        cur.liveEvent = event;
+        commit();
+      }
+    });
+    // Real LA weather: the first in-game day of a real date mirrors actual conditions.
+    fetchLiveLAWeather(key).then((weather) => {
+      const cur = gsRef.current.daily;
+      if (weather && cur && cur.dateKey === key && !cur.liveWeather) {
+        cur.weatherId = weather.weatherId;
+        cur.tempF = weather.tempF;
+        cur.liveWeather = true;
         commit();
       }
     });

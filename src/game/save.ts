@@ -3,11 +3,12 @@ import { LOCATIONS } from './content/locations';
 import { C } from './economy';
 
 const SAVE_KEY = 'erewhon-tycoon:save';
-const SAVE_VERSION = 4; // v4: mario-kart-style location stat profiles
+const SAVE_VERSION = 5; // v5: seed nonce + shelf economy
 
 export function newGame(): GameState {
   return {
     version: SAVE_VERSION,
+    seedNonce: Math.floor(Math.random() * 0xffffffff),
     cash: C.START_CASH,
     day: 1,
     stock: { strawberries: 0, coconutCream: 0, seaMoss: 0, ice: 0, cups: 0 },

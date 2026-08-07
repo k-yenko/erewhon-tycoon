@@ -69,6 +69,7 @@ export default function DayView({
 
       <div className="scene-counter">
         sold {sim.cupsSold} · line {sim.queue.length}
+        {sim.shelfSold > 0 ? ` · shelf ${sim.shelfSold}` : ''}
       </div>
     </div>
   );

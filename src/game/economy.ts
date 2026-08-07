@@ -15,8 +15,15 @@ export const C = {
   WTP_SD: 5,              // willingness-to-pay standard deviation ($)
   DROP_FAN_CHANCE: 0.15,  // fans who pay Today's Drop's own price (your slider governs the rest)
   PRICE_COMPLAINT_WEIGHT: 0.5, // window-shopper gripes count half in satisfaction
-  SHELF_ATTACH_CHANCE: 0.15, // buyers who add the shelf item
+  // — shelf item ("NEW AT EREWHON TODAY") demand model —
+  SHELF_BASE_ATTACH: { snack: 0.22, drink: 0.18, supplement: 0.12, pantry: 0.12, merch: 0.06 },
+  SHELF_AD_SENS: 0.8,     // how strongly ad spend lifts shelf demand...
+  SHELF_MERCH_AD_MULT: 2, // ...doubled for merch (the insta/tiktok effect)
+  SHELF_VIRAL_MULT: 3,    // viral-day demand spike
+  SHELF_VIRAL_TRAFFIC: 1.15, // people come to the cart just for the drop
   SHELF_COGS: 0.5,        // wholesale cost fraction of shelf revenue
+  SHELF_VIRAL_COGS: 0.65, // scarcity pricing on viral days
+  VIRAL_CHANCE: 0.18,     // per real date
   SPOILAGE_RATE: 0.1,     // nightly loss fraction for perishables
   SAT_CARRY: 0.6,         // satisfaction = carry×old + (1−carry)×today
   SAT_TRAFFIC_MIN: 0.6,   // repeat-customer traffic mult at satisfaction 0

@@ -39,6 +39,8 @@ export type EventScope =
   | { kind: 'global' }
   | { kind: 'location'; locationId: string };
 
+export type EventVibe = 'wellness' | 'money' | 'chaos' | 'hype';
+
 export interface EventDef {
   id: string;
   headline: string;
@@ -46,6 +48,7 @@ export interface EventDef {
   traffic?: number;      // multiplier (default 1)
   pay?: number;          // multiplier on willingness to pay (default 1)
   patience?: number;     // multiplier on queue patience (default 1)
+  vibe?: EventVibe;      // colors what sells from the shelf today
 }
 
 export interface LocationDef {
@@ -93,10 +96,22 @@ export interface ProductDrop {
   price: number;     // real price, used as premium sale price
 }
 
+export type ShelfCategory = 'merch' | 'supplement' | 'snack' | 'drink' | 'pantry';
+
 export interface ShelfItem {
   name: string;
   price: number;
   source: 'live' | 'pool'; // live = fetched from ship.erewhon.com
+  category: ShelfCategory;
+}
+
+// A real LA happening fetched from the news bot, mapped to game effects.
+export interface LiveEvent {
+  headline: string;
+  traffic: number;
+  pay: number;
+  patience: number;
+  vibe?: EventVibe;
 }
 
 // Today's conditions: weather/news reroll per in-game day; drop/shelf pin to real date
@@ -108,6 +123,10 @@ export interface DailyContent {
   eventId: string;
   dropId: string;       // today's featured celebrity smoothie
   shelfItem: ShelfItem; // "NEW AT EREWHON TODAY"
+  viralShelf: boolean;  // today the shelf item went viral
+  useLive: boolean;     // this in-game day prefers the real-LA headline if fetched
+  liveEvent?: LiveEvent;
+  liveWeather: boolean; // weather mirrors actual LA conditions right now
 }
 
 export interface LocationState {
@@ -117,6 +136,7 @@ export interface LocationState {
 
 export interface GameState {
   version: number;
+  seedNonce: number;    // per-save salt so weather/news differ between runs
   cash: number;
   day: number;          // 1-based, in-game day counter
   // calendar derived from day: Year/Month/Day
@@ -152,6 +172,9 @@ export interface DayResult {
   customersTotal: number;
   walkedAway: number;
   soldOut: boolean;
+  shelfSold: number;
+  shelfItemName: string;
+  shelfRevenue: number;
   tips: string[];
 }
 

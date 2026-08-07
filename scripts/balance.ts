@@ -44,7 +44,7 @@ const MOVE_PLAN: [number, string][] = [
 
 let violations = 0;
 for (let d = 1; d <= DAYS; d++) {
-  state.daily = generateDaily('2026-08-07', d);
+  state.daily = generateDaily('2026-08-07', d, state.seedNonce);
 
   // strategy
   for (const [minCash, loc] of MOVE_PLAN) if (state.cash >= minCash) state.locationId = loc;

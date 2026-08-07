@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import type { DayResult, GameState, SimState } from '../game/types';
 import {
+  activeEvent,
   createSim,
   createSimContext,
   overnight,
@@ -11,7 +12,6 @@ import {
 } from '../game/simulation';
 import { C, calendar, computeMods, fmtMoney } from '../game/economy';
 import { weatherFor } from '../game/dailyContent';
-import { EVENT_BY_ID } from '../game/content/events';
 import { LOCATION_BY_ID } from '../game/content/locations';
 import { DROP_BY_ID } from '../game/content/products';
 import TopBar from './TopBar';
@@ -71,7 +71,7 @@ export default function GameScreen({
   const viewLs = state.locations[viewLoc.id];
   const cal = calendar(state.day);
   const weather = daily ? weatherFor(daily) : null;
-  const event = daily ? EVENT_BY_ID[daily.eventId] : null;
+  const todayNews = daily ? activeEvent(daily, state.locationId) : null;
   const drop = daily ? DROP_BY_ID[daily.dropId] : null;
 
   const canStart =
@@ -256,14 +256,32 @@ export default function GameScreen({
                 <PixelIcon name={weather.icon} size={22} />
                 <span>
                   {daily!.tempF}°F — {weather.name}
+                  {daily!.liveWeather && (
+                    <span style={{ fontSize: 11, color: 'var(--kraft-dark)' }}>
+                      {' '}
+                      (real LA weather right now)
+                    </span>
+                  )}
                 </span>
               </div>
             )}
-            {event && <div className="news">{event.headline}</div>}
+            {todayNews && (
+              <div className="news">
+                {todayNews.isLive && (
+                  <span style={{ color: 'var(--alert)', fontWeight: 'bold' }}>REAL LA: </span>
+                )}
+                {todayNews.headline}
+              </div>
+            )}
             {daily && (
-              <div className="ticker">
-                NEW AT EREWHON TODAY: {daily.shelfItem.name} — ${daily.shelfItem.price}
+              <div
+                className="ticker"
+                style={daily.viralShelf ? { color: 'var(--alert)' } : undefined}
+              >
+                {daily.viralShelf ? 'VIRAL RIGHT NOW: ' : 'NEW AT EREWHON TODAY: '}
+                {daily.shelfItem.name} — ${daily.shelfItem.price}
                 {daily.shelfItem.source === 'live' ? ' (live from the shelf)' : ''}
+                {daily.viralShelf ? ' — everyone wants one' : ''}
               </div>
             )}
           </div>
