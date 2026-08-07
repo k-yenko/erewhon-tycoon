@@ -265,27 +265,28 @@ button {
 
 /* ——— Scene animation ——— */
 
+/* Two-pose stepped gait at ~6fps, like the original's 2-frame sprite walk cycles */
 .walkcycle .leg,
 .walkcycle .arm {
   transform-box: fill-box;
   transform-origin: center top;
 }
-.walkcycle .leg-a { animation: swing 0.55s ease-in-out infinite; }
-.walkcycle .leg-b { animation: swing 0.55s ease-in-out infinite reverse; }
-.walkcycle .arm-a { animation: swing-small 0.55s ease-in-out infinite reverse; }
-.walkcycle .arm-b { animation: swing-small 0.55s ease-in-out infinite; }
-.walkcycle .body-bob { animation: bob 0.55s ease-in-out infinite; }
-@keyframes swing {
-  0%, 100% { transform: rotate(20deg); }
-  50% { transform: rotate(-20deg); }
+.walkcycle .leg-a { animation: gait 0.34s steps(1, end) infinite; }
+.walkcycle .leg-b { animation: gait 0.34s steps(1, end) infinite; animation-delay: -0.17s; }
+.walkcycle .arm-a { animation: gait-arm 0.34s steps(1, end) infinite; animation-delay: -0.17s; }
+.walkcycle .arm-b { animation: gait-arm 0.34s steps(1, end) infinite; }
+.walkcycle .body-bob { animation: bob-step 0.17s steps(1, end) infinite; }
+@keyframes gait {
+  0%, 100% { transform: rotate(24deg); }
+  50% { transform: rotate(-24deg); }
 }
-@keyframes swing-small {
-  0%, 100% { transform: rotate(12deg); }
-  50% { transform: rotate(-12deg); }
+@keyframes gait-arm {
+  0%, 100% { transform: rotate(14deg); }
+  50% { transform: rotate(-14deg); }
 }
-@keyframes bob {
+@keyframes bob-step {
   0%, 100% { transform: translateY(0); }
-  25%, 75% { transform: translateY(-1.2px); }
+  50% { transform: translateY(-1.4px); }
 }
 .bubble-pop {
   transform-box: fill-box;
