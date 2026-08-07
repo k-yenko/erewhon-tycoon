@@ -24,7 +24,7 @@ export default function TabBar({
   onSelect,
   disabled,
 }: {
-  active: TabId;
+  active: TabId | null;
   onSelect: (t: TabId) => void;
   disabled: boolean;
 }) {

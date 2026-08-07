@@ -1,5 +1,6 @@
 import type { GameState } from '../../game/types';
 import { adBoost, fmtMoney } from '../../game/economy';
+import { costPerCup } from './RecipeTab';
 import { LOCATION_BY_ID } from '../../game/content/locations';
 import { WEATHER_BY_ID } from '../../game/content/weather';
 import { PixelIcon } from '../icons';
@@ -72,6 +73,10 @@ export default function MarketingTab({
           }}
         />
         <span className="val">{fmtMoney(state.adSpend)}</span>
+      </div>
+      <div className="info-row">
+        <span className="label">Margin per smoothie</span>
+        <span>${(state.price - costPerCup(state)).toFixed(2)}</span>
       </div>
       <div className="info-row">
         <span className="label">{adLabel(state.adSpend)}</span>

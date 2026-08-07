@@ -14,6 +14,16 @@ import { DROP_BY_ID } from './content/products';
 import { UNIT_VALUE } from './content/supplies';
 import { STAFF_BY_ID } from './content/staff';
 import { gaussian, mulberry32 } from './rng';
+import { pickReview, type ReviewVariant } from './content/reviews';
+
+// Intra-day traffic curve like the original's hourly customer counts:
+// quiet open, lunch-rush peak, afternoon taper. Averages ~1 over the day.
+export function trafficCurve(minute: number): number {
+  const t = minute / C.DAY_TICKS;
+  if (t < 0.25) return 0.6;
+  if (t < 0.65) return 1.45;
+  return 0.8;
+}
 
 export interface SimContext {
   state: GameState;
@@ -109,6 +119,7 @@ export function createSimContext(state: GameState): SimContext {
 export function createSim(): SimState {
   return {
     minute: 0,
+    reviews: [],
     customers: [],
     queue: [],
     cupsSold: 0,
@@ -126,6 +137,14 @@ export function createSim(): SimState {
     stockUsed: { strawberries: 0, coconutCream: 0, seaMoss: 0, ice: 0, cups: 0 },
     finished: false,
   };
+}
+
+function addReview(ctx: SimContext, sim: SimState, variant: ReviewVariant): void {
+  sim.reviews.push({
+    variant,
+    ...pickReview(variant, ctx.rand(), ctx.state.recipe, ctx.daily.tempF),
+  });
+  if (sim.reviews.length > 40) sim.reviews.shift();
 }
 
 function hasStockForBatch(ctx: SimContext, sim: SimState): boolean {
@@ -159,9 +178,10 @@ export function stepSim(ctx: SimContext, sim: SimState): SimState {
   const { rand } = ctx;
   const taste = tasteQuality(ctx.state.recipe, ctx.daily.tempF);
 
-  // — Spawns (Poisson-ish) —
-  let spawns = Math.floor(ctx.spawnPerTick);
-  if (rand() < ctx.spawnPerTick - spawns) spawns += 1;
+  // — Spawns (Poisson-ish, shaped by the time-of-day curve) —
+  const rate = ctx.spawnPerTick * trafficCurve(sim.minute);
+  let spawns = Math.floor(rate);
+  if (rand() < rate - spawns) spawns += 1;
   for (let i = 0; i < spawns; i++) {
     const wtp = gaussian(rand, ctx.wealthMean, C.WTP_SD);
     const wantsDrop = rand() < C.DROP_FAN_CHANCE;
@@ -186,6 +206,7 @@ export function stepSim(ctx: SimContext, sim: SimState): SimState {
       cust.bubbleTtl = 4;
       cust.state = 'leaving';
       sim.complaints.price += 1;
+      addReview(ctx, sim, 'price');
     }
     sim.customers.push(cust);
     if (willBuy && !sim.soldOut) {
@@ -211,6 +232,7 @@ export function stepSim(ctx: SimContext, sim: SimState): SimState {
           c.bubbleTtl = 4;
           sim.complaints.wait += 1;
           sim.walkedAway += 1;
+          addReview(ctx, sim, 'wait');
         } else {
           c.state = 'queued';
           sim.queue.push(c.id);
@@ -243,6 +265,7 @@ export function stepSim(ctx: SimContext, sim: SimState): SimState {
       c.bubbleTtl = 4;
       sim.complaints.wait += 1;
       sim.walkedAway += 1;
+      addReview(ctx, sim, 'wait');
     }
   }
 
@@ -301,9 +324,11 @@ export function stepSim(ctx: SimContext, sim: SimState): SimState {
       if (ctx.rand() < taste) {
         sim.happy += 1;
         c.bubble = ctx.rand() < 0.25 ? 'content' : 'happy';
+        if (ctx.rand() < 0.3) addReview(ctx, sim, 'happy');
       } else {
         sim.complaints.taste += 1;
         c.bubble = 'taste';
+        addReview(ctx, sim, 'taste');
       }
       c.bubbleTtl = 4;
       sim[key] = ctx.mods.serveTicks;
@@ -400,6 +425,8 @@ export function settleDay(state: GameState, sim: SimState): DayResult {
     shelfSold: sim.shelfSold,
     shelfItemName: state.daily!.shelfItem.name,
     shelfRevenue: sim.shelfSold * state.daily!.shelfItem.price,
+    bestReview: sim.reviews.find((r) => r.stars >= 3),
+    worstReview: sim.reviews.find((r) => r.stars <= 1),
     tips,
   };
   state.results.push(result);

@@ -1,7 +1,19 @@
 import type { GameState } from '../../game/types';
 import { idealIce } from '../../game/content/weather';
+import { UNIT_VALUE } from '../../game/content/supplies';
 import { tasteQuality, C } from '../../game/economy';
 import { PixelIcon, type IconName } from '../icons';
+
+// Cost per smoothie from the recipe (like the reference repo's costPerCup).
+export function costPerCup(state: GameState): number {
+  const r = state.recipe;
+  const batch =
+    r.strawberries * UNIT_VALUE.strawberries +
+    r.coconutCream * UNIT_VALUE.coconutCream +
+    r.seaMoss * UNIT_VALUE.seaMoss +
+    r.ice * UNIT_VALUE.ice;
+  return batch / C.CUPS_PER_BATCH + UNIT_VALUE.cups;
+}
 
 const SLIDERS: { id: 'strawberries' | 'coconutCream' | 'seaMoss' | 'ice'; label: string; icon: IconName; max: number }[] = [
   { id: 'strawberries', label: 'strawberries', icon: 'strawberry', max: 10 },
@@ -43,6 +55,10 @@ export default function RecipeTab({
           <span className="val">{state.recipe[s.id]}</span>
         </div>
       ))}
+      <div className="info-row">
+        <span className="label">Cost per smoothie</span>
+        <span>${costPerCup(state).toFixed(2)}</span>
+      </div>
       <div className="info-row">
         <span className="label">Projected taste</span>
         <span>

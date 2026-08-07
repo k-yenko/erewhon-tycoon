@@ -20,45 +20,62 @@ const S = { stroke: INK, strokeWidth: 1.4, strokeLinejoin: 'round', strokeLineca
 const ICONS: Record<string, ReactNode> = {
   strawberry: (
     <g>
-      <path d="M12 4 C10 2.5 8.5 2.5 7.5 3.5 C9 4.5 10.5 5 12 5 C13.5 5 15 4.5 16.5 3.5 C15.5 2.5 14 2.5 12 4Z" fill={GREEN} {...S} />
-      <path d="M12 5 C17 5 19.5 8 19.5 11.5 C19.5 16.5 15.5 21 12 21 C8.5 21 4.5 16.5 4.5 11.5 C4.5 8 7 5 12 5Z" fill={RED} {...S} />
-      <circle cx="9.2" cy="10" r="0.9" fill={YELLOW} />
-      <circle cx="14.8" cy="10" r="0.9" fill={YELLOW} />
-      <circle cx="12" cy="13.5" r="0.9" fill={YELLOW} />
-      <circle cx="9.5" cy="16" r="0.9" fill={YELLOW} />
-      <circle cx="14.5" cy="16" r="0.9" fill={YELLOW} />
+      {/* back berry */}
+      <path d="M17 8 C20 8 21.5 10 21.5 12 C21.5 15 19.5 17.5 17.5 17.5 C16.5 17.5 15.8 17 15.3 16.2 C17 14.5 17.8 11.5 17 8Z" fill="#a83428" {...S} />
+      {/* front berry */}
+      <path d="M10 5 C8.5 3.8 7.2 3.8 6.2 4.6 C7.4 5.5 8.7 6 10 6 C11.3 6 12.6 5.5 13.8 4.6 C12.8 3.8 11.5 3.8 10 5Z" fill={GREEN} {...S} />
+      <path d="M10 6 C14.5 6 16.8 8.7 16.8 11.8 C16.8 16.3 13.2 20.5 10 20.5 C6.8 20.5 3.2 16.3 3.2 11.8 C3.2 8.7 5.5 6 10 6Z" fill={RED} {...S} />
+      <path d="M6 9 C6.8 7.8 8 7 9.4 6.9" stroke="#fff" strokeWidth="1.5" fill="none" strokeLinecap="round" opacity="0.75" />
+      <circle cx="8" cy="11" r="0.8" fill={YELLOW} />
+      <circle cx="12.5" cy="11.5" r="0.8" fill={YELLOW} />
+      <circle cx="10" cy="14.5" r="0.8" fill={YELLOW} />
+      <circle cx="8" cy="17" r="0.8" fill={YELLOW} />
+      <circle cx="12.4" cy="16.6" r="0.8" fill={YELLOW} />
     </g>
   ),
   coconut: (
     <g>
-      <circle cx="12" cy="12" r="9" fill={BROWN} {...S} />
-      <circle cx="12" cy="12" r="6.2" fill="#fff" {...S} />
-      <circle cx="12" cy="12" r="3.2" fill={CREAM} {...S} />
+      <ellipse cx="12" cy="20" rx="8" ry="1.6" fill={INK} opacity="0.12" />
+      <circle cx="12" cy="11.5" r="9" fill={BROWN} {...S} />
+      <path d="M5.5 8 C6.7 5.6 9 4 11.5 3.8" stroke="#a98a63" strokeWidth="1.8" fill="none" strokeLinecap="round" />
+      <circle cx="12" cy="11.5" r="6.2" fill="#fff" {...S} />
+      <circle cx="12" cy="11.5" r="3.2" fill={CREAM} {...S} />
+      <path d="M8.2 8.8 C9 7.8 10 7.2 11.2 7" stroke="#e6e0d2" strokeWidth="1.4" fill="none" strokeLinecap="round" />
     </g>
   ),
   seamoss: (
     <g>
       <rect x="8" y="2.5" width="8" height="3" rx="1" fill={KRAFT} {...S} />
+      <rect x="8.8" y="3.1" width="2.4" height="0.9" rx="0.4" fill="#fff" opacity="0.6" />
       <path d="M6.5 6 H17.5 C18.5 6 19 6.8 19 7.8 V19 C19 20.5 18 21.5 16.5 21.5 H7.5 C6 21.5 5 20.5 5 19 V7.8 C5 6.8 5.5 6 6.5 6Z" fill={PINK} {...S} />
-      <circle cx="9.5" cy="11" r="1.1" fill="#fff" opacity="0.8" />
+      {/* glass gloss */}
+      <path d="M7 8.5 C7 12 7 16 7.4 19" stroke="#fff" strokeWidth="1.6" fill="none" strokeLinecap="round" opacity="0.8" />
+      <path d="M16.8 8 C17 9.5 17.1 11 17 12.5" stroke="#a83a5e" strokeWidth="1.3" fill="none" strokeLinecap="round" opacity="0.5" />
+      <circle cx="10.5" cy="11.5" r="1.1" fill="#fff" opacity="0.8" />
       <circle cx="14" cy="15" r="1.4" fill="#fff" opacity="0.6" />
       <circle cx="10.5" cy="17.5" r="0.9" fill="#fff" opacity="0.8" />
     </g>
   ),
   ice: (
     <g>
-      <path d="M5 8 L12 4.5 L19 8 V16 L12 19.5 L5 16Z" fill={BLUE} {...S} />
-      <path d="M5 8 L12 11 L19 8" fill="none" {...S} />
-      <path d="M12 11 V19.5" fill="none" {...S} />
-      <path d="M7 6.8 L9.5 5.6" stroke="#fff" strokeWidth="1.4" strokeLinecap="round" opacity="0.9" />
+      {/* back cube */}
+      <path d="M11 6.5 L16 4 L21 6.5 V11.5 L16 14 L11 11.5Z" fill="#a5cfe6" {...S} />
+      <path d="M11 6.5 L16 8.7 L21 6.5 M16 8.7 V14" fill="none" {...S} strokeWidth={1} />
+      {/* front cube */}
+      <path d="M3 11 L9 8 L15 11 V17 L9 20 L3 17Z" fill={BLUE} {...S} />
+      <path d="M3 11 L9 13.6 L15 11 M9 13.6 V20" fill="none" {...S} strokeWidth={1} />
+      <path d="M4.6 10.4 L7.5 9" stroke="#fff" strokeWidth="1.5" strokeLinecap="round" opacity="0.9" />
     </g>
   ),
   cup: (
     <g>
-      <path d="M13.5 2 L15.5 5" fill="none" {...S} strokeWidth={1.8} />
-      <path d="M6.5 6.5 H17.5 L16.2 21 H7.8Z" fill={PINK} {...S} />
-      <path d="M6.2 9.5 H17.8" fill="none" {...S} />
-      <ellipse cx="10.5" cy="13.5" rx="1" ry="1.3" fill="#fff" opacity="0.7" />
+      {/* stacked cups behind, one forward — like the original's stack */}
+      <path d="M10 3 H20 L19.4 6 H10.6Z" fill="#fff" {...S} strokeWidth={1.1} />
+      <path d="M10.4 6 H19.6 L19 9 H11Z" fill="#f0ede4" {...S} strokeWidth={1.1} />
+      <path d="M10.8 9 H19.2 L18.6 12 H11.4Z" fill="#fff" {...S} strokeWidth={1.1} />
+      <path d="M3.5 9.5 H13.5 L12.3 21 H4.7Z" fill={PINK} {...S} />
+      <path d="M3.3 12.3 H13.7" fill="none" {...S} strokeWidth={1.1} />
+      <ellipse cx="7" cy="15.5" rx="0.9" ry="1.2" fill="#fff" opacity="0.75" />
     </g>
   ),
   ledger: (
@@ -290,6 +307,23 @@ export function IconGlyph({
   return (
     <svg x={x} y={y} width={size} height={size} viewBox="0 0 24 24">
       {ICONS[name]}
+    </svg>
+  );
+}
+
+// Icon inside a white speech bubble with a tail — the original's counter style.
+export function BubbleIcon({ name, size = 22 }: { name: IconName; size?: number }) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      style={{ display: 'inline-block', verticalAlign: 'middle' }}
+      aria-label={name}
+    >
+      <path d="M5 20 L4 23.2 L9 20Z" fill="#fff" stroke={INK} strokeWidth="1.2" strokeLinejoin="round" />
+      <rect x="1" y="1" width="22" height="19.5" rx="5" fill="#fff" stroke={INK} strokeWidth="1.4" />
+      <g transform="translate(3.5 2.2) scale(0.7)">{ICONS[name]}</g>
     </svg>
   );
 }

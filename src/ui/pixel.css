@@ -28,10 +28,18 @@ body {
 body {
   font-family: 'Silkscreen', monospace;
   color: var(--ink);
-  background: var(--cream-dark);
+  /* diagonal stripes like the original */
+  background: repeating-linear-gradient(
+    -45deg,
+    var(--cream-dark) 0px,
+    var(--cream-dark) 18px,
+    #ece7da 18px,
+    #ece7da 36px
+  );
   font-size: 14px;
   line-height: 1.35;
 }
+html, body, #root { height: 100%; }
 
 h1, h2, h3, .pixel-title {
   font-family: 'Press Start 2P', monospace;
@@ -50,7 +58,7 @@ button {
   background: var(--cream);
   border: 3px solid var(--ink);
   box-shadow: 4px 4px 0 rgba(26, 26, 24, 0.25);
-  padding: 12px;
+  padding: 10px;
 }
 
 .panel-title {
@@ -183,29 +191,72 @@ button {
 /* ——— Layout ——— */
 
 .game-root {
-  max-width: 1100px;
+  max-width: 1240px;
+  height: 100vh;
+  overflow: hidden;
   margin: 0 auto;
-  padding: 14px;
+  padding: 10px 14px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
 }
 
 .game-columns {
+  flex: 1;
+  min-height: 0;
   display: grid;
-  grid-template-columns: minmax(340px, 5fr) 7fr;
-  gap: 12px;
-  align-items: start;
-}
-@media (max-width: 860px) {
-  .game-columns { grid-template-columns: 1fr; }
+  grid-template-columns: minmax(330px, 5fr) 7fr;
+  gap: 10px;
+  align-items: stretch;
 }
 
 .left-col, .right-col {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
+  min-height: 0;
 }
+
+/* the single swappable panel area (original behavior); scrolls inside, never the page */
+.panel-area {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.right-col .scene {
+  flex: 1;
+  min-height: 200px;
+  height: auto;
+}
+
+.review-line {
+  font-size: 11px;
+  color: var(--ink-soft);
+  padding: 4px 0;
+  border-bottom: 2px solid var(--cream-deep);
+}
+
+.day-header .header-grid {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 14px;
+  align-items: start;
+}
+.day-header .cw-label {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 9px;
+  margin-top: 6px;
+  color: var(--ink);
+}
+.day-header .cw-temp {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 14px;
+}
+.day-header .news { text-align: right; padding-top: 2px; }
 
 /* ——— Info rows ——— */
 
@@ -301,6 +352,31 @@ button {
 @keyframes rain-drift {
   0% { transform: translate(0, 0); }
   100% { transform: translate(-9px, 24px); }
+}
+.cloud-drift { animation: cloud-drift 46s linear infinite; }
+@keyframes cloud-drift {
+  0% { transform: translateX(-80px); }
+  100% { transform: translateX(900px); }
+}
+.fog-drift { animation: fog-drift 14s ease-in-out infinite alternate; }
+@keyframes fog-drift {
+  0% { transform: translateX(-40px); }
+  100% { transform: translateX(50px); }
+}
+.dust-drift { animation: dust-drift 1.6s linear infinite; }
+@keyframes dust-drift {
+  0% { transform: translateX(0); opacity: 0.55; }
+  100% { transform: translateX(120px); opacity: 0.2; }
+}
+.heat-pulse { animation: heat-pulse 5s ease-in-out infinite; }
+@keyframes heat-pulse {
+  0%, 100% { opacity: 0.06; }
+  50% { opacity: 0.12; }
+}
+.storm-flash { animation: storm-flash 7s linear infinite; }
+@keyframes storm-flash {
+  0%, 91%, 95%, 100% { opacity: 0; }
+  92%, 94% { opacity: 0.35; }
 }
 
 /* ——— Header strip (date / weather / news) ——— */

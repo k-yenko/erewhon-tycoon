@@ -175,6 +175,8 @@ export interface DayResult {
   shelfSold: number;
   shelfItemName: string;
   shelfRevenue: number;
+  bestReview?: SimReview;
+  worstReview?: SimReview;
   tips: string[];
 }
 
@@ -192,8 +194,15 @@ export interface SimCustomer {
   wantsDrop: boolean;   // pays the drop's price instead of yours
 }
 
+export interface SimReview {
+  variant: 'happy' | 'taste' | 'price' | 'wait';
+  text: string;
+  stars: number; // 0..3
+}
+
 export interface SimState {
   minute: number;       // 0..60
+  reviews: SimReview[];
   customers: SimCustomer[];
   queue: number[];      // customer ids
   cupsSold: number;

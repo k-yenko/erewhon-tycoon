@@ -1,7 +1,7 @@
 import type { DayResult } from '../game/types';
 import { LOCATION_BY_ID } from '../game/content/locations';
 import { fmtMoney } from '../game/economy';
-import { PixelIcon } from './icons';
+import { BubbleIcon } from './icons';
 
 export default function ResultsModal({
   result,
@@ -63,22 +63,32 @@ export default function ResultsModal({
         </div>
         <div className="bubble-counters">
           <span>
-            <PixelIcon name="smile" size={18} /> {result.happy}
+            <BubbleIcon name="smile" size={22} /> {result.happy}
             <em className="b-label">happy</em>
           </span>
           <span>
-            <PixelIcon name="frown" size={18} /> {result.complaints.taste}
+            <BubbleIcon name="frown" size={22} /> {result.complaints.taste}
             <em className="b-label">bad taste</em>
           </span>
           <span>
-            <PixelIcon name="tag" size={18} /> {result.complaints.price}
+            <BubbleIcon name="tag" size={22} /> {result.complaints.price}
             <em className="b-label">too pricey</em>
           </span>
           <span>
-            <PixelIcon name="hourglass" size={18} /> {result.complaints.wait}
+            <BubbleIcon name="hourglass" size={22} /> {result.complaints.wait}
             <em className="b-label">slow line</em>
           </span>
         </div>
+        {result.bestReview && (
+          <div className="tagline" style={{ fontSize: 12, marginTop: 6 }}>
+            ★★★ "{result.bestReview.text}"
+          </div>
+        )}
+        {result.worstReview && (
+          <div className="tagline" style={{ fontSize: 12, color: 'var(--ink-soft)' }}>
+            ☆ "{result.worstReview.text}"
+          </div>
+        )}
         {result.tips.map((t, i) => (
           <div key={i} className="tagline" style={{ fontSize: 12, color: 'var(--ink-soft)', marginTop: 4 }}>
             » {t}

@@ -11,6 +11,7 @@ import {
   type SimContext,
 } from '../game/simulation';
 import { C, calendar, computeMods, fmtMoney } from '../game/economy';
+import { sfx, unlock } from '../game/audio';
 import { weatherFor } from '../game/dailyContent';
 import { LOCATION_BY_ID } from '../game/content/locations';
 import { DROP_BY_ID } from '../game/content/products';
@@ -21,7 +22,7 @@ import IsoScene, { Cart } from './scene/IsoScene';
 import { LAYOUTS } from './scene/layouts';
 import ResultsModal from './ResultsModal';
 import Meter from './Meter';
-import { PixelIcon } from './icons';
+import { BubbleIcon, PixelIcon } from './icons';
 import ResultsTab from './panels/ResultsTab';
 import RentTab from './panels/RentTab';
 import UpgradesTab from './panels/UpgradesTab';
@@ -45,10 +46,11 @@ export default function GameScreen({
   onGameOver: () => void;
   onWin: () => void;
 }) {
-  const [tab, setTabRaw] = useState<TabId>('rent');
+  // null = the default Performance/Today's Setting view; a tab replaces it (like the original)
+  const [tab, setTabRaw] = useState<TabId | null>(null);
   const [previewLocId, setPreviewLocId] = useState<string | null>(null);
   const setTab = (t: TabId) => {
-    setTabRaw(t);
+    setTabRaw((cur) => (cur === t ? null : t)); // click again to close
     if (t !== 'rent') setPreviewLocId(null); // viewport follows the browser only on the rent tab
   };
   const [mode, setMode] = useState<'manage' | 'day'>('manage');
@@ -88,6 +90,7 @@ export default function GameScreen({
     overnight(state); // fills stock-lost on r, advances the calendar
     commit();
     setResult(r);
+    sfx('results');
   };
 
   const startDay = () => {
@@ -101,6 +104,9 @@ export default function GameScreen({
     simRef.current = createSim();
     setSpeed(1);
     setMode('day');
+    unlock();
+    sfx('dayStart');
+    if (daily?.viralShelf) sfx('viral');
   };
 
   // Live sim loop
@@ -143,6 +149,7 @@ export default function GameScreen({
         state={state}
         simMinute={inDay && sim ? sim.minute : null}
         liveRevenue={inDay && sim && !settledRef.current ? sim.revenue : 0}
+        batchCups={inDay && sim ? sim.batchCupsLeft : null}
       />
 
       <div className="game-columns">
@@ -150,8 +157,9 @@ export default function GameScreen({
         <div className="left-col">
           <TabBar active={tab} onSelect={setTab} disabled={inDay} />
 
-          {!inDay && (
-            <div>
+          {/* one panel area: an open tab replaces the default view, like the original */}
+          {!inDay && tab !== null ? (
+            <div className="panel-area">
               {tab === 'results' && <ResultsTab state={state} />}
               {tab === 'rent' && (
                 <RentTab
@@ -167,8 +175,8 @@ export default function GameScreen({
               {tab === 'recipe' && <RecipeTab state={state} commit={commit} />}
               {tab === 'supplies' && <SuppliesTab state={state} commit={commit} />}
             </div>
-          )}
-
+          ) : (
+          <div className="panel-area">
           <div className="panel">
             <h2 className="panel-title">Performance</h2>
             <div className="info-row">
@@ -179,21 +187,29 @@ export default function GameScreen({
               <span className="label">Revenue today</span>
               <span>{fmtMoney(sim ? sim.revenue : 0)}</span>
             </div>
+            {sim && sim.reviews.length > 0 && (
+              <div className="review-line">
+                "{sim.reviews[sim.reviews.length - 1].text}"{' '}
+                <span style={{ color: 'var(--kraft-dark)' }}>
+                  {'★'.repeat(sim.reviews[sim.reviews.length - 1].stars) || '☆'}
+                </span>
+              </div>
+            )}
             <div className="bubble-counters">
               <span>
-                <PixelIcon name="smile" size={18} /> {sim ? sim.happy : 0}
+                <BubbleIcon name="smile" size={22} /> {sim ? sim.happy : 0}
                 <em className="b-label">happy</em>
               </span>
               <span>
-                <PixelIcon name="frown" size={18} /> {sim ? sim.complaints.taste : 0}
+                <BubbleIcon name="frown" size={22} /> {sim ? sim.complaints.taste : 0}
                 <em className="b-label">bad taste</em>
               </span>
               <span>
-                <PixelIcon name="tag" size={18} /> {sim ? sim.complaints.price : 0}
+                <BubbleIcon name="tag" size={22} /> {sim ? sim.complaints.price : 0}
                 <em className="b-label">too pricey</em>
               </span>
               <span>
-                <PixelIcon name="hourglass" size={18} /> {sim ? sim.complaints.wait : 0}
+                <BubbleIcon name="hourglass" size={22} /> {sim ? sim.complaints.wait : 0}
                 <em className="b-label">slow line</em>
               </span>
             </div>
@@ -237,6 +253,8 @@ export default function GameScreen({
               )}
             </div>
           )}
+          </div>
+          )}
 
           {warning && (
             <div className="panel" style={{ borderColor: 'var(--alert)' }}>
@@ -248,31 +266,37 @@ export default function GameScreen({
         {/* ——— Right column ——— */}
         <div className="right-col">
           <div className="panel day-header">
-            <div className="date-line">
-              Year {cal.year} - Month {cal.month} - Day {cal.dayOfMonth}
-            </div>
-            {weather && (
-              <div className="weather-line">
-                <PixelIcon name={weather.icon} size={22} />
-                <span>
-                  {daily!.tempF}°F — {weather.name}
-                  {daily!.liveWeather && (
-                    <span style={{ fontSize: 11, color: 'var(--kraft-dark)' }}>
-                      {' '}
-                      (real LA weather right now)
+            <div className="header-grid">
+              <div>
+                <div className="date-line">
+                  Year {cal.year} - Month {cal.month} - Day {cal.dayOfMonth}
+                </div>
+                <div className="cw-label">Current Weather</div>
+                {weather && (
+                  <div className="weather-line">
+                    <PixelIcon name={weather.icon} size={26} />
+                    <span className="cw-temp">{daily!.tempF}°F</span>
+                    <span style={{ fontSize: 12 }}>
+                      {weather.name}
+                      {daily!.liveWeather && (
+                        <span style={{ fontSize: 10, color: 'var(--kraft-dark)' }}>
+                          {' '}
+                          (real LA rn)
+                        </span>
+                      )}
                     </span>
-                  )}
-                </span>
-              </div>
-            )}
-            {todayNews && (
-              <div className="news">
-                {todayNews.isLive && (
-                  <span style={{ color: 'var(--alert)', fontWeight: 'bold' }}>REAL LA: </span>
+                  </div>
                 )}
-                {todayNews.headline}
               </div>
-            )}
+              {todayNews && (
+                <div className="news">
+                  {todayNews.isLive && (
+                    <span style={{ color: 'var(--alert)', fontWeight: 'bold' }}>REAL LA: </span>
+                  )}
+                  {todayNews.headline}
+                </div>
+              )}
+            </div>
             {daily && (
               <div
                 className="ticker"

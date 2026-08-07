@@ -1,4 +1,6 @@
+import { useEffect, useRef } from 'react';
 import type { SimState, GameState } from '../game/types';
+import { sfx } from '../game/audio';
 import { LOCATION_BY_ID } from '../game/content/locations';
 import IsoScene, { Cart, iso } from './scene/IsoScene';
 import { LAYOUTS, walkPoint, queueSpot, EXIT_X } from './scene/layouts';
@@ -32,6 +34,27 @@ export default function DayView({
 }) {
   const loc = LOCATION_BY_ID[state.locationId];
   const layout = LAYOUTS[state.locationId] ?? LAYOUTS.silverlake;
+
+  // Fire a sound per event type per tick by diffing the sim's counters.
+  const prev = useRef({ sold: 0, happy: 0, taste: 0, price: 0, wait: 0, blending: 0 });
+  useEffect(() => {
+    const p = prev.current;
+    if (sim.cupsSold > p.sold) sfx('sale');
+    if (sim.happy > p.happy) sfx('happy');
+    if (sim.complaints.taste > p.taste) sfx('taste');
+    if (sim.complaints.price > p.price) sfx('price');
+    if (sim.complaints.wait > p.wait) sfx('wait');
+    if (sim.blendTicksLeft > p.blending) sfx('blend');
+    prev.current = {
+      sold: sim.cupsSold,
+      happy: sim.happy,
+      taste: sim.complaints.taste,
+      price: sim.complaints.price,
+      wait: sim.complaints.wait,
+      blending: sim.blendTicksLeft,
+    };
+  });
+
   return (
     <div className="scene">
       <IsoScene loc={loc} weatherId={state.daily?.weatherId}>
