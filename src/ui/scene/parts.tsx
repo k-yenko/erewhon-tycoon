@@ -135,12 +135,24 @@ export function Umbrella({ x, y, c1, c2 }: { x: number; y: number; c1: string; c
 // Parked SUV (LA default vehicle), oriented along the x axis.
 export function SUV({ x, y, color }: { x: number; y: number; color: string }) {
   const [px, py] = iso(x, y);
+  const dark = '#1a1a18';
   return (
-    <g transform={`translate(${px} ${py})`} stroke={INK} strokeWidth="1.1" strokeLinejoin="round">
-      <path d="M-26 -6 L-24 -16 C-23 -19 -20 -20 -16 -20 L12 -20 C18 -20 22 -18 25 -13 L27 -6 C27 -3 25 -2 22 -2 H-23 C-25 -2 -26 -4 -26 -6Z" fill={color} />
-      <path d="M-17 -18 L-15 -12 H8 L5 -18Z" fill="#bfe0f2" />
-      <circle cx="-15" cy="-3" r="4.5" fill="#3a3733" />
-      <circle cx="16" cy="-3" r="4.5" fill="#3a3733" />
+    <g transform={`translate(${px} ${py})`} shapeRendering="crispEdges">
+      {/* blocky pixel build, like the sprites */}
+      <rect x="-27" y="-14" width="54" height="11" fill={color} />
+      <rect x="-17" y="-23" width="34" height="9" fill={color} />
+      <rect x="-14" y="-21.5" width="12" height="6.5" fill="#bfe0f2" />
+      <rect x="1" y="-21.5" width="11" height="6.5" fill="#bfe0f2" />
+      <rect x="14.5" y="-21.5" width="2.5" height="6.5" fill="#bfe0f2" />
+      <rect x="-27" y="-14" width="54" height="1.6" fill={dark} opacity="0.25" />
+      <rect x="-28.4" y="-6" width="3" height="3.6" fill={dark} />
+      <rect x="25.4" y="-6" width="3" height="3.6" fill={dark} />
+      <rect x="-27" y="-12" width="2.4" height="2.6" fill="#f2c53d" />
+      <rect x="24.6" y="-12" width="2.4" height="2.6" fill="#d94436" />
+      <rect x="-20" y="-5" width="9" height="9" fill={dark} />
+      <rect x="-17.4" y="-2.4" width="3.8" height="3.8" fill="#c9b99a" />
+      <rect x="11" y="-5" width="9" height="9" fill={dark} />
+      <rect x="13.6" y="-2.4" width="3.8" height="3.8" fill="#c9b99a" />
     </g>
   );
 }
