@@ -1,4 +1,4 @@
-import type { GameState, Recipe } from './types';
+import type { GameState, LocationDef, Recipe } from './types';
 import { UPGRADE_BY_ID, DEFAULT_STORAGE } from './content/upgrades';
 import { STAFF_BY_ID } from './content/staff';
 import { idealIce } from './content/weather';
@@ -25,6 +25,8 @@ export const C = {
   SHELF_COGS: 0.5,        // wholesale cost fraction of shelf revenue
   SHELF_VIRAL_COGS: 0.65, // scarcity pricing on viral days
   VIRAL_CHANCE: 0.18,     // per real date
+  RIVAL_TRAFFIC: 0.75,    // Moon Juus parked here: they take a cut of the crowd
+  RIVAL_PAY: 0.85,        // ...and having an alternative makes people price-picky
   SPOILAGE_RATE: 0.1,     // nightly loss fraction for perishables
   SAT_CARRY: 0.6,         // satisfaction = carry×old + (1−carry)×today
   SAT_TRAFFIC_MIN: 0.6,   // repeat-customer traffic mult at satisfaction 0
@@ -96,17 +98,35 @@ export function adBoost(spend: number): number {
   return 1 + C.AD_MAX_BOOST * (1 - Math.exp(-spend / C.AD_HALFSCALE));
 }
 
-// 0..1 — how good the recipe tastes today (ideal ice tracks temperature).
-export function tasteQuality(recipe: Recipe, tempF: number): number {
+// 0..1 — how good the recipe tastes today. Ideal ice tracks temperature, and
+// each neighborhood shifts the targets (recipe is product-market fit).
+export function tasteQuality(recipe: Recipe, tempF: number, loc?: LocationDef): number {
+  const b = loc?.tasteBias ?? {};
+  const iceTarget = idealIce(tempF) + (b.ice ?? 0);
+  const strawFloor = 4 + (b.strawberries ?? 0);
+  const cocoCeil = 4 + (b.coconutCream ?? 0);
+  const mossCeil = 4 + (b.seaMoss ?? 0);
   let penalty = 0;
-  penalty += Math.abs(recipe.ice - idealIce(tempF)) * 0.15;
-  if (recipe.strawberries < 4) penalty += (4 - recipe.strawberries) * 0.15; // watery
+  penalty += Math.abs(recipe.ice - iceTarget) * 0.15;
+  if (recipe.strawberries < strawFloor) penalty += (strawFloor - recipe.strawberries) * 0.15;
   if (recipe.strawberries > 8) penalty += (recipe.strawberries - 8) * 0.05;
   if (recipe.coconutCream === 0) penalty += 0.3; // no body
-  if (recipe.coconutCream > 4) penalty += (recipe.coconutCream - 4) * 0.1;
-  if (recipe.seaMoss === 0) penalty += 0.1;  // no glow
-  if (recipe.seaMoss >= 4) penalty += 0.2;   // slimy
+  if (recipe.coconutCream > cocoCeil) penalty += (recipe.coconutCream - cocoCeil) * 0.1;
+  if (recipe.seaMoss === 0) penalty += (b.seaMoss ?? 0) > 0 ? 0.25 : 0.1; // wellness crowds notice
+  if (recipe.seaMoss >= mossCeil) penalty += 0.2; // slimy
   return Math.max(0, Math.min(1, 1 - penalty));
+}
+
+// How many smoothies current stock can produce (the supplies-planning number).
+export function stockCoverage(state: GameState, freeIce: boolean): number {
+  const r = state.recipe;
+  const parts: number[] = [];
+  if (r.strawberries > 0) parts.push(Math.floor(state.stock.strawberries / r.strawberries));
+  if (r.coconutCream > 0) parts.push(Math.floor(state.stock.coconutCream / r.coconutCream));
+  if (r.seaMoss > 0) parts.push(Math.floor(state.stock.seaMoss / r.seaMoss));
+  if (!freeIce && r.ice > 0) parts.push(Math.floor(state.stock.ice / r.ice));
+  const batches = parts.length > 0 ? Math.min(...parts) : 0;
+  return Math.min(batches * C.CUPS_PER_BATCH, state.stock.cups);
 }
 
 // In-game calendar: Year 1 – Month 1 – Day 1, 30-day months, 12-month years.

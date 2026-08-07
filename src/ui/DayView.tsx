@@ -75,6 +75,14 @@ export default function DayView({
               el: <Cart x={layout.cart[0]} y={layout.cart[1]} />,
             },
           ];
+          if (state.daily?.rivalLocationId === state.locationId) {
+            const rivalPos = iso(layout.cart[0] + 2.4, layout.cart[1]);
+            items.push({
+              key: 'rival',
+              depth: rivalPos[1],
+              el: <Cart x={layout.cart[0] + 2.4} y={layout.cart[1]} rival />,
+            });
+          }
 
           // queue: a loose two-abreast cluster by the cart
           sim.queue.forEach((id, qi) => {

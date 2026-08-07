@@ -94,16 +94,18 @@ export function shelfAttachChance(state: GameState): number {
   return Math.min(0.85, p);
 }
 
-export function createSimContext(state: GameState): SimContext {
+// Expected customer count for today at the current location — the same math
+// the simulator uses, shared with the player-facing forecast.
+export function expectedTraffic(state: GameState): number {
   const daily = state.daily!;
   const mods = computeMods(state);
   const loc = LOCATION_BY_ID[state.locationId];
   const weather = weatherFor(daily);
   const ev = activeEvent(daily, state.locationId);
-
   const { popularity: pop, satisfaction: sat } = state.locations[state.locationId];
-  const repeatMult = C.SAT_TRAFFIC_MIN + C.SAT_TRAFFIC_SPAN * sat; // loyal regulars
-  const expectedCustomers =
+  const repeatMult = C.SAT_TRAFFIC_MIN + C.SAT_TRAFFIC_SPAN * sat;
+  const rival = daily.rivalLocationId === state.locationId ? C.RIVAL_TRAFFIC : 1;
+  return (
     loc.baseTraffic *
     weather.traffic *
     ev.traffic *
@@ -111,7 +113,28 @@ export function createSimContext(state: GameState): SimContext {
     repeatMult *
     adBoost(state.adSpend) *
     mods.drawMult *
-    (daily.viralShelf ? C.SHELF_VIRAL_TRAFFIC : 1);
+    (daily.viralShelf ? C.SHELF_VIRAL_TRAFFIC : 1) *
+    rival
+  );
+}
+
+// Morning forecast: honest expectation, blurred so it's a forecast, not an oracle.
+export function forecastRange(state: GameState): [number, number] {
+  const rand = mulberry32(((state.day * 40503) ^ state.seedNonce ^ 0xf0ca) >>> 0);
+  const center = expectedTraffic(state) * (0.9 + rand() * 0.2);
+  return [Math.max(0, Math.round(center * 0.8)), Math.round(center * 1.2)];
+}
+
+export function createSimContext(state: GameState): SimContext {
+  const daily = state.daily!;
+  const mods = computeMods(state);
+  const loc = LOCATION_BY_ID[state.locationId];
+  const weather = weatherFor(daily);
+  const ev = activeEvent(daily, state.locationId);
+
+  const sat = state.locations[state.locationId].satisfaction;
+  const rivalHere = daily.rivalLocationId === state.locationId;
+  const expectedCustomers = expectedTraffic(state);
 
   return {
     state,
@@ -120,7 +143,7 @@ export function createSimContext(state: GameState): SimContext {
     // seeded per game-day so Skip and live play agree
     rand: mulberry32(((state.day * 2654435761) ^ 0x9e3779b9 ^ state.seedNonce) >>> 0),
     spawnPerTick: expectedCustomers / C.DAY_TICKS,
-    wealthMean: loc.wealth * weather.payTolerance * ev.pay,
+    wealthMean: loc.wealth * weather.payTolerance * ev.pay * (rivalHere ? C.RIVAL_PAY : 1),
     patienceMult:
       ev.patience * mods.patienceMult * (C.SAT_PATIENCE_MIN + C.SAT_PATIENCE_SPAN * sat),
     dropPrice: DROP_BY_ID[daily.dropId]?.price ?? state.price,
@@ -189,7 +212,7 @@ function cupsAvailable(ctx: SimContext, sim: SimState): boolean {
 export function stepSim(ctx: SimContext, sim: SimState): SimState {
   if (sim.finished) return sim;
   const { rand } = ctx;
-  const taste = tasteQuality(ctx.state.recipe, ctx.daily.tempF);
+  const taste = tasteQuality(ctx.state.recipe, ctx.daily.tempF, LOCATION_BY_ID[ctx.state.locationId]);
 
   // — Spawns (Poisson-ish, shaped by the time-of-day curve) —
   const rate = ctx.spawnPerTick * trafficCurve(sim.minute);
@@ -374,6 +397,7 @@ export function skipToEnd(ctx: SimContext, sim: SimState): SimState {
 
 // Applies the finished day to the game state and returns the results-screen data.
 export function settleDay(state: GameState, sim: SimState): DayResult {
+  const [forecastLo, forecastHi] = forecastRange(state);
   const loc = LOCATION_BY_ID[state.locationId];
   const wages = state.staff.reduce((s, id) => s + (STAFF_BY_ID[id]?.wage ?? 0), 0);
   const shelfCogs = state.daily!.viralShelf ? C.SHELF_VIRAL_COGS : C.SHELF_COGS;
@@ -449,6 +473,8 @@ export function settleDay(state: GameState, sim: SimState): DayResult {
     walkedAway: sim.walkedAway,
     satisfactionPct:
       interactions > 0 ? Math.round((positives / interactions) * 100) : 100,
+    forecastLo,
+    forecastHi,
     soldOut: sim.soldOut,
     shelfSold: sim.shelfSold,
     shelfItemName: state.daily!.shelfItem.name,

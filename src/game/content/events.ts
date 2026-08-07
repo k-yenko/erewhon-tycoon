@@ -132,6 +132,11 @@ export const EVENTS: EventDef[] = [
   { id: 'tarot-says-no', headline: 'Prominent Tarot Reader Advises Against "Big Purchases"', scope: { kind: 'global' }, vibe: 'chaos', pay: 0.8 },
   { id: 'goop-adjacent', headline: 'New Goop-Adjacent Newsletter Endorses Sea Moss, Again', scope: { kind: 'global' }, vibe: 'wellness', traffic: 1.25 },
   { id: 'jury-duty', headline: 'Half The Westside Got Jury Duty The Same Week', scope: { kind: 'global' }, vibe: 'chaos', traffic: 0.75, audience: 'locals' },
+  // ——— Supply shocks: the input market has moods too ———
+  { id: 'strawberry-futures', headline: 'Unseasonal Snow In Japan: Strawberry Futures Soar', scope: { kind: 'global' }, vibe: 'chaos', shock: { ingredient: 'strawberries', mult: 1.7 } },
+  { id: 'coconut-freighter', headline: 'Coconut Freighter Stuck Outside The Port Of LA', scope: { kind: 'global' }, vibe: 'chaos', shock: { ingredient: 'coconutCream', mult: 1.6 } },
+  { id: 'seamoss-glut', headline: 'Sea Moss Harvest Glut: Wholesalers Practically Giving It Away', scope: { kind: 'global' }, vibe: 'wellness', shock: { ingredient: 'seaMoss', mult: 0.55 } },
+
   { id: 'grove-tourists', headline: 'Tour Bus Season Peaks: Cameras Out, Wallets Open', scope: { kind: 'location', locationId: 'beverlygrove' }, vibe: 'hype', traffic: 1.4, pay: 1.1 },
   { id: 'abbot-kinney-fest', headline: 'Abbot Kinney Festival: The Whole Street Is A Runway', scope: { kind: 'location', locationId: 'venice' }, vibe: 'hype', traffic: 1.6 },
   { id: 'calabasas-car-show', headline: 'Cars & Coffee In Calabasas: Engines Loud, Wallets Louder', scope: { kind: 'location', locationId: 'calabasas' }, vibe: 'money', traffic: 1.4, pay: 1.15 },

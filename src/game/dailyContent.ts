@@ -1,9 +1,12 @@
-import type { DailyContent, LiveEvent, ShelfCategory, ShelfItem } from './types';
+import type { DailyContent, LiveEvent, ShelfCategory, ShelfItem, StockId } from './types';
 import { mulberry32, seedFromDateKey, pickWeighted, pick } from './rng';
 import { WEATHERS, WEATHER_WEIGHTS, WEATHER_BY_ID } from './content/weather';
 import { EVENTS } from './content/events';
 import { DROPS, SHELF_POOL } from './content/products';
+import { LOCATIONS } from './content/locations';
 import { C } from './economy';
+
+const STOCK_IDS: StockId[] = ['strawberries', 'coconutCream', 'seaMoss', 'ice', 'cups'];
 
 const NEW_ARRIVALS_URL =
   'https://ship.erewhon.com/collections/erewhon-new-arrivals-products/products.json?limit=50';
@@ -30,6 +33,19 @@ export function generateDaily(dateKey: string, gameDay: number, seedNonce: numbe
   const shelfItem = pick(dateRand, SHELF_POOL);
   const viralShelf = dateRand() < C.VIRAL_CHANCE;
 
+  // Ingredient market: slow seeded waves + noise, spiked by supply-shock events.
+  const marketPrices = {} as Record<StockId, number>;
+  STOCK_IDS.forEach((id, i) => {
+    const phase = (i * 2.39937) % (Math.PI * 2);
+    const wave = 1 + 0.22 * Math.sin(gameDay / 4 + phase) + (dayRand() - 0.5) * 0.16;
+    marketPrices[id] = Math.min(1.5, Math.max(0.7, Math.round(wave * 100) / 100));
+  });
+  if (event.shock) marketPrices[event.shock.ingredient] = event.shock.mult;
+
+  // The Moon Juus truck parks somewhere busy most days.
+  const rivalLocationId =
+    dayRand() < 0.2 ? '' : pickWeighted(dayRand, LOCATIONS, (l) => l.baseTraffic).id;
+
   return {
     dateKey,
     gameDay,
@@ -41,6 +57,8 @@ export function generateDaily(dateKey: string, gameDay: number, seedNonce: numbe
     viralShelf,
     useLive: dayRand() < 0.55, // most days lean on the real-LA headline when we have one
     liveWeather: false,
+    marketPrices,
+    rivalLocationId,
   };
 }
 

@@ -30,6 +30,8 @@ function makeDaily(weatherId: string, tempF: number): DailyContent {
     viralShelf: false,
     useLive: false,
     liveWeather: false,
+    marketPrices: { strawberries: 1, coconutCream: 1, seaMoss: 1, ice: 1, cups: 1 },
+    rivalLocationId: '',
   };
 }
 

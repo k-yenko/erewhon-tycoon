@@ -29,6 +29,7 @@ export const LOCATIONS: LocationDef[] = [
     baseSatisfaction: 0.5,
     touristy: 0.15,
     industry: 0.25,
+    tasteBias: { seaMoss: 1 },
     sceneColors: { sky: '#cfe3ea', ground: '#74b054', accent: '#43a047' },
   },
   {
@@ -43,6 +44,7 @@ export const LOCATIONS: LocationDef[] = [
     baseSatisfaction: 0.4,
     touristy: 0.1,
     industry: 0.8,
+    tasteBias: { ice: -1 },
     sceneColors: { sky: '#d5e6ee', ground: '#a4adb5', accent: '#3f6fd9' },
   },
   {
@@ -57,6 +59,7 @@ export const LOCATIONS: LocationDef[] = [
     baseSatisfaction: 0.6,
     touristy: 0.1,
     industry: 0.85,
+    tasteBias: { ice: -1 },
     sceneColors: { sky: '#e8e0cf', ground: '#c8a96e', accent: '#c78f3f' },
   },
   {
@@ -71,6 +74,7 @@ export const LOCATIONS: LocationDef[] = [
     baseSatisfaction: 0.3,
     touristy: 0.8,
     industry: 0.1,
+    tasteBias: { ice: 1 },
     sceneColors: { sky: '#bfe0ec', ground: '#e8cf8e', accent: '#2f9ea8' },
   },
   {
@@ -85,6 +89,7 @@ export const LOCATIONS: LocationDef[] = [
     baseSatisfaction: 0.3,
     touristy: 0.85,
     industry: 0.1,
+    tasteBias: { ice: 1 },
     sceneColors: { sky: '#bfe0ec', ground: '#e3ca88', accent: '#2f86c7' },
   },
   {
@@ -99,6 +104,7 @@ export const LOCATIONS: LocationDef[] = [
     baseSatisfaction: 0.8,
     touristy: 0.05,
     industry: 0.3,
+    tasteBias: { coconutCream: 1 },
     sceneColors: { sky: '#e9ddc8', ground: '#84b660', accent: '#cf9c3f' },
   },
   {
@@ -141,6 +147,7 @@ export const LOCATIONS: LocationDef[] = [
     baseSatisfaction: 0.9,
     touristy: 0.1,
     industry: 0.2,
+    tasteBias: { seaMoss: 1 },
     sceneColors: { sky: '#c8e2ee', ground: '#79b45c', accent: '#3f9e63' },
   },
 ];

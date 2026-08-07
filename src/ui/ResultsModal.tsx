@@ -79,6 +79,11 @@ export default function ResultsModal({
             <em className="b-label">slow line</em>
           </span>
         </div>
+        <div className="tagline" style={{ fontSize: 12, marginTop: 6 }}>
+          Forecast said {result.forecastLo}–{result.forecastHi}; {result.customersTotal} showed
+          up. You missed {result.walkedAway} sale(s) — ≈{fmtMoney(result.walkedAway * 18)} left
+          on the table.
+        </div>
         {result.bestReview && (
           <div className="tagline" style={{ fontSize: 12, marginTop: 6 }}>
             ★★★ "{result.bestReview.text}"

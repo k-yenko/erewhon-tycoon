@@ -265,8 +265,12 @@ export function CrossRoads() {
 
 // The Erewhon cart, drawn as a real isometric object: iso-box body with
 // sign and jars flat on the visible faces, umbrella overhead, grounded wheels.
-export function Cart({ x, y }: { x: number; y: number }) {
+export function Cart({ x, y, rival = false }: { x: number; y: number; rival?: boolean }) {
   const [px, py] = iso(x, y);
+  const body = rival ? '#d8ecec' : '#faf7f0';
+  const face = rival ? '#c4e0e0' : '#f0e9da';
+  const stripe = rival ? '#4a9ea8' : '#c9b99a';
+  const sign = rival ? 'MOON JUUS' : 'EREWHON';
   // footprint corners (local): back, right, front(bottom), left — height 34
   const P0: [number, number] = [0, -10];
   const P1: [number, number] = [38, 9];
@@ -289,9 +293,9 @@ export function Cart({ x, y }: { x: number; y: number }) {
       <ellipse cx="-16" cy="12" rx="5.5" ry="6" fill="#4a4740" />
       <ellipse cx="-16" cy="12" rx="2" ry="2.2" fill="#c9b99a" />
       {/* body: right + front faces, counter top */}
-      <polygon points={poly([T1, T2, P2, P1])} fill="#f0e9da" />
-      <polygon points={poly([T2, T3, P3, P2])} fill="#faf7f0" />
-      <polygon points={poly([T0, T1, T2, T3])} fill="#c9b99a" />
+      <polygon points={poly([T1, T2, P2, P1])} fill={face} />
+      <polygon points={poly([T2, T3, P3, P2])} fill={body} />
+      <polygon points={poly([T0, T1, T2, T3])} fill={stripe} />
       {/* jars on the right face (skewed to the face slope) */}
       <g transform="translate(12 -6) skewY(-26.565)" stroke={INK} strokeWidth="1">
         <rect x="0" y="0" width="6.5" height="8" rx="1" fill="#e05a7a" />
@@ -301,7 +305,7 @@ export function Cart({ x, y }: { x: number; y: number }) {
       {/* sign mounted on the front-left face */}
       <polygon
         points={poly([[-27, -20], [4, -4.5], [4, 5.5], [-27, -10]])}
-        fill="#faf7f0"
+        fill={body}
       />
       <text
         x="-11.5"
@@ -314,21 +318,21 @@ export function Cart({ x, y }: { x: number; y: number }) {
         letterSpacing="0.5"
         transform="rotate(26.565 -11.5 -4.5)"
       >
-        EREWHON
+        {sign}
       </text>
       {/* umbrella: pole from the counter, striped iso dome above */}
       <path d="M4 -36 V-64" stroke="#8a6f4d" strokeWidth="2.8" />
       <g strokeLinejoin="round">
         <defs>
-          <clipPath id="cart-canopy">
+          <clipPath id={rival ? 'rival-canopy' : 'cart-canopy'}>
             <path d="M-34 -56 C-26 -78 34 -82 42 -62 C28 -66 12 -64 4 -63 C-8 -62 -24 -59 -34 -56Z" />
           </clipPath>
         </defs>
-        <path d="M-34 -56 C-26 -78 34 -82 42 -62 C28 -66 12 -64 4 -63 C-8 -62 -24 -59 -34 -56Z" fill="#faf7f0" stroke="none" />
-        <g clipPath="url(#cart-canopy)" stroke="none">
-          <rect x="-34" y="-84" width="19" height="30" fill="#c9b99a" />
-          <rect x="-4" y="-84" width="19" height="30" fill="#c9b99a" />
-          <rect x="26" y="-84" width="19" height="30" fill="#c9b99a" />
+        <path d="M-34 -56 C-26 -78 34 -82 42 -62 C28 -66 12 -64 4 -63 C-8 -62 -24 -59 -34 -56Z" fill={body} stroke="none" />
+        <g clipPath={rival ? 'url(#rival-canopy)' : 'url(#cart-canopy)'} stroke="none">
+          <rect x="-34" y="-84" width="19" height="30" fill={stripe} />
+          <rect x="-4" y="-84" width="19" height="30" fill={stripe} />
+          <rect x="26" y="-84" width="19" height="30" fill={stripe} />
         </g>
         <path d="M-34 -56 C-26 -78 34 -82 42 -62 C28 -66 12 -64 4 -63 C-8 -62 -24 -59 -34 -56Z" fill="none" />
         <circle cx="4" cy="-73" r="2.3" fill="#c9b99a" />

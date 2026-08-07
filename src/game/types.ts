@@ -54,6 +54,7 @@ export interface EventDef {
   patience?: number;     // multiplier on queue patience (default 1)
   vibe?: EventVibe;      // colors what sells from the shelf today
   audience?: EventAudience;
+  shock?: { ingredient: StockId; mult: number }; // supply-price shock
 }
 
 export interface LocationDef {
@@ -67,6 +68,7 @@ export interface LocationDef {
   baseSatisfaction: number; // starting/resting satisfaction at this spot
   touristy: number;         // 0..1 — share of the crowd that's tourists
   industry: number;         // 0..1 — share tied to entertainment/tech money
+  tasteBias?: Partial<Recipe>; // what this neighborhood wants more (or less) of
   sceneColors: { sky: string; ground: string; accent: string };
 }
 
@@ -134,6 +136,8 @@ export interface DailyContent {
   useLive: boolean;     // this in-game day prefers the real-LA headline if fetched
   liveEvent?: LiveEvent;
   liveWeather: boolean; // weather mirrors actual LA conditions right now
+  marketPrices: Record<StockId, number>; // today's ingredient price multipliers
+  rivalLocationId: string; // where the Moon Juus truck parked ('' = day off)
 }
 
 export interface LocationState {
@@ -179,6 +183,8 @@ export interface DayResult {
   customersTotal: number;
   walkedAway: number;
   satisfactionPct: number; // that day's customer satisfaction, 0..100
+  forecastLo: number;      // what the morning forecast promised
+  forecastHi: number;
   soldOut: boolean;
   shelfSold: number;
   shelfItemName: string;

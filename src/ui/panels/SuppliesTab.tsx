@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import type { GameState, StockId } from '../../game/types';
 import { SUPPLIES } from '../../game/content/supplies';
-import { computeMods, fmtMoney } from '../../game/economy';
+import { computeMods, fmtMoney, stockCoverage } from '../../game/economy';
 import { sfx, unlock } from '../../game/audio';
 import { PixelIcon } from '../icons';
 import Stepper from '../Stepper';
@@ -16,6 +16,7 @@ export default function SuppliesTab({
 }) {
   const mods = computeMods(state);
   const supplies = SUPPLIES.filter((s) => !(s.id === 'ice' && mods.freeIce));
+  const px = (id: StockId) => state.daily?.marketPrices?.[id] ?? 1; // today's market
   const [activeId, setActiveId] = useState<StockId>(supplies[0].id);
   const [order, setOrder] = useState<Record<string, number>>({});
 
@@ -28,7 +29,8 @@ export default function SuppliesTab({
       0,
     );
   const totalCost = SUPPLIES.reduce(
-    (sum, s) => sum + s.tiers.reduce((c, t, i) => c + t.cost * (order[`${s.id}_${i}`] ?? 0), 0),
+    (sum, s) =>
+      sum + s.tiers.reduce((c, t, i) => c + t.cost * px(s.id) * (order[`${s.id}_${i}`] ?? 0), 0),
     0,
   );
   const overCap = supplies.some(
@@ -79,12 +81,20 @@ export default function SuppliesTab({
             have {state.stock[active.id]} / cap {cap}
           </span>
         </div>
-        <div className="tagline" style={{ fontSize: 11, color: 'var(--ink-soft)', margin: '4px 0 8px' }}>
+        <div className="tagline" style={{ fontSize: 11, color: 'var(--ink-soft)', margin: '4px 0 2px' }}>
           {active.meltsNightly
             ? 'Melts overnight. Every night.'
             : active.spoils
               ? 'Spoils a little each night.'
               : 'Keeps forever.'}
+        </div>
+        <div style={{ fontSize: 11, margin: '0 0 8px' }}>
+          Market today:{' '}
+          <b>
+            {px(active.id) > 1.05 ? '▲' : px(active.id) < 0.95 ? '▼' : '•'}{' '}
+            {Math.round((px(active.id) - 1) * 100)}%
+          </b>{' '}
+          vs. usual{px(active.id) < 0.9 ? ' — a good day to stock up' : px(active.id) > 1.3 ? ' — maybe wait it out' : ''}
         </div>
         {active.tiers.map((t, i) => {
           const key = `${active.id}_${i}`;
@@ -95,7 +105,9 @@ export default function SuppliesTab({
             >
               <div style={{ flex: 1, fontSize: 13 }}>
                 {t.qty} units
-                <div style={{ fontSize: 11, color: 'var(--ink-soft)' }}>{fmtMoney(t.cost)}</div>
+                <div style={{ fontSize: 11, color: 'var(--ink-soft)' }}>
+                  {fmtMoney(t.cost * px(active.id))}
+                </div>
               </div>
               <Stepper
                 value={order[key] ?? 0}
@@ -109,6 +121,10 @@ export default function SuppliesTab({
         })}
       </div>
       <div className="info-row" style={{ marginTop: 8 }}>
+        <span className="label">Current stock covers</span>
+        <span>~{stockCoverage(state, mods.freeIce)} smoothies</span>
+      </div>
+      <div className="info-row">
         <span className="label">Order total</span>
         <span>{fmtMoney(totalCost)}</span>
       </div>

@@ -1,5 +1,6 @@
 import type { GameState } from '../../game/types';
 import { idealIce } from '../../game/content/weather';
+import { LOCATION_BY_ID } from '../../game/content/locations';
 import { UNIT_VALUE } from '../../game/content/supplies';
 import { tasteQuality, C } from '../../game/economy';
 import { PixelIcon, type IconName } from '../icons';
@@ -31,7 +32,19 @@ export default function RecipeTab({
   commit: () => void;
 }) {
   const tempF = state.daily?.tempF ?? 75;
-  const quality = tasteQuality(state.recipe, tempF);
+  const loc = LOCATION_BY_ID[state.locationId];
+  const quality = tasteQuality(state.recipe, tempF, loc);
+  const b = loc.tasteBias ?? {};
+  const localNote =
+    (b.ice ?? 0) > 0
+      ? ' Out here they like it icier.'
+      : (b.ice ?? 0) < 0
+        ? ' Desk drinkers — go easy on the ice.'
+        : (b.seaMoss ?? 0) > 0
+          ? ' This is a sea moss neighborhood.'
+          : (b.coconutCream ?? 0) > 0
+            ? ' They like it rich here — more coconut cream.'
+            : '';
   const ideal = idealIce(tempF);
   return (
     <div className="panel">
@@ -75,7 +88,7 @@ export default function RecipeTab({
         </span>
       </div>
       <div className="tagline" style={{ fontSize: 11, color: 'var(--ink-soft)', marginTop: 6 }}>
-        It's {tempF}°F today — around {ideal} ice is right. One or two sea moss is plenty.
+        It's {tempF}°F today — around {ideal + (b.ice ?? 0)} ice is right here.{localNote}
       </div>
     </div>
   );

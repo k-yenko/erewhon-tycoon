@@ -58,6 +58,12 @@ export default function RentTab({
             <span className="label">Rent</span>
             <span>{loc.rent === 0 ? 'FREE' : `${fmtMoney(loc.rent)} / day`}</span>
           </div>
+          {state.daily?.rivalLocationId === loc.id && (
+            <div style={{ fontSize: 11, color: 'var(--alert)', marginTop: 4 }}>
+              ⚠ The Moon Juus truck is parked here today — expect a thinner,
+              pickier crowd.
+            </div>
+          )}
         </div>
         <button className="pixel-btn" onClick={() => setIdx((idx + 1) % LOCATIONS.length)}>
           ▶

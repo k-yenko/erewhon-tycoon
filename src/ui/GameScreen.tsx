@@ -11,6 +11,7 @@ import {
   type SimContext,
 } from '../game/simulation';
 import { C, calendar, computeMods, fmtMoney } from '../game/economy';
+import { forecastRange } from '../game/simulation';
 import { sfx, unlock } from '../game/audio';
 import { weatherFor } from '../game/dailyContent';
 import { LOCATION_BY_ID } from '../game/content/locations';
@@ -222,6 +223,15 @@ export default function GameScreen({
                 <span className="label">Location</span>
                 <span>{loc.name.split(' (')[0]}</span>
               </div>
+              {daily && (
+                <div className="info-row">
+                  <span className="label">Forecast</span>
+                  <span>
+                    ~{forecastRange(state)[0]}–{forecastRange(state)[1]} customers
+                    {daily.rivalLocationId === state.locationId ? ' (rival here)' : ''}
+                  </span>
+                </div>
+              )}
               <div className="info-row">
                 <span className="label">Rent</span>
                 <span>{loc.rent === 0 ? 'FREE' : fmtMoney(loc.rent)}</span>
@@ -319,6 +329,13 @@ export default function GameScreen({
                   x={(LAYOUTS[viewLoc.id] ?? LAYOUTS.silverlake).cart[0]}
                   y={(LAYOUTS[viewLoc.id] ?? LAYOUTS.silverlake).cart[1]}
                 />
+                {daily?.rivalLocationId === viewLoc.id && (
+                  <Cart
+                    x={(LAYOUTS[viewLoc.id] ?? LAYOUTS.silverlake).cart[0] + 2.4}
+                    y={(LAYOUTS[viewLoc.id] ?? LAYOUTS.silverlake).cart[1]}
+                    rival
+                  />
+                )}
               </IsoScene>
             </div>
           )}
