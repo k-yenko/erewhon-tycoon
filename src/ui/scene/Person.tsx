@@ -28,8 +28,6 @@ const OUTFITS: Outfit[] = [
   { skin: '#d69a6e', hair: '#33241a', top: '#e05a7a', bottom: '#4a4740' },
 ];
 
-const PS = { stroke: INK, strokeWidth: 0.9, strokeLinejoin: 'round', strokeLinecap: 'round' } as const;
-
 export default function Person({
   variant,
   walking,
