@@ -27,7 +27,7 @@ export default function IsoScene({
   return (
     <svg
       viewBox={`0 0 ${VIEW_W} ${VIEW_H}`}
-      preserveAspectRatio="xMidYMid meet"
+      preserveAspectRatio="xMidYMid slice"
       style={{ display: 'block', width: '100%', height: '100%', background: loc.sceneColors.ground }}
     >
       <defs>
