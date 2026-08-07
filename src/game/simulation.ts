@@ -139,8 +139,8 @@ export function createSim(): SimState {
     revenue: 0,
     batchCupsLeft: 0,
     blendTicksLeft: 0,
-    serveTicksLeft: 0,
-    serveTicksLeft2: 0,
+    serveProgress: 1,
+    serveProgress2: 1,
     complaints: { taste: 0, price: 0, wait: 0 },
     happy: 0,
     customersTotal: 0,
@@ -293,11 +293,16 @@ export function stepSim(ctx: SimContext, sim: SimState): SimState {
     if (sim.blendTicksLeft === 0) consumeBatch(ctx, sim);
   }
 
-  // — Serving (one or two server slots) —
+  // — Serving (one or two servers; fractional speed via progress accumulators
+  //   so the late-game chain of serve upgrades can go past one-per-tick) —
   const servers = ctx.mods.secondServer ? 2 : 1;
+  const progKeys = ['serveProgress', 'serveProgress2'] as const;
   for (let s = 0; s < servers; s++) {
-    const key = s === 0 ? 'serveTicksLeft' : 'serveTicksLeft2';
-    if (sim.queue.length === 0) continue;
+    const key = progKeys[s];
+    if (sim.queue.length === 0) {
+      sim[key] = Math.min(sim[key], 1); // no banking speed while idle
+      continue;
+    }
 
     if (sim.batchCupsLeft === 0 && sim.blendTicksLeft === 0) {
       if (hasStockForBatch(ctx, sim)) {
@@ -321,10 +326,14 @@ export function stepSim(ctx: SimContext, sim: SimState): SimState {
     }
     if (sim.batchCupsLeft === 0) continue; // blending in progress
 
-    if (sim[key] > 0) {
+    sim[key] += 1 / ctx.mods.serveTicks;
+    while (
+      sim[key] >= 1 &&
+      sim.queue.length > 0 &&
+      sim.batchCupsLeft > 0 &&
+      cupsAvailable(ctx, sim)
+    ) {
       sim[key] -= 1;
-    }
-    if (sim[key] === 0) {
       const id = sim.queue.shift()!;
       const c = sim.customers.find((k) => k.id === id);
       if (!c) continue;
@@ -349,7 +358,6 @@ export function stepSim(ctx: SimContext, sim: SimState): SimState {
         addReview(ctx, sim, 'taste');
       }
       c.bubbleTtl = 4;
-      sim[key] = ctx.mods.serveTicks;
     }
   }
 

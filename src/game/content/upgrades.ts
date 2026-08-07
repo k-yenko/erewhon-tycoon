@@ -36,6 +36,14 @@ export const UPGRADES: UpgradeDef[] = [
     effect: { kind: 'serveSpeed', ticks: 1 },
   },
   {
+    id: 'prepour',
+    name: 'Pre-Pour Cold Case',
+    price: 4999.99,
+    tagline: 'Pre-poured and waiting. Service at the speed of entitlement.',
+    icon: 'fridge',
+    effect: { kind: 'serveSpeed', ticks: 1 },
+  },
+  {
     id: 'subzero',
     name: 'Sub-Zero Fridge',
     price: 899.99,

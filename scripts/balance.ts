@@ -33,7 +33,7 @@ function buyTo(state: GameState, id: StockId, target: number, cap: number) {
   }
 }
 
-const UPGRADE_PRIORITY = ['vitamix', 'tipscreen', 'subzero', 'blendtec', 'stand1', 'icedispenser', 'shadesail', 'stand2', 'ledhalo', 'soundbath', 'stand3', 'icemaker'];
+const UPGRADE_PRIORITY = ['vitamix', 'tipscreen', 'subzero', 'blendtec', 'stand1', 'prepour', 'icedispenser', 'shadesail', 'stand2', 'ledhalo', 'soundbath', 'stand3', 'icemaker'];
 const MOVE_PLAN: [number, string][] = [
   [0, 'driveway'],
   [800, 'silverlake'],

@@ -35,10 +35,13 @@ export default function TopBar({
         </div>
       ))}
       {batchCups !== null && (
-        <div className="stock-item" title="Smoothies ready in the blender">
+        <div
+          className="stock-item"
+          title="Smoothies ready in the current batch — a new batch auto-blends when it runs out"
+        >
           <PixelIcon name="blender" size={18} />
           <span>{batchCups}</span>
-          <span className="stock-label">ready</span>
+          <span className="stock-label">in blender</span>
         </div>
       )}
       <div className="spacer" />

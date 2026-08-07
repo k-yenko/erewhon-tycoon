@@ -3,7 +3,7 @@ import type { SimState, GameState } from '../game/types';
 import { sfx } from '../game/audio';
 import { LOCATION_BY_ID } from '../game/content/locations';
 import IsoScene, { Cart, iso } from './scene/IsoScene';
-import { LAYOUTS, walkPoint, queueSpot, EXIT_X } from './scene/layouts';
+import { LAYOUTS, walkPoint, queueSpot, pointAlongPolyline, EXIT_X } from './scene/layouts';
 import Person from './scene/Person';
 
 // Stable per-person quirks so the crowd doesn't march in a file:
@@ -13,9 +13,10 @@ function quirks(id: number) {
   const h = (Math.imul(id, 2654435761) >>> 0);
   return {
     drift: ((h & 0xff) / 255 - 0.5) * 0.55,          // buyers stay near the path
-    wander: (((h >> 4) & 0xff) / 255 - 0.5) * 2.2,   // browsers roam the whole scene
+    wander: (((h >> 4) & 0xff) / 255 - 0.5) * 0.7,   // browsers drift off their route
     sway: (((h >> 8) & 0xff) / 255 - 0.5) * 0.2,     // loose queue stance
     reversed: ((h >> 16) & 3) !== 0 ? false : true,   // some stroll right-to-left
+    route: (h >> 20) & 7,                             // which wander route they take
   };
 }
 
@@ -93,15 +94,26 @@ export default function DayView({
             });
           });
 
-          // walkers and leavers wander near the path, not on a rail
+          // walkers: buyers head down the main path; browsers spread across
+          // every route in the scene so it reads like a busy square
+          const routes = [layout.path, ...(layout.ambient ?? [])];
           for (const c of sim.customers) {
             if (c.state === 'queued') continue;
             const q = quirks(c.id);
             const strolling = !c.willBuy && q.reversed;
             const progress = strolling ? Math.max(0, EXIT_X - c.x) : c.x;
-            const [gx, gy] = walkPoint(layout, progress);
-            const offset = c.willBuy ? q.drift : q.wander;
-            const [px, py] = iso(gx + offset * 0.3, gy + offset);
+            let gx: number, gy: number;
+            if (c.willBuy) {
+              [gx, gy] = walkPoint(layout, progress);
+              gx += q.drift * 0.3;
+              gy += q.drift;
+            } else {
+              const route = routes[q.route % routes.length];
+              [gx, gy] = pointAlongPolyline(route, progress / EXIT_X);
+              gx += q.wander * 0.3;
+              gy += q.wander;
+            }
+            const [px, py] = iso(gx, gy);
             items.push({
               key: `p${c.id}`,
               depth: py,

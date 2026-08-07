@@ -217,8 +217,8 @@ export interface SimState {
   revenue: number;
   batchCupsLeft: number;
   blendTicksLeft: number;
-  serveTicksLeft: number;
-  serveTicksLeft2: number; // second server
+  serveProgress: number;  // fractional serve accumulator per server
+  serveProgress2: number; // second server
   complaints: { taste: number; price: number; wait: number };
   happy: number;
   customersTotal: number;

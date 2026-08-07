@@ -69,7 +69,7 @@ export function computeMods(state: GameState): Mods {
     const u = UPGRADE_BY_ID[id];
     if (!u) continue;
     const e = u.effect;
-    if (e.kind === 'serveSpeed') m.serveTicks = Math.max(1, m.serveTicks - e.ticks);
+    if (e.kind === 'serveSpeed') m.serveTicks = Math.max(0.5, m.serveTicks - e.ticks);
     else if (e.kind === 'blendSpeed') m.blendTicks = Math.max(1, m.blendTicks - e.ticks);
     else if (e.kind === 'patience') m.patienceMult *= e.mult;
     else if (e.kind === 'draw') m.drawMult *= e.mult;

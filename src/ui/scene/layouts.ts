@@ -9,6 +9,7 @@ export interface SceneLayout {
   path: GridPt[];      // spawn → … → exit, in grid coords
   queueIndex: number;  // vertex where sim's queue-join point (x=0.45) lands
   queueStep: GridPt;   // queue grows from path[queueIndex] along this delta
+  ambient?: GridPt[][]; // extra wander routes so scenes feel like a busy square
 }
 
 export const LAYOUTS: Record<string, SceneLayout> = {
@@ -17,60 +18,70 @@ export const LAYOUTS: Record<string, SceneLayout> = {
     path: [[-1.5, 6.15], [5.3, 6.15], [11.5, 6.15]],
     queueIndex: 1,
     queueStep: [-0.55, 0],
+    ambient: [[[-1.5, 3.95], [11.5, 3.95]]],
   },
   silverlake: {
     cart: [4.05, 6.35],
     path: [[-1.5, 6.15], [3.2, 6.15], [11.5, 6.15]],
     queueIndex: 1,
     queueStep: [-0.55, 0],
+    ambient: [[[-1.5, 3.95], [11.5, 3.95]]],
   },
   culver: {
     cart: [4.03, 6.35],
     path: [[-1.5, 6.35], [3.0, 6.35], [11.5, 6.35]],
     queueIndex: 1,
     queueStep: [-0.55, 0],
+    ambient: [[[-1.5, 3.95], [11.5, 3.95]], [[6.2, -1], [6.2, 11]]],
   },
   studio: {
     cart: [4.5, 6.35],
     path: [[-1.5, 6.15], [3.55, 6.15], [11.5, 6.15]],
     queueIndex: 1,
     queueStep: [-0.55, 0],
+    ambient: [[[-1.5, 3.95], [11.5, 3.95]]],
   },
   venice: {
     cart: [4.1, 6.35], // on the boardwalk
     path: [[-1.5, 6.1], [3.1, 6.1], [11.5, 6.1]],
     queueIndex: 1,
     queueStep: [-0.55, 0],
+    ambient: [[[-1, 2.2], [3.5, 3.6], [7, 2.4], [11.5, 3.4]]],
   },
   santamonica: {
     cart: [4.2, 6.35],
     path: [[-1.5, 6.35], [1.4, 5.7], [3.2, 6.1], [11.5, 6.1]],
     queueIndex: 2,
     queueStep: [-0.55, 0],
+    ambient: [[[-1.5, 5.0], [11.5, 5.0]], [[-1, 6.9], [11.5, 6.9]]],
   },
   calabasas: {
     cart: [3.85, 6.65], // just outside the gate
     path: [[-1.5, 6.45], [2.9, 6.45], [11.5, 6.45]],
     queueIndex: 1,
     queueStep: [-0.55, 0],
+    ambient: [[[-1.5, 4.2], [11.5, 4.2]]],
   },
   beverlygrove: {
     cart: [4.05, 7.15], // at the parking-lot sidewalk edge
     path: [[-1.5, 7.05], [3.1, 7.05], [11.5, 7.05]],
     queueIndex: 1,
     queueStep: [-0.55, 0],
+    ambient: [[[-1, 5.0], [3, 4.6], [6, 5.3], [11, 4.7]]],
   },
   beverlyhills: {
     cart: [4.03, 6.35],
     path: [[-1.5, 6.35], [3.0, 6.35], [11.5, 6.35]],
     queueIndex: 1,
     queueStep: [-0.55, 0],
+    ambient: [[[-1.5, 3.95], [11.5, 3.95]], [[6.2, -1], [6.2, 11]]],
   },
   palisades: {
     cart: [4.2, 7.0], // on the village green's edge
     path: [[-1.5, 5.7], [1.2, 6.1], [3.2, 6.65], [5.6, 6.85], [8.2, 6.3], [11.5, 5.9]],
     queueIndex: 2,
     queueStep: [-0.5, -0.18],
+    ambient: [[[-1, 7.6], [3, 7.9], [7, 7.4], [11.5, 6.6]]],
   },
 };
 
@@ -78,7 +89,7 @@ export const LAYOUTS: Record<string, SceneLayout> = {
 export const QUEUE_JOIN_X = 0.45;
 export const EXIT_X = 1.3;
 
-function interp(pts: GridPt[], f: number): GridPt {
+export function pointAlongPolyline(pts: GridPt[], f: number): GridPt {
   if (pts.length === 1) return pts[0];
   const lens: number[] = [];
   let total = 0;
@@ -105,8 +116,8 @@ function interp(pts: GridPt[], f: number): GridPt {
 export function walkPoint(layout: SceneLayout, simX: number): GridPt {
   const approach = layout.path.slice(0, layout.queueIndex + 1);
   const exit = layout.path.slice(layout.queueIndex);
-  if (simX <= QUEUE_JOIN_X) return interp(approach, simX / QUEUE_JOIN_X);
-  return interp(exit, (simX - QUEUE_JOIN_X) / (EXIT_X - QUEUE_JOIN_X));
+  if (simX <= QUEUE_JOIN_X) return pointAlongPolyline(approach, simX / QUEUE_JOIN_X);
+  return pointAlongPolyline(exit, (simX - QUEUE_JOIN_X) / (EXIT_X - QUEUE_JOIN_X));
 }
 
 // Queue bunches two-abreast into a loose cluster by the cart, not a snake.
