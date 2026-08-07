@@ -45,7 +45,12 @@ export default function GameScreen({
   onGameOver: () => void;
   onWin: () => void;
 }) {
-  const [tab, setTab] = useState<TabId>('rent');
+  const [tab, setTabRaw] = useState<TabId>('rent');
+  const [previewLocId, setPreviewLocId] = useState<string | null>(null);
+  const setTab = (t: TabId) => {
+    setTabRaw(t);
+    if (t !== 'rent') setPreviewLocId(null); // viewport follows the browser only on the rent tab
+  };
   const [mode, setMode] = useState<'manage' | 'day'>('manage');
   const [speed, setSpeed] = useState<1 | 2>(1);
   const [result, setResult] = useState<DayResult | null>(null);
@@ -58,7 +63,12 @@ export default function GameScreen({
   const daily = state.daily;
   const mods = computeMods(state);
   const loc = LOCATION_BY_ID[state.locationId];
-  const ls = state.locations[state.locationId];
+  // While browsing the rent tab, the viewport previews the browsed location.
+  const viewLoc =
+    tab === 'rent' && mode === 'manage' && previewLocId
+      ? (LOCATION_BY_ID[previewLocId] ?? loc)
+      : loc;
+  const viewLs = state.locations[viewLoc.id];
   const cal = calendar(state.day);
   const weather = daily ? weatherFor(daily) : null;
   const event = daily ? EVENT_BY_ID[daily.eventId] : null;
@@ -144,7 +154,12 @@ export default function GameScreen({
             <div>
               {tab === 'results' && <ResultsTab state={state} />}
               {tab === 'rent' && (
-                <RentTab state={state} commit={commit} key={state.locationId} />
+                <RentTab
+                  state={state}
+                  commit={commit}
+                  onPreview={setPreviewLocId}
+                  key={state.locationId}
+                />
               )}
               {tab === 'upgrades' && <UpgradesTab state={state} commit={commit} />}
               {tab === 'staff' && <StaffTab state={state} commit={commit} />}
@@ -257,10 +272,10 @@ export default function GameScreen({
             <DayView state={state} sim={sim} speed={speed} onSpeed={setSpeed} onSkip={skip} />
           ) : (
             <div className="scene">
-              <IsoScene loc={loc} weatherId={daily?.weatherId}>
+              <IsoScene loc={viewLoc} weatherId={daily?.weatherId}>
                 <Cart
-                  x={(LAYOUTS[state.locationId] ?? LAYOUTS.silverlake).cart[0]}
-                  y={(LAYOUTS[state.locationId] ?? LAYOUTS.silverlake).cart[1]}
+                  x={(LAYOUTS[viewLoc.id] ?? LAYOUTS.silverlake).cart[0]}
+                  y={(LAYOUTS[viewLoc.id] ?? LAYOUTS.silverlake).cart[1]}
                 />
               </IsoScene>
             </div>
@@ -268,14 +283,17 @@ export default function GameScreen({
 
           <div className="panel">
             <h2 className="panel-title" style={{ fontSize: 11 }}>
-              {loc.name}
+              {viewLoc.name}
+              {viewLoc.id !== state.locationId && (
+                <span style={{ fontSize: 9, color: 'var(--kraft-dark)' }}> · preview</span>
+              )}
             </h2>
             <div className="tagline" style={{ fontSize: 12, color: 'var(--ink-soft)', marginBottom: 8 }}>
-              {loc.blurb}
+              {viewLoc.blurb}
             </div>
             <div style={{ display: 'flex', gap: 12 }}>
-              <Meter value={ls.popularity} label="popularity" color="pink" />
-              <Meter value={ls.satisfaction} label="satisfaction" color="blue" />
+              <Meter value={viewLs.popularity} label="popularity" color="pink" />
+              <Meter value={viewLs.satisfaction} label="satisfaction" color="blue" />
             </div>
           </div>
 

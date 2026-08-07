@@ -7,13 +7,19 @@ import Meter from '../Meter';
 export default function RentTab({
   state,
   commit,
+  onPreview,
 }: {
   state: GameState;
   commit: () => void;
+  onPreview?: (locationId: string) => void;
 }) {
-  const [idx, setIdx] = useState(() =>
+  const [idx, setIdxRaw] = useState(() =>
     Math.max(0, LOCATIONS.findIndex((l) => l.id === state.locationId)),
   );
+  const setIdx = (i: number) => {
+    setIdxRaw(i);
+    onPreview?.(LOCATIONS[i].id); // live-preview the browsed spot in the viewport
+  };
   const loc = LOCATIONS[idx];
   const ls = state.locations[loc.id];
   const isCurrent = state.locationId === loc.id;
