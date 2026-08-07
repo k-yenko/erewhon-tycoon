@@ -3,7 +3,7 @@ import { LOCATIONS } from './content/locations';
 import { C } from './economy';
 
 const SAVE_KEY = 'erewhon-tycoon:save';
-const SAVE_VERSION = 3; // v3: per-location popularity/satisfaction baselines
+const SAVE_VERSION = 4; // v4: mario-kart-style location stat profiles
 
 export function newGame(): GameState {
   return {
