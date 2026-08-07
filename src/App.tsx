@@ -57,13 +57,19 @@ export default function App() {
         commit();
       }
     });
-    // Real LA weather: the first in-game day of a real date mirrors actual conditions.
+    // Real LA weather mirrors actual conditions — but only on the FIRST in-game
+    // day of each real date; later days roll their own weather.
     fetchLiveLAWeather(key).then((weather) => {
       const cur = gsRef.current.daily;
-      if (weather && cur && cur.dateKey === key && !cur.liveWeather) {
+      const appliedKey = 'erewhon-tycoon:la-weather-applied';
+      const applied = localStorage.getItem(appliedKey);
+      const mine = `${key}:${gsRef.current.day}`;
+      const dateUsed = applied?.startsWith(`${key}:`) && applied !== mine;
+      if (weather && cur && cur.dateKey === key && !cur.liveWeather && !dateUsed) {
         cur.weatherId = weather.weatherId;
         cur.tempF = weather.tempF;
         cur.liveWeather = true;
+        localStorage.setItem(appliedKey, mine);
         commit();
       }
     });
@@ -86,8 +92,10 @@ export default function App() {
   }, []);
 
   const startNewGame = () => {
+    const keepSettings = gsRef.current.settings;
     clearSave();
     gsRef.current = newGame();
+    if (keepSettings) gsRef.current.settings = keepSettings;
     refreshDaily();
     setScreen('game');
   };
@@ -102,7 +110,19 @@ export default function App() {
   };
 
   if (screen === 'title') {
-    return <TitleScreen hasSave={hasSave} onNew={startNewGame} onContinue={continueGame} />;
+    return (
+      <TitleScreen
+        hasSave={hasSave}
+        onNew={startNewGame}
+        onContinue={continueGame}
+        settings={gs.settings ?? { market: false, rival: false }}
+        onToggle={(key) => {
+          if (!gs.settings) gs.settings = { market: false, rival: false };
+          gs.settings[key] = !gs.settings[key];
+          commit();
+        }}
+      />
+    );
   }
   if (screen === 'gameover') {
     return <GameOverScreen state={gs} onRestart={startNewGame} />;

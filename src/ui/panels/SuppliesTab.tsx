@@ -16,7 +16,9 @@ export default function SuppliesTab({
 }) {
   const mods = computeMods(state);
   const supplies = SUPPLIES.filter((s) => !(s.id === 'ice' && mods.freeIce));
-  const px = (id: StockId) => state.daily?.marketPrices?.[id] ?? 1; // today's market
+  const marketOn = !!state.settings?.market;
+  const px = (id: StockId) =>
+    marketOn ? (state.daily?.marketPrices?.[id] ?? 1) : 1; // today's market
   const [activeId, setActiveId] = useState<StockId>(supplies[0].id);
   const [order, setOrder] = useState<Record<string, number>>({});
 
@@ -88,6 +90,7 @@ export default function SuppliesTab({
               ? 'Spoils a little each night.'
               : 'Keeps forever.'}
         </div>
+        {marketOn && (
         <div style={{ fontSize: 11, margin: '0 0 8px' }}>
           Market today:{' '}
           <b>
@@ -96,6 +99,7 @@ export default function SuppliesTab({
           </b>{' '}
           vs. usual{px(active.id) < 0.9 ? ' — a good day to stock up' : px(active.id) > 1.3 ? ' — maybe wait it out' : ''}
         </div>
+        )}
         {active.tiers.map((t, i) => {
           const key = `${active.id}_${i}`;
           return (

@@ -3,7 +3,7 @@ import type { SimState, GameState } from '../game/types';
 import { sfx } from '../game/audio';
 import { LOCATION_BY_ID } from '../game/content/locations';
 import IsoScene, { Cart, iso } from './scene/IsoScene';
-import { LAYOUTS, walkPoint, queueSpot, pointAlongPolyline, EXIT_X } from './scene/layouts';
+import { LAYOUTS, walkPoint, queueSpot, pointAlongPolyline, EXIT_X, QUEUE_JOIN_X } from './scene/layouts';
 import Person from './scene/Person';
 
 // Stable per-person quirks so the crowd doesn't march in a file:
@@ -15,7 +15,8 @@ function quirks(id: number) {
     drift: ((h & 0xff) / 255 - 0.5) * 0.55,          // buyers stay near the path
     wander: (((h >> 4) & 0xff) / 255 - 0.5) * 0.7,   // browsers drift off their route
     sway: (((h >> 8) & 0xff) / 255 - 0.5) * 0.2,     // loose queue stance
-    reversed: ((h >> 16) & 3) !== 0 ? false : true,   // some stroll right-to-left
+    reversed: ((h >> 16) & 1) === 0,                  // half stroll right-to-left
+    fromRight: ((h >> 18) & 1) === 1,                 // half the buyers approach from the right
     route: (h >> 20) & 7,                             // which wander route they take
   };
 }
@@ -75,7 +76,7 @@ export default function DayView({
               el: <Cart x={layout.cart[0]} y={layout.cart[1]} />,
             },
           ];
-          if (state.daily?.rivalLocationId === state.locationId) {
+          if (state.settings?.rival && state.daily?.rivalLocationId === state.locationId) {
             const rivalPos = iso(layout.cart[0] + 2.4, layout.cart[1]);
             items.push({
               key: 'rival',
@@ -117,7 +118,15 @@ export default function DayView({
             const progress = strolling ? Math.max(0, EXIT_X - c.x) : c.x;
             let gx: number, gy: number;
             if (c.willBuy) {
-              [gx, gy] = walkPoint(layout, progress);
+              // half the buyers come from the right side, walking left to the cart
+              let p2 = progress;
+              if (q.fromRight) {
+                p2 =
+                  c.x <= QUEUE_JOIN_X
+                    ? EXIT_X - (c.x / QUEUE_JOIN_X) * (EXIT_X - QUEUE_JOIN_X)
+                    : QUEUE_JOIN_X * (1 - (c.x - QUEUE_JOIN_X) / (EXIT_X - QUEUE_JOIN_X));
+              }
+              [gx, gy] = walkPoint(layout, p2);
               gx += q.drift * 0.3;
               gy += q.drift;
             } else {

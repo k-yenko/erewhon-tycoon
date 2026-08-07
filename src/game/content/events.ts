@@ -6,35 +6,35 @@ import type { EventDef } from '../types';
 export const EVENTS: EventDef[] = [
   // ——— Global: good for business ———
   { id: 'teachers-strike', headline: 'Teachers On Strike: No School For Kids!', scope: { kind: 'global' }, vibe: 'chaos', traffic: 1.4, audience: 'locals' },
-  { id: 'adaptogens-real', headline: 'New Study: Adaptogens Are Real, Probably!', scope: { kind: 'global' }, vibe: 'wellness', traffic: 1.3 },
-  { id: 'protein-maxxing', headline: 'Cottage Cheese Protein-Maxxing Trend Up 82%!', scope: { kind: 'global' }, vibe: 'wellness', traffic: 1.3 },
-  { id: 'wellness-day', headline: 'City Declares Official Wellness Day!', scope: { kind: 'global' }, vibe: 'wellness', traffic: 1.35 },
-  { id: 'smoothie-tiktok', headline: 'Your Smoothie Stand Is Mildly Viral On TikTok!', scope: { kind: 'global' }, vibe: 'hype', traffic: 1.5 },
-  { id: 'glp1-muscle-panic', headline: 'GLP-1 Muscle-Loss Panic: Everyone Needs Protein NOW!', scope: { kind: 'global' }, vibe: 'wellness', traffic: 1.35, pay: 1.1 },
+  { id: 'adaptogens-real', headline: 'New Study Confirms What The Girlies Already Knew', scope: { kind: 'global' }, vibe: 'wellness', traffic: 1.3 },
+  { id: 'protein-maxxing', headline: 'The Boys Are Eating Cottage Cheese Again', scope: { kind: 'global' }, vibe: 'wellness', traffic: 1.3 },
+  { id: 'wellness-day', headline: 'The City Is Collectively In Its Healing Era Today', scope: { kind: 'global' }, vibe: 'wellness', traffic: 1.35 },
+  { id: 'smoothie-tiktok', headline: "A Certain Cart Is All Over Everyone's Stories", scope: { kind: 'global' }, vibe: 'hype', traffic: 1.5 },
+  { id: 'glp1-muscle-panic', headline: 'The Podcasts Have Pivoted To Muscle Preservation', scope: { kind: 'global' }, vibe: 'wellness', traffic: 1.35, pay: 1.1 },
   { id: 'gut-health-week', headline: 'Podcasts Declare It Gut Health Week!', scope: { kind: 'global' }, vibe: 'wellness', traffic: 1.25 },
   { id: 'dry-january', headline: 'Dry January Energy Hits In August!', scope: { kind: 'global' }, vibe: 'wellness', traffic: 1.3 },
   { id: 'pilates-convention', headline: 'National Pilates Convention Comes To Town!', scope: { kind: 'global' }, vibe: 'wellness', traffic: 1.4 },
-  { id: 'celeb-pap-walk', headline: 'A-Lister Photographed Holding A Smoothie Just Like Yours!', scope: { kind: 'global' }, vibe: 'hype', traffic: 1.5, pay: 1.1 },
+  { id: 'celeb-pap-walk', headline: 'Someone Extremely Famous Was Photographed Holding A Smoothie', scope: { kind: 'global' }, vibe: 'hype', traffic: 1.5, pay: 1.1 },
 
   // ——— Global: bad for business ———
-  { id: 'glp1-nobody-hungry', headline: "GLP-1 News Cycle: Nobody's Hungry Anymore", scope: { kind: 'global' }, vibe: 'chaos', traffic: 0.6 },
+  { id: 'glp1-nobody-hungry', headline: "Everyone Is Suspiciously Not Hungry This Month", scope: { kind: 'global' }, vibe: 'chaos', traffic: 0.6 },
   { id: 'cleanse-discourse', headline: 'Juice Cleanse Discourse Turns Ugly On TikTok', scope: { kind: 'global' }, vibe: 'chaos', traffic: 0.7 },
-  { id: 'seed-oil-scare', headline: 'Influencer Claims Smoothies Are Full Of Seed Oils!', scope: { kind: 'global' }, vibe: 'chaos', traffic: 0.65 },
+  { id: 'seed-oil-scare', headline: 'A Podcast Said The Thing About Seed Oils Again', scope: { kind: 'global' }, vibe: 'chaos', traffic: 0.65 },
   { id: 'competitor-drop', headline: 'Competing Grocery Chain Drops Its Own Celebrity Smoothie!', scope: { kind: 'global' }, vibe: 'hype', traffic: 0.7 },
-  { id: 'coachella-exodus', headline: 'Coachella Weekend: The Entire City Has Left For The Desert', scope: { kind: 'global' }, vibe: 'hype', traffic: 0.5, audience: 'locals' },
+  { id: 'coachella-exodus', headline: "Everyone You Know Is 'At The Desert' This Weekend", scope: { kind: 'global' }, vibe: 'hype', traffic: 0.5, audience: 'locals' },
   { id: 'mercury-sales', headline: 'Astrologers Advise Against Purchases During Mercury Retrograde', scope: { kind: 'global' }, vibe: 'chaos', traffic: 0.7 },
   { id: 'raw-milk-recall', headline: 'Raw Milk Recall Shakes Consumer Confidence In Wellness Drinks', scope: { kind: 'global' }, vibe: 'chaos', traffic: 0.6 },
 
   // ——— Customers pay MORE ———
-  { id: 'tech-ipo', headline: 'Tech IPO Mints 400 New Millionaires Overnight!', scope: { kind: 'global' }, vibe: 'money', pay: 1.3, audience: 'industry' },
+  { id: 'tech-ipo', headline: 'Several Group Chats Went Quiet, Then Very Loud (IPO Day)', scope: { kind: 'global' }, vibe: 'money', pay: 1.3, audience: 'industry' },
   { id: 'awards-season', headline: "Awards Season: Everyone's On A Pre-Gala Cleanse!", scope: { kind: 'global' }, vibe: 'money', pay: 1.25, traffic: 1.1, audience: 'industry' },
-  { id: 'bonus-season', headline: 'Entertainment Bonus Season: Assistants Sent On $700 Hauls!', scope: { kind: 'global' }, vibe: 'money', pay: 1.3, audience: 'industry' },
+  { id: 'bonus-season', headline: 'The Assistants Have The Company Card Again', scope: { kind: 'global' }, vibe: 'money', pay: 1.3, audience: 'industry' },
   { id: 'tax-refund', headline: 'Tax Refunds Land: Citizens Feel Briefly Rich!', scope: { kind: 'global' }, vibe: 'money', pay: 1.2 },
 
   // ——— Customers pay LESS ———
-  { id: 'writers-strike', headline: "Industry Strike: Everyone's Money Is Frozen In Development", scope: { kind: 'global' }, vibe: 'chaos', pay: 0.75, audience: 'industry' },
-  { id: 'rent-due', headline: 'Rent Due Week Hits The Eastside Hard', scope: { kind: 'global' }, vibe: 'money', pay: 0.8, audience: 'locals' },
-  { id: 'stock-dip', headline: 'Stock Market Dips: Trust Funds Feel The Squeeze', scope: { kind: 'global' }, vibe: 'money', pay: 0.75, audience: 'industry' },
+  { id: 'writers-strike', headline: "The Entire Industry Is 'Between Projects' Right Now", scope: { kind: 'global' }, vibe: 'chaos', pay: 0.75, audience: 'industry' },
+  { id: 'rent-due', headline: "It's The 1st. Everyone Is Being So Brave.", scope: { kind: 'global' }, vibe: 'money', pay: 0.8, audience: 'locals' },
+  { id: 'stock-dip', headline: 'The Family Office Called. It Was Not Great.', scope: { kind: 'global' }, vibe: 'money', pay: 0.75, audience: 'industry' },
   { id: 'budgeting-app', headline: 'Viral Budgeting App Tells Users To "Audit Your Smoothies"', scope: { kind: 'global' }, vibe: 'money', pay: 0.8 },
 
   // ——— Queue patience up ———

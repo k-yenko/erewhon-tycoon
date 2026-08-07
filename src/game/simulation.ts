@@ -57,6 +57,19 @@ export function activeEvent(daily: DailyContent, locationId: string) {
   const event = EVENT_BY_ID[daily.eventId];
   const applies =
     event && (event.scope.kind === 'global' || event.scope.locationId === locationId);
+  // A location event you're NOT at still matters a little: crowds drain toward
+  // the hot spot (or spread out from the dead one). The news is never a no-op.
+  if (event && event.scope.kind === 'location' && event.scope.locationId !== locationId) {
+    const pull = event.traffic ?? 1;
+    return {
+      headline: event.headline,
+      traffic: pull > 1 ? 0.92 : pull < 1 ? 1.05 : 1,
+      pay: 1,
+      patience: 1,
+      vibe: event.vibe,
+      isLive: false,
+    };
+  }
   // Global events scale by how much of this crowd they move; the effect shrinks
   // toward neutral (×1) where that audience is thin on the ground.
   const w = applies && event.scope.kind === 'global' ? audienceWeight(locationId, event.audience) : 1;
@@ -104,7 +117,8 @@ export function expectedTraffic(state: GameState): number {
   const ev = activeEvent(daily, state.locationId);
   const { popularity: pop, satisfaction: sat } = state.locations[state.locationId];
   const repeatMult = C.SAT_TRAFFIC_MIN + C.SAT_TRAFFIC_SPAN * sat;
-  const rival = daily.rivalLocationId === state.locationId ? C.RIVAL_TRAFFIC : 1;
+  const rival =
+    state.settings?.rival && daily.rivalLocationId === state.locationId ? C.RIVAL_TRAFFIC : 1;
   return (
     loc.baseTraffic *
     weather.traffic *
@@ -133,7 +147,7 @@ export function createSimContext(state: GameState): SimContext {
   const ev = activeEvent(daily, state.locationId);
 
   const sat = state.locations[state.locationId].satisfaction;
-  const rivalHere = daily.rivalLocationId === state.locationId;
+  const rivalHere = !!state.settings?.rival && daily.rivalLocationId === state.locationId;
   const expectedCustomers = expectedTraffic(state);
 
   return {

@@ -228,7 +228,7 @@ export default function GameScreen({
                   <span className="label">Forecast</span>
                   <span>
                     ~{forecastRange(state)[0]}–{forecastRange(state)[1]} customers
-                    {daily.rivalLocationId === state.locationId ? ' (rival here)' : ''}
+                    {state.settings?.rival && daily.rivalLocationId === state.locationId ? ' (rival here)' : ''}
                   </span>
                 </div>
               )}
@@ -329,7 +329,7 @@ export default function GameScreen({
                   x={(LAYOUTS[viewLoc.id] ?? LAYOUTS.silverlake).cart[0]}
                   y={(LAYOUTS[viewLoc.id] ?? LAYOUTS.silverlake).cart[1]}
                 />
-                {daily?.rivalLocationId === viewLoc.id && (
+                {state.settings?.rival && daily?.rivalLocationId === viewLoc.id && (
                   <Cart
                     x={(LAYOUTS[viewLoc.id] ?? LAYOUTS.silverlake).cart[0] + 2.4}
                     y={(LAYOUTS[viewLoc.id] ?? LAYOUTS.silverlake).cart[1]}

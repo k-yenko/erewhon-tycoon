@@ -9,6 +9,7 @@ export function newGame(): GameState {
   return {
     version: SAVE_VERSION,
     seedNonce: Math.floor(Math.random() * 0xffffffff),
+    settings: { market: false, rival: false },
     cash: C.START_CASH,
     day: 1,
     stock: { strawberries: 0, coconutCream: 0, seaMoss: 0, ice: 0, cups: 0 },
@@ -40,7 +41,10 @@ export function loadGame(): GameState | null {
     if (!raw) return null;
     const stored = JSON.parse(raw) as Partial<GameState>;
     if (typeof stored.cash !== 'number' || typeof stored.day !== 'number') return null;
-    if (stored.version === SAVE_VERSION) return stored as GameState;
+    if (stored.version === SAVE_VERSION) {
+      // backfill fields added without a version bump
+      return { settings: { market: false, rival: false }, ...stored } as GameState;
+    }
     return migrate(stored);
   } catch {
     return null;

@@ -145,9 +145,15 @@ export interface LocationState {
   satisfaction: number; // 0..1
 }
 
+export interface GameSettings {
+  market: boolean; // ingredient commodity market (advanced)
+  rival: boolean;  // the Moon Juus competitor truck (advanced)
+}
+
 export interface GameState {
   version: number;
   seedNonce: number;    // per-save salt so weather/news differ between runs
+  settings: GameSettings;
   cash: number;
   day: number;          // 1-based, in-game day counter
   // calendar derived from day: Year/Month/Day
