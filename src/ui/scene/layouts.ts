@@ -125,11 +125,12 @@ export function walkPoint(layout: SceneLayout, simX: number): GridPt {
 export function queueSpot(layout: SceneLayout, index: number): GridPt {
   const head = layout.path[layout.queueIndex];
   const [sx, sy] = layout.queueStep;
-  const perp: GridPt = [sy * 0.8, -sx * 0.8];
+  const perp: GridPt = [sy * 1.0, -sx * 1.0];
   const row = Math.floor(index / 2);
   const side = index % 2;
+  // 1.3× row spacing so the crowd reads as people, not a pile
   return [
-    head[0] + sx * row + perp[0] * side,
-    head[1] + sy * row + perp[1] * side,
+    head[0] + sx * row * 1.3 + perp[0] * side,
+    head[1] + sy * row * 1.3 + perp[1] * side,
   ];
 }

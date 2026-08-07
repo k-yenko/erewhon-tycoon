@@ -43,9 +43,9 @@ export default function IsoScene({
         </pattern>
       </defs>
       <rect x="0" y="0" width={VIEW_W} height={VIEW_H} fill={loc.sceneColors.ground} />
-      <rect x="0" y="0" width={VIEW_W} height={VIEW_H} fill="url(#speckle)" opacity="0.05" />
+      <rect x="0" y="0" width={VIEW_W} height={VIEW_H} fill="url(#speckle)" opacity="0.09" />
       <Scene loc={loc} />
-      <rect x="0" y="0" width={VIEW_W} height={VIEW_H} fill="url(#dither)" opacity="0.035" style={{ pointerEvents: 'none' }} />
+      <rect x="0" y="0" width={VIEW_W} height={VIEW_H} fill="url(#dither)" opacity="0.06" style={{ pointerEvents: 'none' }} />
       {children}
 
       {/* ——— weather, visible on screen ——— */}

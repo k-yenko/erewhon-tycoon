@@ -35,6 +35,9 @@ export default function DayView({
 }) {
   const loc = LOCATION_BY_ID[state.locationId];
   const layout = LAYOUTS[state.locationId] ?? LAYOUTS.silverlake;
+  // movement transition matches the real tick rate, so walking is one
+  // continuous glide — and the ▶▶ button visibly speeds people up
+  const tickSec = 1.5 / speed;
 
   // Fire sounds by diffing the sim's counters — staggered inside the tick
   // window so reactions land at individual moments, not on the heartbeat.
@@ -90,7 +93,7 @@ export default function DayView({
                   bubble={c.bubble}
                   x={px}
                   y={py}
-                  moveSeconds={0.45}
+                  moveSeconds={0.45 / speed}
                 />
               ),
             });
@@ -119,7 +122,16 @@ export default function DayView({
             items.push({
               key: `p${c.id}`,
               depth: py,
-              el: <Person variant={c.id} walking={true} bubble={c.bubble} x={px} y={py} />,
+              el: (
+                <Person
+                  variant={c.id}
+                  walking={true}
+                  bubble={c.bubble}
+                  x={px}
+                  y={py}
+                  moveSeconds={tickSec}
+                />
+              ),
             });
           }
 
