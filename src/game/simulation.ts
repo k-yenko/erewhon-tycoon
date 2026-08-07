@@ -204,6 +204,13 @@ export function stepSim(ctx: SimContext, sim: SimState): SimState {
         if (sim.soldOut) {
           c.state = 'leaving';
           sim.walkedAway += 1;
+        } else if (sim.queue.length >= C.BALK_LINE) {
+          // one look at that line and they're out — the rational "too slow"
+          c.state = 'leaving';
+          c.bubble = 'wait';
+          c.bubbleTtl = 4;
+          sim.complaints.wait += 1;
+          sim.walkedAway += 1;
         } else {
           c.state = 'queued';
           sim.queue.push(c.id);
@@ -219,13 +226,15 @@ export function stepSim(ctx: SimContext, sim: SimState): SimState {
   }
   sim.customers = sim.customers.filter((c) => c.x < 1.3);
 
-  // — Patience —
-  for (const id of [...sim.queue]) {
+  // — Patience — (whoever is at the counter is committed and never bails)
+  const beingServed = ctx.mods.secondServer ? 2 : 1;
+  for (const [qi, id] of [...sim.queue].entries()) {
     const c = sim.customers.find((k) => k.id === id);
     if (!c) {
       sim.queue = sim.queue.filter((q) => q !== id);
       continue;
     }
+    if (qi < beingServed) continue;
     c.patienceLeft -= 1;
     if (c.patienceLeft <= 0) {
       sim.queue = sim.queue.filter((q) => q !== id);

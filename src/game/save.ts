@@ -38,12 +38,32 @@ export function loadGame(): GameState | null {
   try {
     const raw = localStorage.getItem(SAVE_KEY);
     if (!raw) return null;
-    const state = JSON.parse(raw) as GameState;
-    if (state.version !== SAVE_VERSION) return null; // future: migrations
-    return state;
+    const stored = JSON.parse(raw) as Partial<GameState>;
+    if (typeof stored.cash !== 'number' || typeof stored.day !== 'number') return null;
+    if (stored.version === SAVE_VERSION) return stored as GameState;
+    return migrate(stored);
   } catch {
     return null;
   }
+}
+
+// Older saves get new fields filled from defaults — progress is never wiped.
+function migrate(stored: Partial<GameState>): GameState {
+  const base = newGame();
+  const locations = { ...base.locations };
+  for (const [id, ls] of Object.entries(stored.locations ?? {})) {
+    if (locations[id]) locations[id] = { ...locations[id], ...ls };
+  }
+  return {
+    ...base,
+    ...stored,
+    version: SAVE_VERSION,
+    seedNonce: stored.seedNonce ?? base.seedNonce,
+    stock: { ...base.stock, ...stored.stock },
+    recipe: { ...base.recipe, ...stored.recipe },
+    locations,
+    daily: null, // regenerate with the current schema
+  } as GameState;
 }
 
 export function saveGame(state: GameState): void {

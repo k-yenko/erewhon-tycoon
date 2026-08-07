@@ -27,7 +27,10 @@ export default function RentTab({
   return (
     <div className="panel">
       <h2 className="panel-title">Locations</h2>
-      <div style={{ fontSize: 12, marginBottom: 8 }}>Choose a location.</div>
+      <div style={{ fontSize: 12, marginBottom: 8 }}>
+        Choose a location. Moving is free — your cash, upgrades, staff, and stock all
+        come with you. Each spot remembers its own reputation.
+      </div>
       <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
         <button
           className="pixel-btn"
