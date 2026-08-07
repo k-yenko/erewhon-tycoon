@@ -135,12 +135,16 @@ export function classifyShelfItem(title: string, productType?: string): ShelfCat
   return 'pantry';
 }
 
-export async function fetchLiveShelfItem(dateKey: string): Promise<ShelfItem | null> {
+const SHELF_SEEN_KEY = 'erewhon-tycoon:shelf-seen';
+
+// Bulk-fetch the whole new-arrivals list once per real date; the rotation
+// deck draws from it every in-game morning.
+export async function fetchLiveShelfList(dateKey: string): Promise<ShelfItem[]> {
   try {
     const cachedRaw = localStorage.getItem(SHELF_CACHE_KEY);
     if (cachedRaw) {
-      const cached = JSON.parse(cachedRaw) as { dateKey: string; item: ShelfItem };
-      if (cached.dateKey === dateKey && cached.item.category) return cached.item;
+      const cached = JSON.parse(cachedRaw) as { dateKey: string; items: ShelfItem[] };
+      if (cached.dateKey === dateKey && Array.isArray(cached.items)) return cached.items;
     }
   } catch {
     // corrupted cache — refetch
@@ -151,27 +155,68 @@ export async function fetchLiveShelfItem(dateKey: string): Promise<ShelfItem | n
     const timer = setTimeout(() => ctrl.abort(), 3000);
     const res = await fetch(NEW_ARRIVALS_URL, { signal: ctrl.signal });
     clearTimeout(timer);
-    if (!res.ok) return null;
+    if (!res.ok) return [];
     const data = (await res.json()) as {
       products?: { title?: string; product_type?: string; variants?: { price?: string }[] }[];
     };
-    const products = (data.products ?? []).filter(
-      (p) => p.title && p.variants?.[0]?.price && Number(p.variants[0].price) > 0,
-    );
-    if (products.length === 0) return null;
-    const rand = mulberry32((seedFromDateKey(dateKey) ^ 0x5eed) >>> 0);
-    const chosen = pick(rand, products);
-    const item: ShelfItem = {
-      name: chosen.title!,
-      price: Math.round(Number(chosen.variants![0].price!)),
-      source: 'live',
-      category: classifyShelfItem(chosen.title!, chosen.product_type),
-    };
-    localStorage.setItem(SHELF_CACHE_KEY, JSON.stringify({ dateKey, item }));
-    return item;
+    const items: ShelfItem[] = (data.products ?? [])
+      .filter((p) => p.title && p.variants?.[0]?.price && Number(p.variants[0].price) > 0)
+      .map((p) => ({
+        name: p.title!,
+        price: Math.round(Number(p.variants![0].price!)),
+        source: 'live' as const,
+        category: classifyShelfItem(p.title!, p.product_type),
+      }));
+    localStorage.setItem(SHELF_CACHE_KEY, JSON.stringify({ dateKey, items }));
+    return items;
   } catch {
-    return null; // CORS/offline/timeout → caller keeps the pool item
+    return []; // CORS/offline/timeout → the built-in pool carries the rotation
   }
+}
+
+// Cached list, synchronously (whatever the last successful bulk fetch stored).
+export function cachedShelfList(): ShelfItem[] {
+  try {
+    const raw = localStorage.getItem(SHELF_CACHE_KEY);
+    if (!raw) return [];
+    const cached = JSON.parse(raw) as { items?: ShelfItem[] };
+    return Array.isArray(cached.items) ? cached.items : [];
+  } catch {
+    return [];
+  }
+}
+
+// Draw today's shelf item from the rotation deck (live list + built-in pool),
+// never repeating for this user until the whole deck has been seen.
+export function rotateShelfItem(state: {
+  daily: DailyContent | null;
+  seedNonce: number;
+  day: number;
+}): boolean {
+  const daily = state.daily;
+  if (!daily || daily.shelfRotated) return false;
+  const deck: ShelfItem[] = [...cachedShelfList(), ...SHELF_POOL];
+  if (deck.length === 0) return false;
+
+  let seen: string[] = [];
+  try {
+    seen = JSON.parse(localStorage.getItem(SHELF_SEEN_KEY) ?? '[]') as string[];
+  } catch {
+    seen = [];
+  }
+  let candidates = deck.filter((i) => !seen.includes(i.name));
+  if (candidates.length === 0) {
+    seen = []; // the whole deck has been seen — start a fresh lap
+    candidates = deck;
+  }
+  const rand = mulberry32(((state.day * 2654435761) ^ state.seedNonce ^ 0x5eed) >>> 0);
+  const item = pick(rand, candidates);
+  daily.shelfItem = item;
+  daily.shelfRotated = true;
+  seen.push(item.name);
+  if (seen.length > 400) seen = seen.slice(-400);
+  localStorage.setItem(SHELF_SEEN_KEY, JSON.stringify(seen));
+  return true;
 }
 
 // ——— the real-LA news bot ———

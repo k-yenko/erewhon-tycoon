@@ -3,7 +3,9 @@ import type { GameState } from './game/types';
 import { loadGame, newGame, saveGame, clearSave } from './game/save';
 import {
   generateDaily,
-  fetchLiveShelfItem,
+  cachedShelfList,
+  fetchLiveShelfList,
+  rotateShelfItem,
   fetchLiveLAEvent,
   fetchLiveLAWeather,
 } from './game/dailyContent';
@@ -41,13 +43,14 @@ export default function App() {
       g.daily.liveEvent = liveEvent; // same real date keeps its real-LA headline
       commit();
     }
-    // Try the real Erewhon new-arrivals feed (cached per date, silent fallback).
-    fetchLiveShelfItem(key).then((item) => {
-      const cur = gsRef.current.daily;
-      if (item && cur && cur.dateKey === key && cur.shelfItem.source !== 'live') {
-        cur.shelfItem = item;
-        commit();
-      }
+    // Shelf rotation: draw today's item from the deck (real new-arrivals list
+    // + built-in pool), never repeating until the whole deck has been seen.
+    // If we already have a fetched list, draw immediately; on a first-ever
+    // load, wait for the fetch (it resolves [] on failure) so live items can
+    // be in the deck from day one.
+    if (cachedShelfList().length > 0 && rotateShelfItem(g)) commit();
+    fetchLiveShelfList(key).then(() => {
+      if (rotateShelfItem(gsRef.current)) commit();
     });
     // And the real-LA news bot (cached per date, silent fallback to the deck).
     fetchLiveLAEvent(key).then((event) => {

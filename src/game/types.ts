@@ -138,6 +138,7 @@ export interface DailyContent {
   liveWeather: boolean; // weather mirrors actual LA conditions right now
   marketPrices: Record<StockId, number>; // today's ingredient price multipliers
   rivalLocationId: string; // where the Moon Juus truck parked ('' = day off)
+  shelfRotated?: boolean;  // today's shelf pick has been drawn from the rotation deck
 }
 
 export interface LocationState {
