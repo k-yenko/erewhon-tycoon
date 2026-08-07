@@ -275,9 +275,9 @@ button {
 /* ——— Layout ——— */
 
 .game-root {
-  /* fill the window at any size — no dead margins, the scene crops instead of
-     letterboxing */
+  /* fill the window, with just a modest gutter on very wide screens */
   width: 100%;
+  max-width: 1560px;
   height: 100vh;
   overflow: hidden;
   margin: 0 auto;

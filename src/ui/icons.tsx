@@ -131,6 +131,29 @@ const ICONS: Record<string, ReactNode> = {
       <path d="M8 6 L16 10" fill="none" stroke={KRAFT_D} strokeWidth="1.4" />
     </g>
   ),
+  gear: (
+    <g>
+      {Array.from({ length: 8 }, (_, i) => {
+        const a = (i * Math.PI) / 4;
+        return (
+          <rect
+            key={i}
+            x="10.4"
+            y="1.5"
+            width="3.2"
+            height="5"
+            rx="1"
+            fill={SOFT}
+            stroke={INK}
+            strokeWidth="1"
+            transform={`rotate(${(a * 180) / Math.PI} 12 12)`}
+          />
+        );
+      })}
+      <circle cx="12" cy="12" r="7" fill={SOFT} {...S} />
+      <circle cx="12" cy="12" r="3" fill={CREAM} {...S} />
+    </g>
+  ),
   heart: (
     <g>
       <path
@@ -295,7 +318,7 @@ const ICONS: Record<string, ReactNode> = {
 };
 
 export type IconName =
-  | 'strawberry' | 'coconut' | 'seamoss' | 'ice' | 'cup' | 'heart'
+  | 'strawberry' | 'coconut' | 'seamoss' | 'ice' | 'cup' | 'heart' | 'gear'
   | 'ledger' | 'pin' | 'store' | 'person' | 'camera' | 'blender' | 'box'
   | 'smile' | 'frown' | 'tag' | 'hourglass'
   | 'sun' | 'cloud' | 'wind' | 'rain' | 'storm' | 'heat'

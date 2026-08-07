@@ -19,7 +19,7 @@ export const EVENTS: EventDef[] = [
   // ——— Global: bad for business ———
   { id: 'glp1-nobody-hungry', headline: "Everyone Is Suspiciously Not Hungry This Month", scope: { kind: 'global' }, vibe: 'chaos', traffic: 0.6 },
   { id: 'cleanse-discourse', headline: 'Juice Cleanse Discourse Turns Ugly On TikTok', scope: { kind: 'global' }, vibe: 'chaos', traffic: 0.7 },
-  { id: 'seed-oil-scare', headline: 'A Podcast Said The Thing About Seed Oils Again', scope: { kind: 'global' }, vibe: 'chaos', traffic: 0.65 },
+  { id: 'seed-oil-scare', headline: 'A Podcast Said The Thing About Seed Oils Again', scope: { kind: 'global' }, vibe: 'wellness', traffic: 1.3 }, // nothing in a smoothie to fear — the clean-eating crowd flocks over
   { id: 'competitor-drop', headline: 'Competing Grocery Chain Drops Its Own Celebrity Smoothie!', scope: { kind: 'global' }, vibe: 'hype', traffic: 0.7 },
   { id: 'coachella-exodus', headline: "Everyone You Know Is 'At The Desert' This Weekend", scope: { kind: 'global' }, vibe: 'hype', traffic: 0.5, audience: 'locals' },
   { id: 'mercury-sales', headline: 'Astrologers Advise Against Purchases During Mercury Retrograde', scope: { kind: 'global' }, vibe: 'chaos', traffic: 0.7 },
