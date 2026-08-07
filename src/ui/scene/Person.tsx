@@ -92,7 +92,14 @@ export default function Person({
         </g>
       </g>
       {bubble && (
-        <g className="bubble-pop">
+        <g
+          className="bubble-pop"
+          style={{
+            // each person's reaction pops at their own moment inside the tick,
+            // not on the shared sim heartbeat
+            animationDelay: `${(Math.imul(variant, 40503) >>> 16) % 1100}ms`,
+          }}
+        >
           <path d="M9 -38 L7 -31.5 L14 -38Z" fill="#fff" stroke={INK} strokeWidth="1.2" strokeLinejoin="round" />
           <rect x="4" y="-56" width="22" height="20" rx="5" fill="#fff" stroke={INK} strokeWidth="1.2" />
           <IconGlyph name={BUBBLE_GLYPH[bubble]} x={7} y={-53.5} size={16} />

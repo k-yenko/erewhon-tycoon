@@ -36,15 +36,17 @@ export default function DayView({
   const loc = LOCATION_BY_ID[state.locationId];
   const layout = LAYOUTS[state.locationId] ?? LAYOUTS.silverlake;
 
-  // Fire a sound per event type per tick by diffing the sim's counters.
+  // Fire sounds by diffing the sim's counters — staggered inside the tick
+  // window so reactions land at individual moments, not on the heartbeat.
   const prev = useRef({ sold: 0, happy: 0, taste: 0, price: 0, wait: 0, blending: 0 });
   useEffect(() => {
     const p = prev.current;
-    if (sim.cupsSold > p.sold) sfx('sale');
-    if (sim.happy > p.happy) sfx('happy');
-    if (sim.complaints.taste > p.taste) sfx('taste');
-    if (sim.complaints.price > p.price) sfx('price');
-    if (sim.complaints.wait > p.wait) sfx('wait');
+    const jitter = (fn: () => void) => setTimeout(fn, Math.random() * 900);
+    for (let i = 0; i < Math.min(sim.cupsSold - p.sold, 3); i++) jitter(() => sfx('sale'));
+    if (sim.happy > p.happy) jitter(() => sfx('happy'));
+    if (sim.complaints.taste > p.taste) jitter(() => sfx('taste'));
+    if (sim.complaints.price > p.price) jitter(() => sfx('price'));
+    if (sim.complaints.wait > p.wait) jitter(() => sfx('wait'));
     if (sim.blendTicksLeft > p.blending) sfx('blend');
     prev.current = {
       sold: sim.cupsSold,

@@ -426,6 +426,7 @@ button {
   transform-box: fill-box;
   transform-origin: bottom left;
   animation: bubble-pop 0.25s ease-out;
+  animation-fill-mode: backwards; /* invisible until its per-person delay */
 }
 @keyframes bubble-pop {
   0% { transform: scale(0.3); opacity: 0; }
