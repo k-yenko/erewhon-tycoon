@@ -14,7 +14,7 @@ export default function StaffTab({
     <div className="panel">
       <h2 className="panel-title">Staff</h2>
       <div style={{ fontSize: 12, marginBottom: 8 }}>
-        Day contracts. Paid at close of business, gone by morning.
+        Paid daily at close of business. They stay until you fire them.
       </div>
       {STAFF.map((s) => {
         const hired = state.staff.includes(s.id);

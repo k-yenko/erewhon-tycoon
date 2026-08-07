@@ -379,8 +379,7 @@ export function overnight(state: GameState): void {
     last.earnings -= lost;
   }
 
-  state.staff = []; // day-by-day contracts, like the original
-  state.day += 1;
+  state.day += 1; // staff stay hired (and paid daily) until fired, like the original
 
   // Bankruptcy: can't afford even a minimal free-location day.
   const minimalDay = 60; // rough cost of smallest useful supply run

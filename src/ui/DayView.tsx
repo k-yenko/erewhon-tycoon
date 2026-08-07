@@ -28,7 +28,8 @@ export default function DayView({
         {sim.queue.map((id, qi) => {
           const c = sim.customers.find((k) => k.id === id);
           if (!c) return null;
-          const [gx, gy] = queueSpot(layout, qi);
+          // long lines bunch up at the back instead of walking off-scene
+          const [gx, gy] = queueSpot(layout, Math.min(qi, 7) + Math.min(Math.max(qi - 7, 0), 3) * 0.25);
           const [px, py] = iso(gx, gy);
           return (
             <Person key={c.id} variant={c.id} walking={false} bubble={c.bubble} x={px} y={py} />

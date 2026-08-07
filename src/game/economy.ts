@@ -8,7 +8,7 @@ export const C = {
   DAY_TICKS: 60,          // one in-game hour, one tick = one minute
   MS_PER_TICK: 1500,      // 90s per day at 1x
   CUPS_PER_BATCH: 12,
-  BASE_SERVE_TICKS: 3,
+  BASE_SERVE_TICKS: 2, // tip-screen upgrade brings this to 1; Madison serves in parallel
   BASE_BLEND_TICKS: 4,
   BASE_PATIENCE_MIN: 15,
   BASE_PATIENCE_SPREAD: 20,
