@@ -1,8 +1,6 @@
 # erewhon tycoon
 
-lemonade tycoon (2002) but it's a bougie LA smoothie stand. very much a work in progress.
-
-the prices are real. that's the joke.
+lemonade tycoon (2002) but it's a bougie LA smoothie stand
 
 ## run it
 
@@ -11,10 +9,10 @@ npm install
 npm run dev
 ```
 
-## what it is rn
+## what it is now
 
 - classic lemonade tycoon loop: buy supplies → set recipe/price → start day → watch tiny people buy smoothies → results screen
-- strawberries + coconut cream spoil overnight, ice ALWAYS melts (canon)
+- strawberries + coconut cream spoil overnight, ice ALWAYS melts
 - 10 LA locations, each with its own iso scene — venice boardwalk, calabasas gates, the beverly grove parking lot, etc.
 - popularity + satisfaction are per-location and actually affect traffic
 - weather + a daily LA news event (teachers strike, coachella exodus, GLP-1 discourse...) reroll every in-game morning
