@@ -10,9 +10,10 @@ import Person from './scene/Person';
 function quirks(id: number) {
   const h = (Math.imul(id, 2654435761) >>> 0);
   return {
-    drift: ((h & 0xff) / 255 - 0.5) * 0.55,          // sideways offset in tiles
+    drift: ((h & 0xff) / 255 - 0.5) * 0.55,          // buyers stay near the path
+    wander: (((h >> 4) & 0xff) / 255 - 0.5) * 2.2,   // browsers roam the whole scene
     sway: (((h >> 8) & 0xff) / 255 - 0.5) * 0.2,     // loose queue stance
-    reversed: ((h >> 16) & 3) === 0,                  // some stroll right-to-left
+    reversed: ((h >> 16) & 3) !== 0 ? false : true,   // some stroll right-to-left
   };
 }
 
@@ -41,8 +42,7 @@ export default function DayView({
           const c = sim.customers.find((k) => k.id === id);
           if (!c) return null;
           const q = quirks(c.id);
-          // long lines bunch up at the back instead of walking off-scene
-          const [gx, gy] = queueSpot(layout, Math.min(qi, 7) + Math.min(Math.max(qi - 7, 0), 3) * 0.25);
+          const [gx, gy] = queueSpot(layout, Math.min(qi, 11));
           const [px, py] = iso(gx + q.sway * 0.4, gy + q.sway);
           return (
             <Person key={c.id} variant={c.id} walking={false} bubble={c.bubble} x={px} y={py} />
@@ -54,11 +54,13 @@ export default function DayView({
           .filter((c) => c.state !== 'queued')
           .map((c) => {
             const q = quirks(c.id);
-            // window-shoppers who never buy sometimes stroll the other way
+            // window-shoppers who never buy sometimes stroll the other way,
+            // and roam well off the main path; buyers stay near it
             const strolling = !c.willBuy && q.reversed;
             const progress = strolling ? Math.max(0, EXIT_X - c.x) : c.x;
             const [gx, gy] = walkPoint(layout, progress);
-            const [px, py] = iso(gx, gy + q.drift);
+            const offset = c.willBuy ? q.drift : q.wander;
+            const [px, py] = iso(gx + offset * 0.3, gy + offset);
             return (
               <Person key={c.id} variant={c.id} walking={true} bubble={c.bubble} x={px} y={py} />
             );

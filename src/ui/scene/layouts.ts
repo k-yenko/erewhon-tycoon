@@ -109,7 +109,15 @@ export function walkPoint(layout: SceneLayout, simX: number): GridPt {
   return interp(exit, (simX - QUEUE_JOIN_X) / (EXIT_X - QUEUE_JOIN_X));
 }
 
+// Queue bunches two-abreast into a loose cluster by the cart, not a snake.
 export function queueSpot(layout: SceneLayout, index: number): GridPt {
   const head = layout.path[layout.queueIndex];
-  return [head[0] + layout.queueStep[0] * index, head[1] + layout.queueStep[1] * index];
+  const [sx, sy] = layout.queueStep;
+  const perp: GridPt = [-sy * 0.8, sx * 0.8]; // sideways from the queue direction
+  const row = Math.floor(index / 2);
+  const side = index % 2;
+  return [
+    head[0] + sx * row + perp[0] * side,
+    head[1] + sy * row + perp[1] * side,
+  ];
 }
