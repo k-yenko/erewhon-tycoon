@@ -350,7 +350,7 @@ export function stepSim(ctx: SimContext, sim: SimState): SimState {
       c.state = 'served';
       if (ctx.rand() < taste) {
         sim.happy += 1;
-        c.bubble = ctx.rand() < 0.25 ? 'content' : 'happy';
+        c.bubble = 'happy';
         if (ctx.rand() < 0.3) addReview(ctx, sim, 'happy');
       } else {
         sim.complaints.taste += 1;

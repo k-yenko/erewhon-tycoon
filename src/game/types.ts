@@ -189,7 +189,7 @@ export interface DayResult {
 }
 
 // Live simulation types
-export type BubbleKind = 'happy' | 'taste' | 'price' | 'wait' | 'content';
+export type BubbleKind = 'happy' | 'taste' | 'price' | 'wait';
 
 export interface SimCustomer {
   id: number;

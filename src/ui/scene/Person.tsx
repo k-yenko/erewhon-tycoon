@@ -8,7 +8,6 @@ const BUBBLE_GLYPH: Record<BubbleKind, IconName> = {
   taste: 'frown',
   price: 'tag',
   wait: 'hourglass',
-  content: 'heart', // loved it enough to post about it
 };
 
 interface Outfit {
