@@ -13,7 +13,8 @@ export const C = {
   BASE_PATIENCE_MIN: 15,
   BASE_PATIENCE_SPREAD: 20,
   WTP_SD: 5,              // willingness-to-pay standard deviation ($)
-  DROP_FAN_CHANCE: 0.3,   // buyers who want Today's Drop at its own price
+  DROP_FAN_CHANCE: 0.15,  // fans who pay Today's Drop's own price (your slider governs the rest)
+  PRICE_COMPLAINT_WEIGHT: 0.5, // window-shopper gripes count half in satisfaction
   SHELF_ATTACH_CHANCE: 0.15, // buyers who add the shelf item
   SHELF_COGS: 0.5,        // wholesale cost fraction of shelf revenue
   SPOILAGE_RATE: 0.1,     // nightly loss fraction for perishables

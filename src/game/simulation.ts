@@ -144,6 +144,7 @@ export function stepSim(ctx: SimContext, sim: SimState): SimState {
       bubble: null,
       bubbleTtl: 0,
       willBuy,
+      wantsDrop,
     };
     // Price-shy customers glance at the sign, complain, and keep walking.
     if (!willBuy) {
@@ -243,11 +244,10 @@ export function stepSim(ctx: SimContext, sim: SimState): SimState {
       const id = sim.queue.shift()!;
       const c = sim.customers.find((k) => k.id === id);
       if (!c) continue;
-      // serve one cup
+      // serve one cup — they pay the price they walked up for
       sim.batchCupsLeft -= 1;
       sim.stockUsed.cups += 1;
-      const wantsDrop = ctx.rand() < C.DROP_FAN_CHANCE;
-      const paid = wantsDrop ? ctx.dropPrice : ctx.state.price;
+      const paid = c.wantsDrop ? ctx.dropPrice : ctx.state.price;
       sim.revenue += paid;
       sim.cupsSold += 1;
       if (ctx.rand() < C.SHELF_ATTACH_CHANCE) {
@@ -302,7 +302,10 @@ export function settleDay(state: GameState, sim: SimState): DayResult {
   // — Satisfaction & popularity (per location) —
   const ls = state.locations[state.locationId];
   const positives = sim.happy;
-  const negatives = sim.complaints.taste + sim.complaints.price + sim.complaints.wait;
+  const negatives =
+    sim.complaints.taste +
+    sim.complaints.price * C.PRICE_COMPLAINT_WEIGHT +
+    sim.complaints.wait;
   const interactions = positives + negatives;
   if (interactions > 0) {
     const dayScore = positives / interactions;

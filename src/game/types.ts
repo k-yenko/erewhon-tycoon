@@ -166,6 +166,7 @@ export interface SimCustomer {
   bubble: BubbleKind | null;
   bubbleTtl: number;
   willBuy: boolean;
+  wantsDrop: boolean;   // pays the drop's price instead of yours
 }
 
 export interface SimState {

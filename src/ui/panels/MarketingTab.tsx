@@ -1,5 +1,7 @@
 import type { GameState } from '../../game/types';
 import { adBoost, fmtMoney } from '../../game/economy';
+import { LOCATION_BY_ID } from '../../game/content/locations';
+import { WEATHER_BY_ID } from '../../game/content/weather';
 import { PixelIcon } from '../icons';
 
 function adLabel(spend: number): string {
@@ -8,6 +10,20 @@ function adLabel(spend: number): string {
   if (spend <= 40) return 'micro-influencer seeding';
   if (spend <= 75) return 'TikTok campaign';
   return 'billboard on Sunset';
+}
+
+// What today's crowd is roughly willing to pay, and how to read the weather.
+function priceHint(state: GameState): string {
+  const loc = LOCATION_BY_ID[state.locationId];
+  const weather = state.daily ? WEATHER_BY_ID[state.daily.weatherId] : undefined;
+  const mean = loc.wealth * (weather?.payTolerance ?? 1);
+  const band = `Around here, today's crowd pays about $${Math.round(mean - 4)}–$${Math.round(mean + 3)}.`;
+  if (!weather) return band;
+  if (weather.payTolerance < 0.95)
+    return `${weather.name} — people are stingy today. A discount keeps them coming. ${band}`;
+  if (weather.payTolerance > 1.05)
+    return `${weather.name} — they'll pay up today. Don't be shy. ${band}`;
+  return band;
 }
 
 export default function MarketingTab({
@@ -38,11 +54,7 @@ export default function MarketingTab({
         <span className="val">${state.price.toFixed(2)}</span>
       </div>
       <div className="tagline" style={{ fontSize: 11, color: 'var(--ink-soft)', marginBottom: 14 }}>
-        {state.price < 12
-          ? 'Suspiciously affordable for this town.'
-          : state.price <= 24
-            ? 'Standard bougie. The sweet spot.'
-            : 'Ambitious. Works on hot days in rich zip codes.'}
+        {priceHint(state)}
       </div>
 
       <div className="meter-label">daily ad spend (instagram / tiktok)</div>
