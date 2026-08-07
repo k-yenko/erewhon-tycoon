@@ -160,7 +160,7 @@ button {
   font-size: 11px;
 }
 
-/* ——— Tab bar ——— */
+/* ——— Tab bar (raised buttons like the original) ——— */
 
 .tabbar {
   display: flex;
@@ -169,10 +169,11 @@ button {
 }
 .tab-btn {
   border: 3px solid var(--ink);
-  background: var(--cream);
-  box-shadow: 3px 3px 0 rgba(26, 26, 24, 0.35);
-  width: 76px;
-  padding: 6px 2px;
+  border-radius: 7px;
+  background: linear-gradient(180deg, #e3ddc9 0%, var(--kraft) 100%);
+  box-shadow: 3px 4px 0 rgba(26, 26, 24, 0.4), inset 0 2px 0 rgba(255, 255, 255, 0.5);
+  width: 74px;
+  padding: 7px 2px 4px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -180,13 +181,92 @@ button {
   font-size: 11px;
   text-transform: lowercase;
 }
-.tab-btn .icon { font-size: 20px; }
 .tab-btn.active {
-  background: var(--kraft);
+  background: linear-gradient(180deg, #fdfbf4 0%, #e9e2cf 100%);
   transform: translate(2px, 2px);
-  box-shadow: 1px 1px 0 rgba(26, 26, 24, 0.35);
+  box-shadow: 1px 2px 0 rgba(26, 26, 24, 0.4);
 }
-.tab-btn:hover:not(.active) { background: var(--cream-deep); }
+.tab-btn:hover:not(.active) {
+  background: linear-gradient(180deg, #efe9d7 0%, var(--kraft-dark) 100%);
+}
+
+/* ——— Steppers (− [value] +, like the original) ——— */
+
+.stepper {
+  display: flex;
+  align-items: center;
+}
+.step-arrow {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 14px;
+  width: 44px;
+  height: 36px;
+  border: 3px solid var(--ink);
+  background: linear-gradient(180deg, #e3ddc9 0%, var(--kraft) 100%);
+  color: var(--ink);
+}
+.step-arrow.left { clip-path: polygon(0 50%, 32% 0, 100% 0, 100% 100%, 32% 100%); padding-left: 12px; border-radius: 4px 0 0 4px; }
+.step-arrow.right { clip-path: polygon(0 0, 68% 0, 100% 50%, 68% 100%, 0 100%); padding-right: 12px; border-radius: 0 4px 4px 0; }
+.step-arrow:disabled { opacity: 0.35; cursor: default; }
+.step-arrow:hover:not(:disabled) { background: var(--kraft); }
+.step-value {
+  min-width: 84px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-top: 3px solid var(--ink);
+  border-bottom: 3px solid var(--ink);
+  background: var(--cream);
+  font-family: 'Press Start 2P', monospace;
+  font-size: 12px;
+  padding: 0 8px;
+}
+
+/* ——— Sub-tabs (little icon tabs inside panels) ——— */
+
+.subtabs {
+  display: flex;
+  gap: 4px;
+  margin: 6px 0 0;
+}
+.subtab {
+  border: 2px solid var(--ink);
+  border-bottom: none;
+  border-radius: 6px 6px 0 0;
+  background: var(--cream-deep);
+  padding: 5px 12px 3px;
+}
+.subtab.active { background: var(--cream); position: relative; top: 2px; padding-bottom: 5px; }
+.subtab-body {
+  border: 2px solid var(--ink);
+  padding: 8px;
+  background: var(--cream);
+}
+
+/* ——— Ledger table (P&L) ——— */
+
+.pl-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 11px;
+}
+.pl-table th {
+  text-align: right;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 8px;
+  padding: 4px 6px;
+  border-bottom: 2px solid var(--ink);
+}
+.pl-table th:first-child, .pl-table td:first-child { text-align: left; }
+.pl-table td { text-align: right; padding: 3px 6px; border-bottom: 1px solid var(--cream-deep); }
+.pl-table tr.section td { border-bottom: 2px solid var(--ink); }
+.pl-table tr.total td {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 9px;
+  padding-top: 6px;
+  border-bottom: none;
+}
 
 /* ——— Layout ——— */
 

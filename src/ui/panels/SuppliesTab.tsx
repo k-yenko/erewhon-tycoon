@@ -1,8 +1,12 @@
-import type { GameState } from '../../game/types';
+import { useState } from 'react';
+import type { GameState, StockId } from '../../game/types';
 import { SUPPLIES } from '../../game/content/supplies';
 import { computeMods, fmtMoney } from '../../game/economy';
+import { sfx, unlock } from '../../game/audio';
 import { PixelIcon } from '../icons';
+import Stepper from '../Stepper';
 
+// Per-ingredient sub-tabs with an order basket: nothing is bought until BUY.
 export default function SuppliesTab({
   state,
   commit,
@@ -11,66 +15,122 @@ export default function SuppliesTab({
   commit: () => void;
 }) {
   const mods = computeMods(state);
-  const freeIce = mods.freeIce;
+  const supplies = SUPPLIES.filter((s) => !(s.id === 'ice' && mods.freeIce));
+  const [activeId, setActiveId] = useState<StockId>(supplies[0].id);
+  const [order, setOrder] = useState<Record<string, number>>({});
+
+  const active = supplies.find((s) => s.id === activeId) ?? supplies[0];
+  const cap = mods.storage[active.id] ?? 999;
+
+  const orderQty = (id: StockId) =>
+    SUPPLIES.find((s) => s.id === id)!.tiers.reduce(
+      (q, t, i) => q + t.qty * (order[`${id}_${i}`] ?? 0),
+      0,
+    );
+  const totalCost = SUPPLIES.reduce(
+    (sum, s) => sum + s.tiers.reduce((c, t, i) => c + t.cost * (order[`${s.id}_${i}`] ?? 0), 0),
+    0,
+  );
+  const overCap = supplies.some(
+    (s) => state.stock[s.id] + orderQty(s.id) > (mods.storage[s.id] ?? 999),
+  );
+  const cantAfford = totalCost > state.cash;
+  const empty = totalCost === 0;
+
+  const buy = () => {
+    unlock();
+    state.cash -= totalCost;
+    for (const s of SUPPLIES) {
+      s.tiers.forEach((t, i) => {
+        state.stock[s.id] += t.qty * (order[`${s.id}_${i}`] ?? 0);
+      });
+    }
+    setOrder({});
+    sfx('sale');
+    commit();
+  };
+
   return (
     <div className="panel">
       <h2 className="panel-title">Supplies</h2>
-      {SUPPLIES.map((s) => {
-        const cap = mods.storage[s.id] ?? 999;
-        const have = state.stock[s.id];
-        if (s.id === 'ice' && freeIce) {
+      <div style={{ fontSize: 12, marginBottom: 4 }}>
+        Running out of stock in the middle of a promising day is a painful experience.
+        Strawberries spoil, ice melts, and the customers do not forgive.
+      </div>
+      <div className="subtabs">
+        {supplies.map((s) => (
+          <button
+            key={s.id}
+            className={`subtab ${s.id === active.id ? 'active' : ''}`}
+            onClick={() => setActiveId(s.id)}
+            title={s.name}
+          >
+            <PixelIcon name={s.icon} size={22} />
+            {orderQty(s.id) > 0 && (
+              <span style={{ fontSize: 10, marginLeft: 3 }}>•</span>
+            )}
+          </button>
+        ))}
+      </div>
+      <div className="subtab-body">
+        <div className="info-row">
+          <span className="label">{active.name}</span>
+          <span>
+            have {state.stock[active.id]} / cap {cap}
+          </span>
+        </div>
+        <div className="tagline" style={{ fontSize: 11, color: 'var(--ink-soft)', margin: '4px 0 8px' }}>
+          {active.meltsNightly
+            ? 'Melts overnight. Every night.'
+            : active.spoils
+              ? 'Spoils a little each night.'
+              : 'Keeps forever.'}
+        </div>
+        {active.tiers.map((t, i) => {
+          const key = `${active.id}_${i}`;
           return (
-            <div className="shop-item owned" key={s.id}>
-              <span className="icon"><PixelIcon name={s.icon} size={24} /></span>
-              <div className="body">
-                <div className="name">{s.name}</div>
-                <div className="tagline">Unlimited — the ice maker has you covered.</div>
+            <div
+              key={i}
+              style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}
+            >
+              <div style={{ flex: 1, fontSize: 13 }}>
+                {t.qty} units
+                <div style={{ fontSize: 11, color: 'var(--ink-soft)' }}>{fmtMoney(t.cost)}</div>
               </div>
+              <Stepper
+                value={order[key] ?? 0}
+                onChange={(v) => setOrder({ ...order, [key]: v })}
+                step={1}
+                min={0}
+                max={9}
+              />
             </div>
           );
-        }
-        return (
-          <div className="shop-item" key={s.id}>
-            <span className="icon"><PixelIcon name={s.icon} size={24} /></span>
-            <div className="body">
-              <div className="name">
-                {s.name} <span style={{ opacity: 0.6 }}>({have}/{cap})</span>
-              </div>
-              <div className="tagline">
-                {s.meltsNightly
-                  ? 'Melts overnight.'
-                  : s.spoils
-                    ? 'Spoils a little each night.'
-                    : 'Keeps.'}
-              </div>
-              <div style={{ display: 'flex', gap: 6, marginTop: 6, flexWrap: 'wrap' }}>
-                {s.tiers.map((t, i) => {
-                  const overCap = have + t.qty > cap;
-                  const cantAfford = state.cash < t.cost;
-                  return (
-                    <button
-                      key={i}
-                      className="pixel-btn"
-                      style={{ fontSize: 11, padding: '4px 8px' }}
-                      disabled={overCap || cantAfford}
-                      title={overCap ? 'Not enough storage' : undefined}
-                      onClick={() => {
-                        state.cash -= t.cost;
-                        state.stock[s.id] += t.qty;
-                        commit();
-                      }}
-                    >
-                      {t.qty} / {fmtMoney(t.cost)}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-          </div>
-        );
-      })}
-      <div className="tagline" style={{ fontSize: 11, color: 'var(--ink-soft)' }}>
-        Bulk is cheaper per unit — but strawberries spoil and ice melts overnight.
+        })}
+      </div>
+      <div className="info-row" style={{ marginTop: 8 }}>
+        <span className="label">Order total</span>
+        <span>{fmtMoney(totalCost)}</span>
+      </div>
+      {overCap && (
+        <div style={{ fontSize: 11, color: 'var(--alert)' }}>
+          Not enough storage for that order. A bigger stand holds more.
+        </div>
+      )}
+      {cantAfford && (
+        <div style={{ fontSize: 11, color: 'var(--alert)' }}>You cannot afford this order.</div>
+      )}
+      <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end', marginTop: 10 }}>
+        <button className="pixel-btn" disabled={empty} onClick={() => setOrder({})}>
+          Cancel
+        </button>
+        <button
+          className="pixel-btn primary"
+          disabled={empty || overCap || cantAfford}
+          onClick={buy}
+        >
+          Buy
+        </button>
       </div>
     </div>
   );

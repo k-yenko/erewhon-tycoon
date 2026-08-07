@@ -171,6 +171,7 @@ export interface DayResult {
   happy: number;
   customersTotal: number;
   walkedAway: number;
+  satisfactionPct: number; // that day's customer satisfaction, 0..100
   soldOut: boolean;
   shelfSold: number;
   shelfItemName: string;

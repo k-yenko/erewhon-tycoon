@@ -3,6 +3,7 @@ import { idealIce } from '../../game/content/weather';
 import { UNIT_VALUE } from '../../game/content/supplies';
 import { tasteQuality, C } from '../../game/economy';
 import { PixelIcon, type IconName } from '../icons';
+import Stepper from '../Stepper';
 
 // Cost per smoothie from the recipe (like the reference repo's costPerCup).
 export function costPerCup(state: GameState): number {
@@ -39,20 +40,22 @@ export default function RecipeTab({
         Per blender batch ({C.CUPS_PER_BATCH} smoothies).
       </div>
       {SLIDERS.map((s) => (
-        <div className="slider-row labeled" key={s.id}>
+        <div
+          key={s.id}
+          style={{ display: 'flex', alignItems: 'center', gap: 10, margin: '8px 0' }}
+        >
           <PixelIcon name={s.icon} size={22} />
-          <span className="ing-label">{s.label}</span>
-          <input
-            type="range"
-            min={0}
-            max={s.max}
+          <span className="ing-label" style={{ width: 110, fontSize: 11 }}>{s.label}</span>
+          <Stepper
             value={state.recipe[s.id]}
-            onChange={(e) => {
-              state.recipe[s.id] = Number(e.target.value);
+            onChange={(v) => {
+              state.recipe[s.id] = v;
               commit();
             }}
+            step={1}
+            min={0}
+            max={s.max}
           />
-          <span className="val">{state.recipe[s.id]}</span>
         </div>
       ))}
       <div className="info-row">

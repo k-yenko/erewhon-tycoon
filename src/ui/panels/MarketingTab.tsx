@@ -1,9 +1,9 @@
 import type { GameState } from '../../game/types';
 import { adBoost, fmtMoney } from '../../game/economy';
-import { costPerCup } from './RecipeTab';
 import { LOCATION_BY_ID } from '../../game/content/locations';
 import { WEATHER_BY_ID } from '../../game/content/weather';
-import { PixelIcon } from '../icons';
+import { costPerCup } from './RecipeTab';
+import Stepper from '../Stepper';
 
 function adLabel(spend: number): string {
   if (spend === 0) return 'organic reach only';
@@ -34,57 +34,58 @@ export default function MarketingTab({
   state: GameState;
   commit: () => void;
 }) {
+  const profit = state.price - costPerCup(state);
   return (
     <div className="panel">
-      <h2 className="panel-title">Marketing</h2>
-
-      <div className="meter-label">smoothie price</div>
-      <div className="slider-row">
-        <PixelIcon name="tag" size={22} />
-        <input
-          type="range"
-          min={5}
-          max={40}
-          step={0.5}
+      <h2 className="panel-title">Price</h2>
+      <div style={{ fontSize: 12, marginBottom: 8 }}>
+        Skills, instinct, judgment, generational wealth... do you have what it takes to set
+        the perfect price?
+      </div>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 14, flexWrap: 'wrap' }}>
+        <Stepper
           value={state.price}
-          onChange={(e) => {
-            state.price = Number(e.target.value);
+          display={`${state.price.toFixed(2)} $`}
+          onChange={(v) => {
+            state.price = v;
             commit();
           }}
+          step={0.5}
+          min={5}
+          max={40}
         />
-        <span className="val">${state.price.toFixed(2)}</span>
+        <div style={{ fontSize: 13 }}>
+          <b>Profit: {profit.toFixed(2)} $ per smoothie.</b>
+        </div>
       </div>
-      <div className="tagline" style={{ fontSize: 11, color: 'var(--ink-soft)', marginBottom: 14 }}>
+      <div className="tagline" style={{ fontSize: 11, color: 'var(--ink-soft)', margin: '8px 0 14px' }}>
         {priceHint(state)}
       </div>
 
-      <div className="meter-label">daily ad spend (instagram / tiktok)</div>
-      <div className="slider-row">
-        <PixelIcon name="camera" size={22} />
-        <input
-          type="range"
-          min={0}
-          max={100}
-          step={5}
+      <h2 className="panel-title">Advertising</h2>
+      <div style={{ fontSize: 12, marginBottom: 8 }}>
+        When your reputation needs a little boost, a few dollars into the algorithm can
+        really make the difference. Charged each day you trade.
+      </div>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 14, flexWrap: 'wrap' }}>
+        <Stepper
           value={state.adSpend}
-          onChange={(e) => {
-            state.adSpend = Number(e.target.value);
+          display={fmtMoney(state.adSpend)}
+          onChange={(v) => {
+            state.adSpend = v;
             commit();
           }}
+          step={5}
+          min={0}
+          max={100}
         />
-        <span className="val">{fmtMoney(state.adSpend)}</span>
+        <div style={{ fontSize: 12 }}>
+          {adLabel(state.adSpend)} · +{Math.round((adBoost(state.adSpend) - 1) * 100)}% traffic
+        </div>
       </div>
-      <div className="info-row">
-        <span className="label">Margin per smoothie</span>
-        <span>${(state.price - costPerCup(state)).toFixed(2)}</span>
-      </div>
-      <div className="info-row">
-        <span className="label">{adLabel(state.adSpend)}</span>
-        <span>+{Math.round((adBoost(state.adSpend) - 1) * 100)}% traffic</span>
-      </div>
-      <div className="tagline" style={{ fontSize: 11, color: 'var(--ink-soft)', marginTop: 6 }}>
-        Charged each day you trade. The algorithm has no memory. Ads also push today's
-        shelf item{state.daily?.shelfItem.category === 'merch' ? ' — and merch LIVES on the algorithm' : ''}.
+      <div className="tagline" style={{ fontSize: 11, color: 'var(--ink-soft)', marginTop: 8 }}>
+        Ads also push today's shelf item
+        {state.daily?.shelfItem.category === 'merch' ? ' — and merch LIVES on the algorithm' : ''}.
       </div>
     </div>
   );
