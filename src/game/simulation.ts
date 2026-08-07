@@ -38,6 +38,16 @@ export interface SimContext {
   nextId: number;
 }
 
+// How much of this location's crowd a global event actually touches.
+function audienceWeight(locationId: string, audience?: string): number {
+  if (!audience || audience === 'everyone') return 1;
+  const loc = LOCATION_BY_ID[locationId];
+  if (audience === 'tourists') return loc.touristy;
+  if (audience === 'industry') return loc.industry;
+  // locals: whoever isn't a tourist (Coachella empties Silver Lake, not Venice)
+  return 1 - loc.touristy * 0.85;
+}
+
 // The active headline: the real-LA fetch when today prefers it, else the pool event.
 export function activeEvent(daily: DailyContent, locationId: string) {
   if (daily.useLive && daily.liveEvent) {
@@ -47,11 +57,14 @@ export function activeEvent(daily: DailyContent, locationId: string) {
   const event = EVENT_BY_ID[daily.eventId];
   const applies =
     event && (event.scope.kind === 'global' || event.scope.locationId === locationId);
+  // Global events scale by how much of this crowd they move; the effect shrinks
+  // toward neutral (×1) where that audience is thin on the ground.
+  const w = applies && event.scope.kind === 'global' ? audienceWeight(locationId, event.audience) : 1;
   return {
     headline: event?.headline ?? '',
-    traffic: applies ? (event.traffic ?? 1) : 1,
-    pay: applies ? (event.pay ?? 1) : 1,
-    patience: applies ? (event.patience ?? 1) : 1,
+    traffic: applies ? 1 + ((event.traffic ?? 1) - 1) * w : 1,
+    pay: applies ? 1 + ((event.pay ?? 1) - 1) * w : 1,
+    patience: applies ? 1 + ((event.patience ?? 1) - 1) * w : 1,
     vibe: applies ? event.vibe : undefined,
     isLive: false,
   };
@@ -225,8 +238,13 @@ export function stepSim(ctx: SimContext, sim: SimState): SimState {
         if (sim.soldOut) {
           c.state = 'leaving';
           sim.walkedAway += 1;
-        } else if (sim.queue.length >= C.BALK_LINE) {
-          // one look at that line and they're out — the rational "too slow"
+        } else if (
+          // rational balk: "will this line finish before my patience does?"
+          // faster serving and a second server directly shorten the estimated wait
+          sim.queue.length * (ctx.mods.serveTicks / (ctx.mods.secondServer ? 2 : 1)) >
+            c.patienceLeft ||
+          sim.queue.length >= C.BALK_LINE
+        ) {
           c.state = 'leaving';
           c.bubble = 'wait';
           c.bubbleTtl = 4;

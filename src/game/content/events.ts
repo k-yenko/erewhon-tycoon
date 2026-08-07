@@ -5,7 +5,7 @@ import type { EventDef } from '../types';
 // Multipliers: traffic ×0.4–×1.6, pay ±30%, patience ±40%.
 export const EVENTS: EventDef[] = [
   // ——— Global: good for business ———
-  { id: 'teachers-strike', headline: 'Teachers On Strike: No School For Kids!', scope: { kind: 'global' }, vibe: 'chaos', traffic: 1.4 },
+  { id: 'teachers-strike', headline: 'Teachers On Strike: No School For Kids!', scope: { kind: 'global' }, vibe: 'chaos', traffic: 1.4, audience: 'locals' },
   { id: 'adaptogens-real', headline: 'New Study: Adaptogens Are Real, Probably!', scope: { kind: 'global' }, vibe: 'wellness', traffic: 1.3 },
   { id: 'protein-maxxing', headline: 'Cottage Cheese Protein-Maxxing Trend Up 82%!', scope: { kind: 'global' }, vibe: 'wellness', traffic: 1.3 },
   { id: 'wellness-day', headline: 'City Declares Official Wellness Day!', scope: { kind: 'global' }, vibe: 'wellness', traffic: 1.35 },
@@ -21,20 +21,20 @@ export const EVENTS: EventDef[] = [
   { id: 'cleanse-discourse', headline: 'Juice Cleanse Discourse Turns Ugly On TikTok', scope: { kind: 'global' }, vibe: 'chaos', traffic: 0.7 },
   { id: 'seed-oil-scare', headline: 'Influencer Claims Smoothies Are Full Of Seed Oils!', scope: { kind: 'global' }, vibe: 'chaos', traffic: 0.65 },
   { id: 'competitor-drop', headline: 'Competing Grocery Chain Drops Its Own Celebrity Smoothie!', scope: { kind: 'global' }, vibe: 'hype', traffic: 0.7 },
-  { id: 'coachella-exodus', headline: 'Coachella Weekend: The Entire City Has Left For The Desert', scope: { kind: 'global' }, vibe: 'hype', traffic: 0.5 },
+  { id: 'coachella-exodus', headline: 'Coachella Weekend: The Entire City Has Left For The Desert', scope: { kind: 'global' }, vibe: 'hype', traffic: 0.5, audience: 'locals' },
   { id: 'mercury-sales', headline: 'Astrologers Advise Against Purchases During Mercury Retrograde', scope: { kind: 'global' }, vibe: 'chaos', traffic: 0.7 },
   { id: 'raw-milk-recall', headline: 'Raw Milk Recall Shakes Consumer Confidence In Wellness Drinks', scope: { kind: 'global' }, vibe: 'chaos', traffic: 0.6 },
 
   // ——— Customers pay MORE ———
-  { id: 'tech-ipo', headline: 'Tech IPO Mints 400 New Millionaires Overnight!', scope: { kind: 'global' }, vibe: 'money', pay: 1.3 },
-  { id: 'awards-season', headline: "Awards Season: Everyone's On A Pre-Gala Cleanse!", scope: { kind: 'global' }, vibe: 'money', pay: 1.25, traffic: 1.1 },
-  { id: 'bonus-season', headline: 'Entertainment Bonus Season: Assistants Sent On $700 Hauls!', scope: { kind: 'global' }, vibe: 'money', pay: 1.3 },
+  { id: 'tech-ipo', headline: 'Tech IPO Mints 400 New Millionaires Overnight!', scope: { kind: 'global' }, vibe: 'money', pay: 1.3, audience: 'industry' },
+  { id: 'awards-season', headline: "Awards Season: Everyone's On A Pre-Gala Cleanse!", scope: { kind: 'global' }, vibe: 'money', pay: 1.25, traffic: 1.1, audience: 'industry' },
+  { id: 'bonus-season', headline: 'Entertainment Bonus Season: Assistants Sent On $700 Hauls!', scope: { kind: 'global' }, vibe: 'money', pay: 1.3, audience: 'industry' },
   { id: 'tax-refund', headline: 'Tax Refunds Land: Citizens Feel Briefly Rich!', scope: { kind: 'global' }, vibe: 'money', pay: 1.2 },
 
   // ——— Customers pay LESS ———
-  { id: 'writers-strike', headline: "Industry Strike: Everyone's Money Is Frozen In Development", scope: { kind: 'global' }, vibe: 'chaos', pay: 0.75 },
-  { id: 'rent-due', headline: 'Rent Due Week Hits The Eastside Hard', scope: { kind: 'global' }, vibe: 'money', pay: 0.8 },
-  { id: 'stock-dip', headline: 'Stock Market Dips: Trust Funds Feel The Squeeze', scope: { kind: 'global' }, vibe: 'money', pay: 0.75 },
+  { id: 'writers-strike', headline: "Industry Strike: Everyone's Money Is Frozen In Development", scope: { kind: 'global' }, vibe: 'chaos', pay: 0.75, audience: 'industry' },
+  { id: 'rent-due', headline: 'Rent Due Week Hits The Eastside Hard', scope: { kind: 'global' }, vibe: 'money', pay: 0.8, audience: 'locals' },
+  { id: 'stock-dip', headline: 'Stock Market Dips: Trust Funds Feel The Squeeze', scope: { kind: 'global' }, vibe: 'money', pay: 0.75, audience: 'industry' },
   { id: 'budgeting-app', headline: 'Viral Budgeting App Tells Users To "Audit Your Smoothies"', scope: { kind: 'global' }, vibe: 'money', pay: 0.8 },
 
   // ——— Queue patience up ———
@@ -49,9 +49,9 @@ export const EVENTS: EventDef[] = [
   { id: 'matcha-shortage', headline: 'Global Matcha Shortage Causes Citywide Irritability', scope: { kind: 'global' }, vibe: 'chaos', patience: 0.7 },
 
   // ——— Your Driveway ———
-  { id: 'stayhome-day', headline: 'Neighborhood Celebrates "Stay At Home" Day!', scope: { kind: 'location', locationId: 'driveway' }, vibe: 'wellness', traffic: 1.5 },
+  { id: 'stayhome-day', headline: 'Neighborhood Celebrates "Stay At Home" Day!', scope: { kind: 'location', locationId: 'driveway' }, vibe: 'wellness', traffic: 1.5, audience: 'locals' },
   { id: 'block-party', headline: 'Your Block Is Having A Block Party!', scope: { kind: 'location', locationId: 'driveway' }, vibe: 'hype', traffic: 1.6 },
-  { id: 'street-sweeping', headline: 'Street Sweeping Day: Everyone Is Moving Their Car', scope: { kind: 'location', locationId: 'driveway' }, vibe: 'chaos', traffic: 0.6 },
+  { id: 'street-sweeping', headline: 'Street Sweeping Day: Everyone Is Moving Their Car', scope: { kind: 'location', locationId: 'driveway' }, vibe: 'chaos', traffic: 0.6, audience: 'locals' },
 
   // ——— Silver Lake ———
   { id: 'flea-market', headline: 'Vintage Flea Market Takes Over Silver Lake!', scope: { kind: 'location', locationId: 'silverlake' }, vibe: 'hype', traffic: 1.5 },
@@ -108,10 +108,10 @@ export const EVENTS: EventDef[] = [
   { id: 'pilates-opening', headline: 'Another Pilates Studio Opens: Reformer Waitlists Citywide', scope: { kind: 'global' }, vibe: 'wellness', traffic: 1.3 },
   { id: 'run-club', headline: 'Sunday Run Club Culture Officially Out Of Control', scope: { kind: 'global' }, vibe: 'wellness', traffic: 1.35 },
   { id: 'espresso-martini', headline: 'City Collectively Regrets Last Night\'s Espresso Martinis', scope: { kind: 'global' }, vibe: 'wellness', traffic: 1.25, patience: 0.85 },
-  { id: 'audition-week', headline: 'Self-Tape Season: Half The City Is Being "So Normal" On Camera', scope: { kind: 'global' }, vibe: 'money', traffic: 1.1, patience: 0.85 },
-  { id: 'gifting-suite', headline: 'Awards Gifting Suites Open: Free Stuff For People Who Need It Least', scope: { kind: 'global' }, vibe: 'money', pay: 1.2 },
-  { id: 'super-bloom', headline: 'Super Bloom Weekend: Everyone Is Off Taking Poppy Photos', scope: { kind: 'global' }, vibe: 'hype', traffic: 0.7 },
-  { id: 'gas-prices', headline: 'Gas Hits $7: Walking Is Suddenly A Lifestyle Choice', scope: { kind: 'global' }, vibe: 'money', traffic: 1.2, pay: 0.9 },
+  { id: 'audition-week', headline: 'Self-Tape Season: Half The City Is Being "So Normal" On Camera', scope: { kind: 'global' }, vibe: 'money', traffic: 1.1, patience: 0.85, audience: 'industry' },
+  { id: 'gifting-suite', headline: 'Awards Gifting Suites Open: Free Stuff For People Who Need It Least', scope: { kind: 'global' }, vibe: 'money', pay: 1.2, audience: 'industry' },
+  { id: 'super-bloom', headline: 'Super Bloom Weekend: Everyone Is Off Taking Poppy Photos', scope: { kind: 'global' }, vibe: 'hype', traffic: 0.7, audience: 'locals' },
+  { id: 'gas-prices', headline: 'Gas Hits $7: Walking Is Suddenly A Lifestyle Choice', scope: { kind: 'global' }, vibe: 'money', traffic: 1.2, pay: 0.9, audience: 'locals' },
   { id: 'earthquake-small', headline: '3.9 Earthquake: Everyone Posts "Did You Feel That"', scope: { kind: 'global' }, vibe: 'chaos', traffic: 0.85, patience: 0.85 },
   { id: 'santa-ana-discourse', headline: 'Santa Anas Blow In: Everyone Blames The Wind For Their Behavior', scope: { kind: 'global' }, vibe: 'chaos', patience: 0.7 },
   { id: 'moon-circle', headline: 'Full Moon Circle At Runyon: Manifestation Levels Elevated', scope: { kind: 'global' }, vibe: 'wellness', traffic: 1.2 },
@@ -121,8 +121,8 @@ export const EVENTS: EventDef[] = [
   { id: 'sober-curious', headline: '"Sober Curious" Trend Peaks: Mocktail Demand Surges', scope: { kind: 'global' }, vibe: 'wellness', traffic: 1.25 },
   { id: 'street-takeover', headline: 'Street Takeover Discourse: Everyone Has An Opinion, Nobody Has Plans', scope: { kind: 'global' }, vibe: 'chaos', traffic: 0.9 },
   { id: 'pop-up-week', headline: 'Pop-Up Week: Every Parking Lot Is Now A Concept', scope: { kind: 'global' }, vibe: 'hype', traffic: 1.3 },
-  { id: 'wellness-retreat', headline: 'Half Your Customer Base Is At A Retreat In Ojai', scope: { kind: 'global' }, vibe: 'wellness', traffic: 0.7 },
-  { id: 'premiere-night', headline: 'Big Premiere Tonight: Blowouts And Green Juice All Day', scope: { kind: 'global' }, vibe: 'hype', traffic: 1.2, pay: 1.1 },
+  { id: 'wellness-retreat', headline: 'Half Your Customer Base Is At A Retreat In Ojai', scope: { kind: 'global' }, vibe: 'wellness', traffic: 0.7, audience: 'locals' },
+  { id: 'premiere-night', headline: 'Big Premiere Tonight: Blowouts And Green Juice All Day', scope: { kind: 'global' }, vibe: 'hype', traffic: 1.2, pay: 1.1, audience: 'industry' },
   { id: 'influencer-drama', headline: 'Two Wellness Influencers Are Feuding And It\'s All Anyone Talks About', scope: { kind: 'global' }, vibe: 'hype', traffic: 1.15, patience: 0.9 },
   { id: 'crystal-fair', headline: 'Crystal & Mineral Fair In Town: Energies Are Aligned', scope: { kind: 'global' }, vibe: 'wellness', traffic: 1.2, patience: 1.2 },
   { id: 'heat-advisory-park', headline: 'Everyone Suddenly Remembers Griffith Park Has No Shade', scope: { kind: 'global' }, vibe: 'chaos', traffic: 1.15 },
@@ -131,7 +131,7 @@ export const EVENTS: EventDef[] = [
   { id: 'private-chef', headline: 'Private Chef Shortage Forces The Wealthy To Buy Their Own Smoothies', scope: { kind: 'global' }, vibe: 'money', pay: 1.25, traffic: 1.1 },
   { id: 'tarot-says-no', headline: 'Prominent Tarot Reader Advises Against "Big Purchases"', scope: { kind: 'global' }, vibe: 'chaos', pay: 0.8 },
   { id: 'goop-adjacent', headline: 'New Goop-Adjacent Newsletter Endorses Sea Moss, Again', scope: { kind: 'global' }, vibe: 'wellness', traffic: 1.25 },
-  { id: 'jury-duty', headline: 'Half The Westside Got Jury Duty The Same Week', scope: { kind: 'global' }, vibe: 'chaos', traffic: 0.75 },
+  { id: 'jury-duty', headline: 'Half The Westside Got Jury Duty The Same Week', scope: { kind: 'global' }, vibe: 'chaos', traffic: 0.75, audience: 'locals' },
   { id: 'grove-tourists', headline: 'Tour Bus Season Peaks: Cameras Out, Wallets Open', scope: { kind: 'location', locationId: 'beverlygrove' }, vibe: 'hype', traffic: 1.4, pay: 1.1 },
   { id: 'abbot-kinney-fest', headline: 'Abbot Kinney Festival: The Whole Street Is A Runway', scope: { kind: 'location', locationId: 'venice' }, vibe: 'hype', traffic: 1.6 },
   { id: 'calabasas-car-show', headline: 'Cars & Coffee In Calabasas: Engines Loud, Wallets Louder', scope: { kind: 'location', locationId: 'calabasas' }, vibe: 'money', traffic: 1.4, pay: 1.15 },

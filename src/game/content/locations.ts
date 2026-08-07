@@ -13,6 +13,8 @@ export const LOCATIONS: LocationDef[] = [
     wealth: 18,
     basePopularity: 0.7,
     baseSatisfaction: 0.8,
+    touristy: 0.0,
+    industry: 0.1,
     sceneColors: { sky: '#cfe3ea', ground: '#7cb85c', accent: '#4a9e46' },
   },
   {
@@ -25,6 +27,8 @@ export const LOCATIONS: LocationDef[] = [
     wealth: 20,
     basePopularity: 0.6,
     baseSatisfaction: 0.5,
+    touristy: 0.15,
+    industry: 0.25,
     sceneColors: { sky: '#cfe3ea', ground: '#74b054', accent: '#43a047' },
   },
   {
@@ -37,6 +41,8 @@ export const LOCATIONS: LocationDef[] = [
     wealth: 21,
     basePopularity: 0.5,
     baseSatisfaction: 0.4,
+    touristy: 0.1,
+    industry: 0.8,
     sceneColors: { sky: '#d5e6ee', ground: '#a4adb5', accent: '#3f6fd9' },
   },
   {
@@ -49,6 +55,8 @@ export const LOCATIONS: LocationDef[] = [
     wealth: 22,
     basePopularity: 0.4,
     baseSatisfaction: 0.6,
+    touristy: 0.1,
+    industry: 0.85,
     sceneColors: { sky: '#e8e0cf', ground: '#c8a96e', accent: '#c78f3f' },
   },
   {
@@ -61,6 +69,8 @@ export const LOCATIONS: LocationDef[] = [
     wealth: 23,
     basePopularity: 0.7,
     baseSatisfaction: 0.3,
+    touristy: 0.8,
+    industry: 0.1,
     sceneColors: { sky: '#bfe0ec', ground: '#e8cf8e', accent: '#2f9ea8' },
   },
   {
@@ -73,6 +83,8 @@ export const LOCATIONS: LocationDef[] = [
     wealth: 24,
     basePopularity: 0.6,
     baseSatisfaction: 0.3,
+    touristy: 0.85,
+    industry: 0.1,
     sceneColors: { sky: '#bfe0ec', ground: '#e3ca88', accent: '#2f86c7' },
   },
   {
@@ -85,6 +97,8 @@ export const LOCATIONS: LocationDef[] = [
     wealth: 26,
     basePopularity: 0.3,
     baseSatisfaction: 0.8,
+    touristy: 0.05,
+    industry: 0.3,
     sceneColors: { sky: '#e9ddc8', ground: '#84b660', accent: '#cf9c3f' },
   },
   {
@@ -97,6 +111,8 @@ export const LOCATIONS: LocationDef[] = [
     wealth: 27,
     basePopularity: 0.8,
     baseSatisfaction: 0.2,
+    touristy: 0.5,
+    industry: 0.4,
     sceneColors: { sky: '#d8e4ea', ground: '#b0b0a8', accent: '#7b5ec7' },
   },
   {
@@ -109,6 +125,8 @@ export const LOCATIONS: LocationDef[] = [
     wealth: 28,
     basePopularity: 0.6,
     baseSatisfaction: 0.4,
+    touristy: 0.75,
+    industry: 0.3,
     sceneColors: { sky: '#d8e4ea', ground: '#95bd6f', accent: '#c76f5a' },
   },
   {
@@ -121,6 +139,8 @@ export const LOCATIONS: LocationDef[] = [
     wealth: 30,
     basePopularity: 0.2,
     baseSatisfaction: 0.9,
+    touristy: 0.1,
+    industry: 0.2,
     sceneColors: { sky: '#c8e2ee', ground: '#79b45c', accent: '#3f9e63' },
   },
 ];

@@ -12,7 +12,7 @@ export const C = {
   BASE_BLEND_TICKS: 4,
   BASE_PATIENCE_MIN: 15,
   BASE_PATIENCE_SPREAD: 20,
-  BALK_LINE: 6,           // arrivals take one look at a line this long and keep walking
+  BALK_LINE: 14,          // hard visual cap; the real balk test is estimated wait vs patience
   WTP_SD: 5,              // willingness-to-pay standard deviation ($)
   DROP_FAN_CHANCE: 0.15,  // fans who pay Today's Drop's own price (your slider governs the rest)
   PRICE_COMPLAINT_WEIGHT: 0.5, // window-shopper gripes count half in satisfaction

@@ -40,6 +40,10 @@ export type EventScope =
   | { kind: 'location'; locationId: string };
 
 export type EventVibe = 'wellness' | 'money' | 'chaos' | 'hype';
+// Who a global event actually moves: locals leave for Coachella, industry
+// money freezes in a strike, tourists ride the tour buses. Locations feel
+// events proportionally to how much of that crowd they have.
+export type EventAudience = 'locals' | 'tourists' | 'industry' | 'everyone';
 
 export interface EventDef {
   id: string;
@@ -49,6 +53,7 @@ export interface EventDef {
   pay?: number;          // multiplier on willingness to pay (default 1)
   patience?: number;     // multiplier on queue patience (default 1)
   vibe?: EventVibe;      // colors what sells from the shelf today
+  audience?: EventAudience;
 }
 
 export interface LocationDef {
@@ -60,6 +65,8 @@ export interface LocationDef {
   wealth: number;        // avg willingness-to-pay in $ for a smoothie
   basePopularity: number;   // starting/resting popularity at this spot
   baseSatisfaction: number; // starting/resting satisfaction at this spot
+  touristy: number;         // 0..1 — share of the crowd that's tourists
+  industry: number;         // 0..1 — share tied to entertainment/tech money
   sceneColors: { sky: string; ground: string; accent: string };
 }
 

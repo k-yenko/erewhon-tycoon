@@ -118,10 +118,10 @@ export function sfx(name: Sfx): void {
 
 // ——— lo-fi beat: jazzy chords through a warm filter, swung drums, tape hiss ———
 
-const BPM = 72;
+const BPM = 66;
 const BEAT = 60 / BPM;
 const BAR = BEAT * 4;
-const SWING = 0.58; // offbeat lands late
+const SWING = 0.6; // offbeat lands lazy-late
 
 // Fmaj9 → Em7 → Dm9 → Cmaj7, with bass roots
 const PROG: { chord: number[]; bass: number }[] = [
@@ -133,6 +133,7 @@ const PROG: { chord: number[]; bass: number }[] = [
 
 let lofiBus: BiquadFilterNode | null = null;
 let noiseBuf: AudioBuffer | null = null;
+let wobble: GainNode | null = null; // shared wow/flutter LFO feeding note detune
 
 function noiseBurst(at: number, dur: number, vol: number, filterType: BiquadFilterType, freq: number) {
   if (!ctx || !lofiBus || !noiseBuf) return;
@@ -154,31 +155,41 @@ function kick(at: number) {
   if (!ctx || !lofiBus) return;
   const osc = ctx.createOscillator();
   const g = ctx.createGain();
-  osc.frequency.setValueAtTime(110, at);
-  osc.frequency.exponentialRampToValueAtTime(45, at + 0.12);
-  g.gain.setValueAtTime(0.5, at);
-  g.gain.exponentialRampToValueAtTime(0.001, at + 0.22);
+  osc.frequency.setValueAtTime(85, at);
+  osc.frequency.exponentialRampToValueAtTime(42, at + 0.14);
+  g.gain.setValueAtTime(0.34, at);
+  g.gain.exponentialRampToValueAtTime(0.001, at + 0.28);
   osc.connect(g).connect(lofiBus);
   osc.start(at);
-  osc.stop(at + 0.25);
+  osc.stop(at + 0.3);
 }
 
-function padNote(freq: number, at: number, dur: number, vol: number) {
+// Rhodes-ish key: fast attack, long mellow decay, slight detune pair,
+// all riding the shared wow/flutter wobble. No drones.
+function keyNote(freq: number, at: number, vol: number, decay = 2.4) {
   if (!ctx || !lofiBus) return;
-  for (const det of [-4, 4]) {
+  for (const [det, v] of [
+    [-3, vol],
+    [4, vol * 0.6],
+  ] as const) {
     const osc = ctx.createOscillator();
     const g = ctx.createGain();
-    osc.type = 'triangle';
+    osc.type = det < 0 ? 'triangle' : 'sine';
     osc.frequency.value = freq;
     osc.detune.value = det;
+    wobble?.connect(osc.detune);
     g.gain.setValueAtTime(0, at);
-    g.gain.linearRampToValueAtTime(vol, at + 0.4);
-    g.gain.setValueAtTime(vol, at + dur - 0.6);
-    g.gain.linearRampToValueAtTime(0.0001, at + dur);
+    g.gain.linearRampToValueAtTime(v, at + 0.015);
+    g.gain.exponentialRampToValueAtTime(0.0006, at + decay);
     osc.connect(g).connect(lofiBus);
     osc.start(at);
-    osc.stop(at + dur + 0.05);
+    osc.stop(at + decay + 0.05);
   }
+}
+
+// Gentle strum: chord notes staggered like lazy fingers.
+function strum(chord: number[], at: number, vol: number) {
+  chord.forEach((f, i) => keyNote(f, at + i * 0.045, vol));
 }
 
 function bassNote(freq: number, at: number, dur: number) {
@@ -197,45 +208,54 @@ function bassNote(freq: number, at: number, dur: number) {
 
 function scheduleBar(t0: number, bar: number) {
   const { chord, bass } = PROG[bar % PROG.length];
-  // pad chord, whole bar
-  for (const f of chord) padNote(f, t0, BAR, 0.05);
-  // lazy pentatonic-ish pluck, not every bar
-  if (bar % 2 === 1) {
-    const f = chord[(bar * 5) % chord.length] * 2;
-    padNote(f, t0 + BEAT * 2.55, 0.9, 0.07);
+  // Rhodes chord strummed on the 1, echoed softly on the and-of-2
+  strum(chord, t0, 0.085);
+  strum(chord.slice(1), t0 + BEAT * (2 + SWING - 1), 0.045);
+  // sparse pentatonic melody: one or two lazy notes, not every bar
+  if (bar % 2 === 0) {
+    const mel = chord[(bar * 3) % chord.length] * 2;
+    keyNote(mel, t0 + BEAT * (1 + SWING), 0.06, 1.6);
+    if (bar % 4 === 0) keyNote(chord[1] * 2, t0 + BEAT * 3.2, 0.05, 1.4);
   }
   // bass: root on 1, again on the and-of-2 (swung)
-  bassNote(bass, t0, BEAT * 1.4);
-  bassNote(bass, t0 + BEAT * (2 + SWING), BEAT * 0.9);
-  // drums: kick 1 & and-of-2ish, rim on 2 & 4, dusty swung hats
+  bassNote(bass, t0, BEAT * 1.5);
+  bassNote(bass * (bar % 4 === 3 ? 1.5 : 1), t0 + BEAT * (2 + SWING), BEAT * 0.9);
+  // boom-bap: kick 1 & lazy and-of-2, soft snare on 2 & 4, dusty swung hats
   kick(t0);
   kick(t0 + BEAT * (2 + SWING));
-  noiseBurst(t0 + BEAT, 0.07, 0.09, 'bandpass', 1800); // rim
-  noiseBurst(t0 + BEAT * 3, 0.07, 0.09, 'bandpass', 1800);
+  noiseBurst(t0 + BEAT, 0.09, 0.07, 'bandpass', 1500); // soft snare
+  noiseBurst(t0 + BEAT * 3, 0.09, 0.07, 'bandpass', 1500);
   for (let i = 0; i < 8; i++) {
     const off = Math.floor(i / 2) + (i % 2 === 0 ? 0 : SWING);
-    noiseBurst(t0 + BEAT * off, 0.025, i % 2 === 0 ? 0.035 : 0.02, 'highpass', 6500);
+    noiseBurst(t0 + BEAT * off, 0.02, i % 2 === 0 ? 0.022 : 0.013, 'highpass', 7000);
   }
   // vinyl crackle: a few random dusty ticks per bar
-  for (let i = 0; i < 5; i++) {
-    noiseBurst(t0 + Math.random() * BAR, 0.012, 0.02 + Math.random() * 0.02, 'lowpass', 3000);
+  for (let i = 0; i < 6; i++) {
+    noiseBurst(t0 + Math.random() * BAR, 0.01, 0.015 + Math.random() * 0.02, 'lowpass', 2800);
   }
 }
 
 function startMusic(): void {
   if (!ctx || !musicGain || musicTimer !== null) return;
-  // warm master filter for the whole beat, with a slow breathing LFO
+  // warm, muffled master filter with a slow breathing LFO
   lofiBus = ctx.createBiquadFilter();
   lofiBus.type = 'lowpass';
-  lofiBus.frequency.value = 2000;
-  lofiBus.Q.value = 0.4;
+  lofiBus.frequency.value = 1400;
+  lofiBus.Q.value = 0.5;
   const lfo = ctx.createOscillator();
   const lfoGain = ctx.createGain();
-  lfo.frequency.value = 0.07;
-  lfoGain.gain.value = 500;
+  lfo.frequency.value = 0.06;
+  lfoGain.gain.value = 350;
   lfo.connect(lfoGain).connect(lofiBus.frequency);
   lfo.start();
   lofiBus.connect(musicGain);
+  // tape wow/flutter: slow pitch wobble shared by every key note
+  const wob = ctx.createOscillator();
+  wobble = ctx.createGain();
+  wob.frequency.value = 0.6;
+  wobble.gain.value = 7; // ±7 cents
+  wob.connect(wobble);
+  wob.start();
   // shared noise buffer for drums/crackle
   noiseBuf = ctx.createBuffer(1, ctx.sampleRate, ctx.sampleRate);
   const data = noiseBuf.getChannelData(0);
