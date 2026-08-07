@@ -38,7 +38,7 @@ export default function DayView({
   const layout = LAYOUTS[state.locationId] ?? LAYOUTS.silverlake;
   // movement transition matches the real tick rate, so walking is one
   // continuous glide — and the ▶▶ button visibly speeds people up
-  const tickSec = 1.5 / speed;
+  const tickSec = (1.5 / speed) * 1.08; // slight overlap so timer jitter never leaves a dead frame
 
   // Legs only move when the body actually moves: track last positions and
   // compare per render, so nobody moonwalks in place.
@@ -69,99 +69,80 @@ export default function DayView({
   return (
     <div className="scene">
       <IsoScene loc={loc} weatherId={state.daily?.weatherId}>
-        {/* everything in the people layer is depth-sorted by screen y so the
-            cart correctly occludes people behind it (and vice versa) */}
+        {/* People render in STABLE id order (so DOM nodes never move and CSS
+            transitions run uninterrupted) — split only into behind/in-front of
+            the cart, the one occlusion that matters. */}
         {(() => {
-          const cartPos = iso(layout.cart[0], layout.cart[1]);
-          const items: { key: string; depth: number; el: React.ReactNode }[] = [
-            {
-              key: 'cart',
-              depth: cartPos[1],
-              el: <Cart x={layout.cart[0]} y={layout.cart[1]} />,
-            },
-          ];
-          if (state.settings?.rival && state.daily?.rivalLocationId === state.locationId) {
-            const rivalPos = iso(layout.cart[0] + 2.4, layout.cart[1]);
-            items.push({
-              key: 'rival',
-              depth: rivalPos[1],
-              el: <Cart x={layout.cart[0] + 2.4} y={layout.cart[1]} rival />,
-            });
-          }
-
-          // queue: a loose two-abreast cluster by the cart
-          sim.queue.forEach((id, qi) => {
-            const c = sim.customers.find((k) => k.id === id);
-            if (!c) return;
-            const q = quirks(c.id);
-            const [gx, gy] = queueSpot(layout, Math.min(qi, 11));
-            const [px, py] = iso(gx + q.sway * 0.4, gy + q.sway);
-            items.push({
-              key: `p${c.id}`,
-              depth: py,
-              el: (
-                <Person
-                  variant={c.id}
-                  walking={false}
-                  bubble={c.bubble}
-                  x={px}
-                  y={py}
-                  moveSeconds={0.45 / speed}
-                />
-              ),
-            });
-          });
-
-          // walkers: buyers head down the main path; browsers spread across
-          // every route in the scene so it reads like a busy square
+          const cartDepth = iso(layout.cart[0], layout.cart[1])[1];
           const routes = [layout.path, ...(layout.ambient ?? [])];
+          const behind: React.ReactNode[] = [];
+          const front: React.ReactNode[] = [];
+
           for (const c of sim.customers) {
-            if (c.state === 'queued') continue;
             const q = quirks(c.id);
-            const strolling = !c.willBuy && q.reversed;
-            const progress = strolling ? Math.max(0, EXIT_X - c.x) : c.x;
-            let gx: number, gy: number;
-            if (c.willBuy) {
-              // half the buyers come from the right side, walking left to the cart
-              let p2 = progress;
-              if (q.fromRight) {
-                p2 =
-                  c.x <= QUEUE_JOIN_X
-                    ? EXIT_X - (c.x / QUEUE_JOIN_X) * (EXIT_X - QUEUE_JOIN_X)
-                    : QUEUE_JOIN_X * (1 - (c.x - QUEUE_JOIN_X) / (EXIT_X - QUEUE_JOIN_X));
-              }
-              [gx, gy] = walkPoint(layout, p2);
-              gx += q.drift * 0.3;
-              gy += q.drift;
+            let px: number, py: number;
+            let walking = true;
+            let moveSeconds = tickSec;
+
+            if (c.state === 'queued') {
+              const qi = sim.queue.indexOf(c.id);
+              const [gx, gy] = queueSpot(layout, Math.min(Math.max(qi, 0), 11));
+              [px, py] = iso(gx + q.sway * 0.4, gy + q.sway);
+              walking = false;
+              moveSeconds = 0.45 / speed;
             } else {
-              const route = routes[q.route % routes.length];
-              [gx, gy] = pointAlongPolyline(route, progress / EXIT_X);
-              gx += q.wander * 0.3;
-              gy += q.wander;
+              const strolling = !c.willBuy && q.reversed;
+              const progress = strolling ? Math.max(0, EXIT_X - c.x) : c.x;
+              let gx: number, gy: number;
+              if (c.willBuy) {
+                // half the buyers come from the right side, walking left to the cart
+                let p2 = progress;
+                if (q.fromRight) {
+                  p2 =
+                    c.x <= QUEUE_JOIN_X
+                      ? EXIT_X - (c.x / QUEUE_JOIN_X) * (EXIT_X - QUEUE_JOIN_X)
+                      : QUEUE_JOIN_X * (1 - (c.x - QUEUE_JOIN_X) / (EXIT_X - QUEUE_JOIN_X));
+                }
+                [gx, gy] = walkPoint(layout, p2);
+                gx += q.drift * 0.3;
+                gy += q.drift;
+              } else {
+                const route = routes[q.route % routes.length];
+                [gx, gy] = pointAlongPolyline(route, progress / EXIT_X);
+                gx += q.wander * 0.3;
+                gy += q.wander;
+              }
+              [px, py] = iso(gx, gy);
+              const was = lastPos.current.get(c.id);
+              walking = !was || Math.hypot(px - was[0], py - was[1]) > 0.5;
+              lastPos.current.set(c.id, [px, py]);
             }
-            const [px, py] = iso(gx, gy);
-            const was = lastPos.current.get(c.id);
-            const moving = !was || Math.hypot(px - was[0], py - was[1]) > 0.5;
-            lastPos.current.set(c.id, [px, py]);
-            items.push({
-              key: `p${c.id}`,
-              depth: py,
-              el: (
-                <Person
-                  variant={c.id}
-                  walking={moving}
-                  bubble={c.bubble}
-                  x={px}
-                  y={py}
-                  moveSeconds={tickSec}
-                />
-              ),
-            });
+
+            const el = (
+              <Person
+                key={`p${c.id}`}
+                variant={c.id}
+                walking={walking}
+                bubble={c.bubble}
+                x={px}
+                y={py}
+                moveSeconds={moveSeconds}
+              />
+            );
+            (py < cartDepth ? behind : front).push(el);
           }
 
-          return items
-            .sort((a, b) => a.depth - b.depth)
-            .map((i) => <g key={i.key}>{i.el}</g>);
+          return (
+            <>
+              {behind}
+              <Cart x={layout.cart[0]} y={layout.cart[1]} />
+              {state.settings?.rival &&
+                state.daily?.rivalLocationId === state.locationId && (
+                  <Cart x={layout.cart[0] + 2.4} y={layout.cart[1]} rival />
+                )}
+              {front}
+            </>
+          );
         })()}
       </IsoScene>
 
