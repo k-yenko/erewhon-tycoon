@@ -6,7 +6,7 @@ export default function Meter({
 }: {
   value: number; // 0..1
   label?: string;
-  color?: 'pink' | 'blue' | 'green';
+  color?: 'pink' | 'blue' | 'green' | 'gold';
 }) {
   const SEGS = 10;
   const on = Math.round(Math.max(0, Math.min(1, value)) * SEGS);

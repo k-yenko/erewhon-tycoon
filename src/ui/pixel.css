@@ -118,6 +118,7 @@ button {
 .meter.pink .seg.on { background: var(--moss-pink); }
 .meter.blue .seg.on { background: var(--spirulina); }
 .meter.green .seg.on { background: var(--matcha); }
+.meter.gold .seg.on { background: #e6c86e; }
 
 .meter-label {
   font-size: 11px;

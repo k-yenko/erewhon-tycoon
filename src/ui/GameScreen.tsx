@@ -336,6 +336,8 @@ export default function GameScreen({
             <div style={{ display: 'flex', gap: 12 }}>
               <Meter value={viewLs.popularity} label="popularity" color="pink" />
               <Meter value={viewLs.satisfaction} label="satisfaction" color="blue" />
+              <Meter value={viewLoc.baseTraffic / 90} label="foot traffic" color="green" />
+              <Meter value={(viewLoc.wealth - 14) / 16} label="spending power" color="gold" />
             </div>
           </div>
 

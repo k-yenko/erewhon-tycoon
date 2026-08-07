@@ -49,6 +49,11 @@ export default function RentTab({
             <Meter value={ls.popularity} label="popularity" color="pink" />
             <Meter value={ls.satisfaction} label="satisfaction" color="blue" />
           </div>
+          {/* the reason to ever leave home: crowds and wallets */}
+          <div style={{ display: 'flex', gap: 10, margin: '8px 0' }}>
+            <Meter value={loc.baseTraffic / 90} label="foot traffic" color="green" />
+            <Meter value={(loc.wealth - 14) / 16} label="spending power" color="gold" />
+          </div>
           <div className="info-row">
             <span className="label">Rent</span>
             <span>{loc.rent === 0 ? 'FREE' : `${fmtMoney(loc.rent)} / day`}</span>
