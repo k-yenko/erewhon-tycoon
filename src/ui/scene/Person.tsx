@@ -53,40 +53,43 @@ export default function Person({
         transition: `transform ${moveSeconds}s ${walking ? 'linear' : 'ease-out'}`,
       }}
     >
-      <g className={walking ? 'walkcycle' : ''}>
-        {/* shadow */}
-        <ellipse cx="0" cy="0.5" rx="7" ry="2" fill={INK} opacity="0.12" />
+      {/* blocky, pixel-sprite construction like the original's little people */}
+      <g className={walking ? 'walkcycle' : ''} shapeRendering="crispEdges">
+        <ellipse cx="0" cy="0.5" rx="6.5" ry="1.8" fill={INK} opacity="0.12" shapeRendering="auto" />
         <g className="body-bob">
-          {/* legs (origin at hip, y=-14) */}
+          {/* legs: square pixel columns from the hip */}
           <g className="leg leg-a">
-            <path d="M-2.4 -14 L-2.6 -1.5" stroke={o.bottom} strokeWidth="3.4" strokeLinecap="round" />
-            <path d="M-3.6 -1 H-1.2" stroke={INK} strokeWidth="2" strokeLinecap="round" />
+            <rect x="-4" y="-14" width="3.2" height="12.5" fill={o.bottom} />
+            <rect x="-4.6" y="-2.6" width="4.2" height="2.6" fill={INK} />
           </g>
           <g className="leg leg-b">
-            <path d="M2.4 -14 L2.6 -1.5" stroke={o.bottom} strokeWidth="3.4" strokeLinecap="round" />
-            <path d="M1.2 -1 H3.6" stroke={INK} strokeWidth="2" strokeLinecap="round" />
+            <rect x="0.8" y="-14" width="3.2" height="12.5" fill={o.bottom} />
+            <rect x="0.4" y="-2.6" width="4.2" height="2.6" fill={INK} />
           </g>
-          {/* torso */}
-          <path
-            d="M-4.4 -25 H4.4 C5 -25 5.4 -24.5 5.3 -23.8 L4.4 -13.5 H-4.4 L-5.3 -23.8 C-5.4 -24.5 -5 -25 -4.4 -25Z"
-            fill={o.top}
-            {...PS}
-          />
-          {/* arms */}
+          {/* torso: a plain block */}
+          <rect x="-4.8" y="-25" width="9.6" height="11.5" fill={o.top} />
+          {/* arms: thin blocks at the sides */}
           <g className="arm arm-a">
-            <path d="M-5 -24 L-5.6 -15.5" stroke={o.top} strokeWidth="2.6" strokeLinecap="round" />
-            <circle cx="-5.7" cy="-14.8" r="1.3" fill={o.skin} />
+            <rect x="-6.6" y="-24.5" width="2" height="9" fill={o.top} />
+            <rect x="-6.6" y="-15.5" width="2" height="2" fill={o.skin} />
           </g>
           <g className="arm arm-b">
-            <path d="M5 -24 L5.6 -15.5" stroke={o.top} strokeWidth="2.6" strokeLinecap="round" />
-            <circle cx="5.7" cy="-14.8" r="1.3" fill={o.skin} />
+            <rect x="4.6" y="-24.5" width="2" height="9" fill={o.top} />
+            <rect x="4.6" y="-15.5" width="2" height="2" fill={o.skin} />
           </g>
-          {/* head */}
-          <circle cx="0" cy="-30" r="4.6" fill={o.skin} {...PS} />
+          {/* square head + flat hair (or cap) */}
+          <rect x="-3.8" y="-34" width="7.6" height="8.4" fill={o.skin} />
           {o.cap ? (
-            <path d="M-4.6 -31 A4.6 4.6 0 0 1 4.6 -31 L6.8 -30.4 C6.9 -30 6.6 -29.7 6.2 -29.7 L-4.6 -30Z" fill={o.cap} {...PS} />
+            <>
+              <rect x="-3.8" y="-35" width="7.6" height="2.6" fill={o.cap} />
+              <rect x="2.6" y="-34" width="3.4" height="1.8" fill={o.cap} />
+            </>
           ) : (
-            <path d="M-4.7 -30.5 C-4.7 -34 -2.5 -35.4 0 -35.4 C2.5 -35.4 4.7 -34 4.7 -30.5 C3.2 -33 -3 -33.3 -4.7 -30.5Z" fill={o.hair} {...PS} />
+            <>
+              <rect x="-3.8" y="-35" width="7.6" height="2.4" fill={o.hair} />
+              <rect x="-3.8" y="-33" width="1.6" height="3.4" fill={o.hair} />
+              <rect x="2.2" y="-33" width="1.6" height="3.4" fill={o.hair} />
+            </>
           )}
         </g>
       </g>

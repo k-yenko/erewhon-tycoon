@@ -40,6 +40,10 @@ export default function DayView({
   // continuous glide — and the ▶▶ button visibly speeds people up
   const tickSec = 1.5 / speed;
 
+  // Legs only move when the body actually moves: track last positions and
+  // compare per render, so nobody moonwalks in place.
+  const lastPos = useRef(new Map<number, [number, number]>());
+
   // Fire sounds by diffing the sim's counters — staggered inside the tick
   // window so reactions land at individual moments, not on the heartbeat.
   const prev = useRef({ sold: 0, happy: 0, taste: 0, price: 0, wait: 0, blending: 0 });
@@ -136,13 +140,16 @@ export default function DayView({
               gy += q.wander;
             }
             const [px, py] = iso(gx, gy);
+            const was = lastPos.current.get(c.id);
+            const moving = !was || Math.hypot(px - was[0], py - was[1]) > 0.5;
+            lastPos.current.set(c.id, [px, py]);
             items.push({
               key: `p${c.id}`,
               depth: py,
               el: (
                 <Person
                   variant={c.id}
-                  walking={true}
+                  walking={moving}
                   bubble={c.bubble}
                   x={px}
                   y={py}
