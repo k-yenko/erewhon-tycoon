@@ -164,30 +164,33 @@ button {
 
 .tabbar {
   display: flex;
-  gap: 6px;
-  flex-wrap: wrap;
+  gap: 5px;
+  flex-wrap: nowrap; /* always one row, like the original */
 }
 .tab-btn {
   border: 3px solid var(--ink);
   border-radius: 7px;
-  background: linear-gradient(180deg, #e3ddc9 0%, var(--kraft) 100%);
-  box-shadow: 3px 4px 0 rgba(26, 26, 24, 0.4), inset 0 2px 0 rgba(255, 255, 255, 0.5);
-  width: 74px;
-  padding: 7px 2px 4px;
+  background: var(--cream);
+  box-shadow: 3px 4px 0 rgba(26, 26, 24, 0.4);
+  flex: 1 1 0;
+  min-width: 0;
+  padding: 6px 1px 4px;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 2px;
-  font-size: 11px;
+  font-size: 9.5px;
+  letter-spacing: 0;
   text-transform: lowercase;
+  overflow: hidden;
 }
 .tab-btn.active {
-  background: linear-gradient(180deg, #fdfbf4 0%, #e9e2cf 100%);
+  background: var(--kraft);
   transform: translate(2px, 2px);
   box-shadow: 1px 2px 0 rgba(26, 26, 24, 0.4);
 }
 .tab-btn:hover:not(.active) {
-  background: linear-gradient(180deg, #efe9d7 0%, var(--kraft-dark) 100%);
+  background: var(--cream-deep);
 }
 
 /* ——— Steppers (− [value] +, like the original) ——— */
@@ -202,7 +205,7 @@ button {
   width: 44px;
   height: 36px;
   border: 3px solid var(--ink);
-  background: linear-gradient(180deg, #e3ddc9 0%, var(--kraft) 100%);
+  background: var(--cream);
   color: var(--ink);
 }
 .step-arrow.left { clip-path: polygon(0 50%, 32% 0, 100% 0, 100% 100%, 32% 100%); padding-left: 12px; border-radius: 4px 0 0 4px; }

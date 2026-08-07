@@ -9,6 +9,7 @@ import {
 } from './game/dailyContent';
 import { todayKey } from './game/rng';
 import { C } from './game/economy';
+import { sfx, unlock } from './game/audio';
 import TitleScreen from './ui/TitleScreen';
 import GameScreen from './ui/GameScreen';
 import GameOverScreen from './ui/GameOverScreen';
@@ -71,6 +72,18 @@ export default function App() {
   useEffect(() => {
     refreshDaily();
   }, [refreshDaily]);
+
+  // Any button press unlocks audio (starts the music loop) and ticks.
+  useEffect(() => {
+    const onPress = (e: PointerEvent) => {
+      if ((e.target as HTMLElement | null)?.closest?.('button')) {
+        unlock();
+        sfx('click');
+      }
+    };
+    document.addEventListener('pointerdown', onPress, true);
+    return () => document.removeEventListener('pointerdown', onPress, true);
+  }, []);
 
   const startNewGame = () => {
     clearSave();

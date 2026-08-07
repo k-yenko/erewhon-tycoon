@@ -31,7 +31,7 @@ export function unlock(): void {
   master.gain.value = muted ? 0 : 1;
   master.connect(ctx.destination);
   musicGain = ctx.createGain();
-  musicGain.gain.value = 0.05; // well under the sfx
+  musicGain.gain.value = 0.09; // well under the sfx
   musicGain.connect(master);
   startMusic();
 }
@@ -64,6 +64,7 @@ function tone(
 }
 
 export type Sfx =
+  | 'click'
   | 'sale'
   | 'happy'
   | 'taste'
@@ -77,6 +78,10 @@ export type Sfx =
 export function sfx(name: Sfx): void {
   if (!ctx || muted) return;
   switch (name) {
+    case 'click': // cute little tick on every button
+      tone(660, { type: 'triangle', dur: 0.045, vol: 0.06 });
+      tone(990, { type: 'triangle', at: 0.035, dur: 0.05, vol: 0.045 });
+      break;
     case 'sale': // cha-ching
       tone(880, { at: 0, dur: 0.08, vol: 0.1 });
       tone(1318, { at: 0.07, dur: 0.16, vol: 0.12 });
