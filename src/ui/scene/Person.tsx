@@ -8,7 +8,7 @@ const BUBBLE_GLYPH: Record<BubbleKind, IconName> = {
   taste: 'frown',
   price: 'tag',
   wait: 'hourglass',
-  content: 'camera',
+  content: 'heart', // loved it enough to post about it
 };
 
 interface Outfit {
@@ -37,19 +37,21 @@ export default function Person({
   bubble,
   x,
   y,
+  moveSeconds = 1.45,
 }: {
   variant: number;
   walking: boolean;
   bubble: BubbleKind | null;
   x: number;
   y: number;
+  moveSeconds?: number;
 }) {
   const o = OUTFITS[((variant % OUTFITS.length) + OUTFITS.length) % OUTFITS.length];
   return (
     <g
       style={{
         transform: `translate(${x}px, ${y}px)`,
-        transition: 'transform 1.45s linear',
+        transition: `transform ${moveSeconds}s ${walking ? 'linear' : 'ease-out'}`,
       }}
     >
       <g className={walking ? 'walkcycle' : ''}>

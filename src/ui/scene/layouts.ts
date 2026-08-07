@@ -110,10 +110,11 @@ export function walkPoint(layout: SceneLayout, simX: number): GridPt {
 }
 
 // Queue bunches two-abreast into a loose cluster by the cart, not a snake.
+// The second column offsets toward the viewer (away from the cart/road).
 export function queueSpot(layout: SceneLayout, index: number): GridPt {
   const head = layout.path[layout.queueIndex];
   const [sx, sy] = layout.queueStep;
-  const perp: GridPt = [-sy * 0.8, sx * 0.8]; // sideways from the queue direction
+  const perp: GridPt = [sy * 0.8, -sx * 0.8];
   const row = Math.floor(index / 2);
   const side = index % 2;
   return [

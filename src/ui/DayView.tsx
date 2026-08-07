@@ -58,36 +58,61 @@ export default function DayView({
   return (
     <div className="scene">
       <IsoScene loc={loc} weatherId={state.daily?.weatherId}>
-        <Cart x={layout.cart[0]} y={layout.cart[1]} />
+        {/* everything in the people layer is depth-sorted by screen y so the
+            cart correctly occludes people behind it (and vice versa) */}
+        {(() => {
+          const cartPos = iso(layout.cart[0], layout.cart[1]);
+          const items: { key: string; depth: number; el: React.ReactNode }[] = [
+            {
+              key: 'cart',
+              depth: cartPos[1],
+              el: <Cart x={layout.cart[0]} y={layout.cart[1]} />,
+            },
+          ];
 
-        {/* queue: a loose line stacking along the layout's queue direction */}
-        {sim.queue.map((id, qi) => {
-          const c = sim.customers.find((k) => k.id === id);
-          if (!c) return null;
-          const q = quirks(c.id);
-          const [gx, gy] = queueSpot(layout, Math.min(qi, 11));
-          const [px, py] = iso(gx + q.sway * 0.4, gy + q.sway);
-          return (
-            <Person key={c.id} variant={c.id} walking={false} bubble={c.bubble} x={px} y={py} />
-          );
-        })}
-
-        {/* walkers and leavers wander near the path, not on a rail */}
-        {sim.customers
-          .filter((c) => c.state !== 'queued')
-          .map((c) => {
+          // queue: a loose two-abreast cluster by the cart
+          sim.queue.forEach((id, qi) => {
+            const c = sim.customers.find((k) => k.id === id);
+            if (!c) return;
             const q = quirks(c.id);
-            // window-shoppers who never buy sometimes stroll the other way,
-            // and roam well off the main path; buyers stay near it
+            const [gx, gy] = queueSpot(layout, Math.min(qi, 11));
+            const [px, py] = iso(gx + q.sway * 0.4, gy + q.sway);
+            items.push({
+              key: `p${c.id}`,
+              depth: py,
+              el: (
+                <Person
+                  variant={c.id}
+                  walking={false}
+                  bubble={c.bubble}
+                  x={px}
+                  y={py}
+                  moveSeconds={0.45}
+                />
+              ),
+            });
+          });
+
+          // walkers and leavers wander near the path, not on a rail
+          for (const c of sim.customers) {
+            if (c.state === 'queued') continue;
+            const q = quirks(c.id);
             const strolling = !c.willBuy && q.reversed;
             const progress = strolling ? Math.max(0, EXIT_X - c.x) : c.x;
             const [gx, gy] = walkPoint(layout, progress);
             const offset = c.willBuy ? q.drift : q.wander;
             const [px, py] = iso(gx + offset * 0.3, gy + offset);
-            return (
-              <Person key={c.id} variant={c.id} walking={true} bubble={c.bubble} x={px} y={py} />
-            );
-          })}
+            items.push({
+              key: `p${c.id}`,
+              depth: py,
+              el: <Person variant={c.id} walking={true} bubble={c.bubble} x={px} y={py} />,
+            });
+          }
+
+          return items
+            .sort((a, b) => a.depth - b.depth)
+            .map((i) => <g key={i.key}>{i.el}</g>);
+        })()}
       </IsoScene>
 
       {sim.soldOut && (

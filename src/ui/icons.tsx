@@ -131,6 +131,16 @@ const ICONS: Record<string, ReactNode> = {
       <path d="M8 6 L16 10" fill="none" stroke={KRAFT_D} strokeWidth="1.4" />
     </g>
   ),
+  heart: (
+    <g>
+      <path
+        d="M12 20.5 C6 16 3 12.5 3 9 C3 6.2 5.2 4 8 4 C9.6 4 11.1 4.8 12 6.1 C12.9 4.8 14.4 4 16 4 C18.8 4 21 6.2 21 9 C21 12.5 18 16 12 20.5Z"
+        fill={PINK}
+        {...S}
+      />
+      <path d="M6.5 8.5 C6.7 7.3 7.5 6.4 8.6 6.1" stroke="#fff" strokeWidth="1.4" fill="none" strokeLinecap="round" opacity="0.8" />
+    </g>
+  ),
   smile: (
     <g>
       <circle cx="12" cy="12" r="9" fill={PINK} {...S} />
@@ -285,7 +295,7 @@ const ICONS: Record<string, ReactNode> = {
 };
 
 export type IconName =
-  | 'strawberry' | 'coconut' | 'seamoss' | 'ice' | 'cup'
+  | 'strawberry' | 'coconut' | 'seamoss' | 'ice' | 'cup' | 'heart'
   | 'ledger' | 'pin' | 'store' | 'person' | 'camera' | 'blender' | 'box'
   | 'smile' | 'frown' | 'tag' | 'hourglass'
   | 'sun' | 'cloud' | 'wind' | 'rain' | 'storm' | 'heat'
