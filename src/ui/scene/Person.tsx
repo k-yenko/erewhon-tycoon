@@ -35,6 +35,8 @@ interface Outfit {
   cap?: string;        // baseball cap color
   accessory?: Accessory;
   accent?: string;     // accessory color
+  hairstyle?: 'bob' | 'ponytail' | 'bun' | 'long'; // feminine silhouettes
+  shirtless?: boolean; // surfers. obviously.
 }
 
 // The whole LA census, in blocks.
@@ -42,39 +44,39 @@ const OUTFITS: Outfit[] = [
   // the basics
   { skin: '#e8b48f', hair: '#5a3a22', top: '#d94436', bottom: '#2f3f66' },
   { skin: '#c68863', hair: '#241d16', top: '#3f7fd9', bottom: '#3a3733' },
-  { skin: '#f0d0b0', hair: '#b8863f', top: '#43a047', bottom: '#2e6b33' },
+  { skin: '#f0d0b0', hair: '#b8863f', top: '#43a047', bottom: '#2e6b33', hairstyle: 'bun' },
   { skin: '#e8c39e', hair: '#3a2a1a', top: '#ffffff', bottom: '#c74b3f', cap: '#d94436' },
   // pilates girl: matching set + rolled mat
-  { skin: '#d69a6e', hair: '#33241a', top: '#e05a7a', bottom: '#e05a7a', accessory: 'mat', accent: '#7fb4c9' },
-  { skin: '#f0d0b0', hair: '#b8863f', top: '#9b7fd4', bottom: '#9b7fd4', accessory: 'mat', accent: '#43a047' },
+  { skin: '#d69a6e', hair: '#33241a', top: '#e05a7a', bottom: '#e05a7a', accessory: 'mat', accent: '#7fb4c9', hairstyle: 'ponytail' },
+  { skin: '#f0d0b0', hair: '#b8863f', top: '#9b7fd4', bottom: '#9b7fd4', accessory: 'mat', accent: '#43a047', hairstyle: 'bun' },
   // tech bro: fleece vest over the shirt, coffee optional but implied
   { skin: '#e8c39e', hair: '#5a3a22', top: '#8fb4d9', bottom: '#b8a888', accessory: 'vest', accent: '#3a4a5a' },
   // influencer: filming, obviously
-  { skin: '#d69a6e', hair: '#141210', top: '#ffffff', bottom: '#3a3733', accessory: 'phone', accent: '#1a1a18' },
+  { skin: '#d69a6e', hair: '#141210', top: '#ffffff', bottom: '#3a3733', accessory: 'phone', accent: '#1a1a18', hairstyle: 'long' },
   // dog dad
   { skin: '#a86a44', hair: '#241d16', top: '#43a047', bottom: '#4a4740', accessory: 'dog', accent: '#b8863f' },
   // stroller parent
-  { skin: '#e8b48f', hair: '#6b4a2f', top: '#f2c53d', bottom: '#2f3f66', accessory: 'stroller', accent: '#4a5a6a' },
+  { skin: '#e8b48f', hair: '#6b4a2f', top: '#f2c53d', bottom: '#2f3f66', accessory: 'stroller', accent: '#4a5a6a', hairstyle: 'bob' },
   // skater kid: hood up
   { skin: '#c68863', hair: '#141210', top: '#7b5ec7', bottom: '#3a3733', accessory: 'hoodie' },
-  // surfer: tank + board
-  { skin: '#d69a6e', hair: '#e8d49a', top: '#2f9ea8', bottom: '#e8724a', accessory: 'surfboard', accent: '#f0ede4' },
+  // surfer: shirtless + board, obviously
+  { skin: '#d69a6e', hair: '#e8d49a', top: '#d69a6e', bottom: '#e8724a', accessory: 'surfboard', accent: '#f0ede4', shirtless: true },
   // power walker: visor + tracksuit
-  { skin: '#f0d0b0', hair: '#d0d0d0', top: '#d94436', bottom: '#d94436', accessory: 'visor', accent: '#ffffff' },
+  { skin: '#f0d0b0', hair: '#d0d0d0', top: '#d94436', bottom: '#d94436', accessory: 'visor', accent: '#ffffff', hairstyle: 'bob' },
   // industry person: all black, coffee, shades
   { skin: '#e8c39e', hair: '#141210', top: '#1f1e1c', bottom: '#1f1e1c', accessory: 'coffee', accent: '#f0ede4' },
   // tote hipster
   { skin: '#a86a44', hair: '#33241a', top: '#cf9c3f', bottom: '#2e6b33', accessory: 'tote', accent: '#e8dfc8' },
-  // shades-only cool person
-  { skin: '#e8b48f', hair: '#3a2a1a', top: '#e05a7a', bottom: '#4a4740', accessory: 'shades' },
+  // shades-only it girl
+  { skin: '#e8b48f', hair: '#3a2a1a', top: '#e05a7a', bottom: '#4a4740', accessory: 'shades', hairstyle: 'bob' },
   // zesty designer/artist: beret, paint-splattered overalls
-  { skin: '#d69a6e', hair: '#141210', top: '#7fb4c9', bottom: '#4a5a8a', accessory: 'beret', accent: '#d94436' },
+  { skin: '#d69a6e', hair: '#141210', top: '#7fb4c9', bottom: '#4a5a8a', accessory: 'beret', accent: '#d94436', hairstyle: 'bob' },
   // brandy melville teen: white baby tee, light denim, long hair
   { skin: '#f0d0b0', hair: '#8a5a2f', top: '#ffffff', bottom: '#9db8d9', accessory: 'longhair' },
   // screenwriter: flannel-ish top, laptop under the arm, cap
   { skin: '#e8c39e', hair: '#3a2a1a', top: '#a84438', bottom: '#3a3733', cap: '#2e6b33', accessory: 'laptop', accent: '#b8b4ac' },
   // old-money lady: beige on beige, wide hat, enormous shades
-  { skin: '#e8b48f', hair: '#d0d0d0', top: '#e8dfc8', bottom: '#c9b99a', accessory: 'hat', accent: '#f0ede4' },
+  { skin: '#e8b48f', hair: '#d0d0d0', top: '#e8dfc8', bottom: '#c9b99a', accessory: 'hat', accent: '#f0ede4', hairstyle: 'bob' },
 ];
 
 // Who actually walks around each neighborhood — weighted casting pools of
@@ -142,16 +144,32 @@ export default function Person({
             <rect x="0.8" y="-14" width="3.2" height="12.5" fill={o.bottom} />
             <rect x="0.4" y="-2.6" width="4.2" height="2.6" fill={INK} />
           </g>
-          {/* torso: a plain block */}
-          <rect x="-4.8" y="-25" width="9.6" height="11.5" fill={o.top} />
+          {/* torso: a plain block — feminine outfits get a narrower frame */}
+          {o.hairstyle ? (
+            <rect x="-4.2" y="-25" width="8.4" height="11.5" fill={o.top} />
+          ) : (
+            <rect x="-4.8" y="-25" width="9.6" height="11.5" fill={o.top} />
+          )}
+          {/* the surfer situation: no shirt, pixel six-pack */}
+          {o.shirtless && (
+            <g>
+              <rect x="-2.6" y="-21.5" width="2" height="1.6" fill="#b87d52" />
+              <rect x="0.8" y="-21.5" width="2" height="1.6" fill="#b87d52" />
+              <rect x="-2.6" y="-18.9" width="2" height="1.6" fill="#b87d52" />
+              <rect x="0.8" y="-18.9" width="2" height="1.6" fill="#b87d52" />
+              <rect x="-2.6" y="-16.3" width="2" height="1.6" fill="#b87d52" />
+              <rect x="0.8" y="-16.3" width="2" height="1.6" fill="#b87d52" />
+              <rect x="-4.8" y="-25" width="9.6" height="1.8" fill="#c98e60" />
+            </g>
+          )}
           {/* arms: thin blocks at the sides */}
           <g className="arm arm-a">
-            <rect x="-6.6" y="-24.5" width="2" height="9" fill={o.top} />
-            <rect x="-6.6" y="-15.5" width="2" height="2" fill={o.skin} />
+            <rect x={o.hairstyle ? -6.1 : -6.6} y="-24.5" width="2" height="9" fill={o.shirtless ? o.skin : o.top} />
+            <rect x={o.hairstyle ? -6.1 : -6.6} y="-15.5" width="2" height="2" fill={o.skin} />
           </g>
           <g className="arm arm-b">
-            <rect x="4.6" y="-24.5" width="2" height="9" fill={o.top} />
-            <rect x="4.6" y="-15.5" width="2" height="2" fill={o.skin} />
+            <rect x={o.hairstyle ? 4.1 : 4.6} y="-24.5" width="2" height="9" fill={o.shirtless ? o.skin : o.top} />
+            <rect x={o.hairstyle ? 4.1 : 4.6} y="-15.5" width="2" height="2" fill={o.skin} />
           </g>
           {/* accessories that sit against the torso */}
           {o.accessory === 'vest' && (
@@ -213,6 +231,28 @@ export default function Person({
               <rect x="-5.2" y="-34" width="1.8" height="12" fill={o.hair} />
               <rect x="3.4" y="-34" width="1.8" height="12" fill={o.hair} />
             </>
+          )}
+          {/* feminine hairstyles, worn under any hat/visor */}
+          {o.hairstyle === 'bob' && (
+            <>
+              <rect x="-5.4" y="-34.6" width="1.8" height="8.6" fill={o.hair} />
+              <rect x="3.6" y="-34.6" width="1.8" height="8.6" fill={o.hair} />
+            </>
+          )}
+          {o.hairstyle === 'long' && (
+            <>
+              <rect x="-5.4" y="-34.6" width="1.8" height="13" fill={o.hair} />
+              <rect x="3.6" y="-34.6" width="1.8" height="13" fill={o.hair} />
+            </>
+          )}
+          {o.hairstyle === 'ponytail' && (
+            <>
+              <rect x="-1.4" y="-38.6" width="3.6" height="3.8" fill={o.hair} />
+              <rect x="3.4" y="-34.5" width="1.9" height="9.5" fill={o.hair} />
+            </>
+          )}
+          {o.hairstyle === 'bun' && (
+            <rect x="-1.8" y="-38.4" width="4.4" height="3.6" fill={o.hair} />
           )}
           {o.accessory === 'hat' ? (
             <>
@@ -276,9 +316,12 @@ export default function Person({
             animationDelay: `${(Math.imul(variant, 40503) >>> 16) % 1100}ms`,
           }}
         >
-          <path d="M9 -38 L7 -31.5 L14 -38Z" fill="#fff" stroke={INK} strokeWidth="1.2" strokeLinejoin="round" />
-          <rect x="4" y="-56" width="22" height="20" rx="5" fill="#fff" stroke={INK} strokeWidth="1.2" />
-          <IconGlyph name={BUBBLE_GLYPH[bubble]} x={7} y={-53.5} size={16} />
+          {/* alternate sides by id so a crowd's bubbles don't fuse into a wall */}
+          <g transform={(variant & 1) === 1 ? 'scale(-1 1)' : undefined}>
+            <path d="M9 -38 L7 -31.5 L14 -38Z" fill="#fff" stroke={INK} strokeWidth="1.2" strokeLinejoin="round" />
+            <rect x="4" y="-56" width="22" height="20" rx="5" fill="#fff" stroke={INK} strokeWidth="1.2" />
+          </g>
+          <IconGlyph name={BUBBLE_GLYPH[bubble]} x={(variant & 1) === 1 ? -23 : 7} y={-53.5} size={16} />
         </g>
       )}
     </g>

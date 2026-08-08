@@ -84,6 +84,22 @@ export const UPGRADES: UpgradeDef[] = [
     effect: { kind: 'freeIce' },
   },
   {
+    id: 'dualpitcher',
+    name: 'Double-Pitcher Rig',
+    price: 2499.99,
+    tagline: 'One blends while one pours. The line never has to know.',
+    icon: 'blender',
+    effect: { kind: 'pipelineBlend' },
+  },
+  {
+    id: 'carafe',
+    name: 'Catering Carafe',
+    price: 3999.99,
+    tagline: 'Batch sizes previously reserved for wellness retreats.',
+    icon: 'fridge',
+    effect: { kind: 'batchSize', cups: 8 },
+  },
+  {
     id: 'stand1',
     name: 'Farmers-Market Stand',
     price: 1499.99,

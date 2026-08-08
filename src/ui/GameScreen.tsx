@@ -10,7 +10,7 @@ import {
   stepSim,
   type SimContext,
 } from '../game/simulation';
-import { C, calendar, computeMods, fmtMoney } from '../game/economy';
+import { C, calendar, computeMods, fmtMoney, rentFor } from '../game/economy';
 import { forecastRange } from '../game/simulation';
 import { sfx, unlock } from '../game/audio';
 import { weatherFor } from '../game/dailyContent';
@@ -235,7 +235,10 @@ export default function GameScreen({
               )}
               <div className="info-row">
                 <span className="label">Rent</span>
-                <span>{loc.rent === 0 ? 'FREE' : fmtMoney(loc.rent)}</span>
+                <span>
+                  {loc.rent === 0 ? 'FREE' : fmtMoney(rentFor(state, loc.id))}
+                  {rentFor(state, loc.id) > loc.rent ? ' ▲' : ''}
+                </span>
               </div>
               <div className="info-row">
                 <span className="label">Advertising</span>

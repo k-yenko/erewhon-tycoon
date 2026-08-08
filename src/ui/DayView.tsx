@@ -17,7 +17,7 @@ function quirks(id: number) {
   const h = (Math.imul(id, 2654435761) >>> 0);
   return {
     drift: ((h & 0xff) / 255 - 0.5) * 0.55,          // buyers stay near the path
-    wander: (((h >> 4) & 0xff) / 255 - 0.5) * 0.7,   // browsers drift off their route
+    wander: (((h >> 4) & 0xff) / 255 - 0.5) * 1.05,  // browsers drift well off their route
     sway: (((h >> 8) & 0xff) / 255 - 0.5) * 0.2,     // loose queue stance
     reversed: ((h >> 16) & 1) === 0,                  // half stroll right-to-left
     fromRight: ((h >> 18) & 1) === 1,                 // half the buyers approach from the right
@@ -216,7 +216,7 @@ export default function DayView({
 
             if (queued) {
               const qi = sim.queue.indexOf(c.id);
-              const [gx, gy] = queueSpot(layout, Math.min(Math.max(qi, 0), 11));
+              const [gx, gy] = queueSpot(layout, Math.min(Math.max(qi, 0), C.BALK_LINE - 1));
               [px, py] = iso(gx + q.sway * 0.4, gy + q.sway);
             } else {
               const strolling = !c.willBuy && q.reversed;
@@ -246,42 +246,49 @@ export default function DayView({
             entries.push({ c, px, py, queued });
           }
 
-          // Pass 2: personal space — nudge overlapping walkers apart.
+          // Pass 2: personal space — nudge overlapping walkers apart, gently.
           // Queued and inspected people hold their ground; walkers flow around.
-          for (let iter = 0; iter < 2; iter++) {
-            for (let i = 0; i < entries.length; i++) {
-              for (let j = i + 1; j < entries.length; j++) {
-                const a = entries[i];
-                const b = entries[j];
-                const aFixed = a.queued || a.c.id === sim.pausedId;
-                const bFixed = b.queued || b.c.id === sim.pausedId;
-                if (aFixed && bFixed) continue;
-                let dx = b.px - a.px;
-                let dy = (b.py - a.py) * 1.9; // iso foreshortening: y gaps read half as wide
-                let d = Math.hypot(dx, dy);
-                if (d >= 13) continue;
-                if (d < 0.01) {
-                  dx = i % 2 ? 1 : -1;
-                  dy = 0.5;
-                  d = 1;
-                }
-                const push = (13 - d) / d;
-                const ux = dx * push;
-                const uy = (dy * push) / 1.9;
-                if (aFixed) {
-                  b.px += ux;
-                  b.py += uy;
-                } else if (bFixed) {
-                  a.px -= ux;
-                  a.py -= uy;
-                } else {
-                  a.px -= ux / 2;
-                  a.py -= uy / 2;
-                  b.px += ux / 2;
-                  b.py += uy / 2;
-                }
+          // Pushes are damped and CAPPED so a dense clump never teleports anyone.
+          const sx = new Array(entries.length).fill(0);
+          const sy = new Array(entries.length).fill(0);
+          for (let i = 0; i < entries.length; i++) {
+            for (let j = i + 1; j < entries.length; j++) {
+              const a = entries[i];
+              const b = entries[j];
+              const aFixed = a.queued || a.c.id === sim.pausedId;
+              const bFixed = b.queued || b.c.id === sim.pausedId;
+              if (aFixed && bFixed) continue;
+              let dx = b.px - a.px;
+              let dy = (b.py - a.py) * 1.9; // iso foreshortening: y gaps read half as wide
+              let d = Math.hypot(dx, dy);
+              if (d >= 13) continue;
+              if (d < 0.01) {
+                dx = i % 2 ? 1 : -1;
+                dy = 0.5;
+                d = 1;
+              }
+              const push = ((13 - d) / d) * 0.7;
+              const ux = dx * push;
+              const uy = (dy * push) / 1.9;
+              if (aFixed) {
+                sx[j] += ux;
+                sy[j] += uy;
+              } else if (bFixed) {
+                sx[i] -= ux;
+                sy[i] -= uy;
+              } else {
+                sx[i] -= ux / 2;
+                sy[i] -= uy / 2;
+                sx[j] += ux / 2;
+                sy[j] += uy / 2;
               }
             }
+          }
+          const clamp7 = (v: number) => Math.max(-7, Math.min(7, v));
+          for (let i = 0; i < entries.length; i++) {
+            if (entries[i].queued || entries[i].c.id === sim.pausedId) continue;
+            entries[i].px += clamp7(sx[i]);
+            entries[i].py += clamp7(sy[i]);
           }
 
           // Pass 3: build stable-order elements and hand targets to the animator.
@@ -302,6 +309,7 @@ export default function DayView({
             const el = (
               <g
                 key={`p${c.id}`}
+                className="person-in"
                 ref={(node) => {
                   if (node) nodes.current.set(c.id, node);
                   else nodes.current.delete(c.id);

@@ -6,7 +6,7 @@ import type {
   SimState,
   StockId,
 } from './types';
-import { C, calendar, computeMods, adBoost, tasteQuality, type Mods } from './economy';
+import { C, calendar, computeMods, adBoost, rentFor, tasteQuality, type Mods } from './economy';
 import { LOCATION_BY_ID } from './content/locations';
 import { EVENT_BY_ID } from './content/events';
 import { weatherFor } from './dailyContent';
@@ -116,10 +116,10 @@ export function expectedTraffic(state: GameState): number {
   const loc = LOCATION_BY_ID[state.locationId];
   const weather = weatherFor(daily);
   const ev = activeEvent(daily, state.locationId);
-  const { popularity: pop, satisfaction: sat } = state.locations[state.locationId];
+  const { popularity: pop, satisfaction: sat, novelty } = state.locations[state.locationId];
   const repeatMult = C.SAT_TRAFFIC_MIN + C.SAT_TRAFFIC_SPAN * sat;
-  const rival =
-    state.settings?.rival && daily.rivalLocationId === state.locationId ? C.RIVAL_TRAFFIC : 1;
+  const rivalHere = state.settings?.rival && daily.rivalLocationId === state.locationId;
+  const rival = rivalHere ? (daily.rivalIntent === 'undercut' ? 0.7 : C.RIVAL_TRAFFIC) : 1;
   // Day of the week: office districts fill on weekdays and thin out on
   // weekends; beach crowds do the reverse. And commuters still commute in an
   // atmospheric river — bad weather can't empty a work neighborhood on a
@@ -141,6 +141,7 @@ export function expectedTraffic(state: GameState): number {
     adBoost(state.adSpend) *
     mods.drawMult *
     (daily.viralShelf ? C.SHELF_VIRAL_TRAFFIC : 1) *
+    (novelty ?? 1) *
     rival
   );
 }
@@ -170,7 +171,11 @@ export function createSimContext(state: GameState): SimContext {
     // seeded per game-day so Skip and live play agree
     rand: mulberry32(((state.day * 2654435761) ^ 0x9e3779b9 ^ state.seedNonce) >>> 0),
     spawnPerTick: expectedCustomers / C.DAY_TICKS,
-    wealthMean: loc.wealth * weather.payTolerance * ev.pay * (rivalHere ? C.RIVAL_PAY : 1),
+    wealthMean:
+      loc.wealth *
+      weather.payTolerance *
+      ev.pay *
+      (rivalHere ? (daily.rivalIntent === 'undercut' ? 0.8 : C.RIVAL_PAY) : 1),
     patienceMult:
       ev.patience * mods.patienceMult * (C.SAT_PATIENCE_MIN + C.SAT_PATIENCE_SPAN * sat),
     dropPrice: DROP_BY_ID[daily.dropId]?.price ?? state.price,
@@ -229,7 +234,7 @@ function consumeBatch(ctx: SimContext, sim: SimState): void {
   sim.stockUsed.coconutCream += recipe.coconutCream;
   sim.stockUsed.seaMoss += recipe.seaMoss;
   if (!ctx.mods.freeIce) sim.stockUsed.ice += recipe.ice;
-  sim.batchCupsLeft = C.CUPS_PER_BATCH;
+  sim.batchCupsLeft += ctx.mods.batchSize; // accumulate: pipeline blends stack on the remainder
 }
 
 function cupsAvailable(ctx: SimContext, sim: SimState): boolean {
@@ -347,6 +352,19 @@ export function stepSim(ctx: SimContext, sim: SimState): SimState {
     sim.blendTicksLeft -= 1;
     if (sim.blendTicksLeft === 0) consumeBatch(ctx, sim);
   }
+  // Double-pitcher rig: start the next batch while cups are still pouring,
+  // so the blender stall never reaches the customers.
+  if (
+    ctx.mods.pipelineBlend &&
+    sim.blendTicksLeft === 0 &&
+    sim.batchCupsLeft > 0 &&
+    sim.batchCupsLeft <= 4 &&
+    sim.queue.length > 0 &&
+    !sim.soldOut &&
+    hasStockForBatch(ctx, sim)
+  ) {
+    sim.blendTicksLeft = ctx.mods.blendTicks;
+  }
 
   // — Serving (one or two servers; fractional speed via progress accumulators
   //   so the late-game chain of serve upgrades can go past one-per-tick) —
@@ -431,6 +449,7 @@ export function skipToEnd(ctx: SimContext, sim: SimState): SimState {
 export function settleDay(state: GameState, sim: SimState): DayResult {
   const [forecastLo, forecastHi] = forecastRange(state);
   const loc = LOCATION_BY_ID[state.locationId];
+  const rent = rentFor(state, state.locationId); // popularity-priced, not the sticker rate
   const wages = state.staff.reduce((s, id) => s + (STAFF_BY_ID[id]?.wage ?? 0), 0);
   const shelfCogs = state.daily!.viralShelf ? C.SHELF_VIRAL_COGS : C.SHELF_COGS;
   const stockUsedCost =
@@ -441,13 +460,13 @@ export function settleDay(state: GameState, sim: SimState): DayResult {
     sim.shelfSold * state.daily!.shelfItem.price * shelfCogs;
 
   const marketing = state.adSpend;
-  const earnings = sim.revenue - stockUsedCost - loc.rent - marketing - wages;
+  const earnings = sim.revenue - stockUsedCost - rent - marketing - wages;
 
   // consume stock
   for (const [id, n] of Object.entries(sim.stockUsed)) {
     state.stock[id as StockId] = Math.max(0, state.stock[id as StockId] - n);
   }
-  state.cash += sim.revenue - loc.rent - marketing - wages;
+  state.cash += sim.revenue - rent - marketing - wages;
   state.lifetimeRevenue += sim.revenue;
 
   // — Satisfaction & popularity (per location) —
@@ -466,11 +485,15 @@ export function settleDay(state: GameState, sim: SimState): DayResult {
   const popTarget = Math.min(1, servedFraction * 0.8 + ls.satisfaction * 0.4);
   ls.popularity += C.POP_APPROACH * (popTarget - ls.popularity);
   if (state.adSpend > 0) ls.popularity = Math.min(1, ls.popularity + 0.02);
+  // Novelty: camp a corner and the neighborhood slowly gets over you;
+  // everywhere else, absence makes the crowd grow fonder.
+  ls.novelty = Math.max(0.35, (ls.novelty ?? 1) - 0.07);
   for (const [id, other] of Object.entries(state.locations)) {
     if (id !== state.locationId) {
       const base = LOCATION_BY_ID[id];
       other.popularity += C.UNVISITED_DRIFT * (base.basePopularity - other.popularity);
       other.satisfaction += C.UNVISITED_DRIFT * (base.baseSatisfaction - other.satisfaction);
+      other.novelty = Math.min(1, (other.novelty ?? 1) + 0.05);
     }
   }
 
@@ -485,6 +508,10 @@ export function settleDay(state: GameState, sim: SimState): DayResult {
   if (sim.soldOut) tips.push('You sold out. Imagine the revenue if you had stocked more.');
   if (sim.cupsSold === 0 && sim.customersTotal > 0)
     tips.push('Zero smoothies sold. The vibes were off.');
+  if (ls.novelty < 0.6)
+    tips.push('Same cart, same corner. The neighborhood is getting used to you — a change of scenery would do the numbers good.');
+  if (rent > loc.rent)
+    tips.push(`The landlord noticed your line: rent here is now ${rent.toFixed(2)} $.`);
   if (earnings > 0 && tips.length === 0)
     tips.push('A profitable day of wellness. The algorithm smiles upon you.');
 
@@ -495,7 +522,7 @@ export function settleDay(state: GameState, sim: SimState): DayResult {
     revenue: sim.revenue,
     stockUsedCost,
     stockLostCost: 0, // filled by overnight processing
-    rent: loc.rent,
+    rent,
     marketing,
     wages,
     earnings,

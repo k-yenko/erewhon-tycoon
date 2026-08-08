@@ -39,7 +39,7 @@ export default function App() {
     const key = todayKey();
     if (!g.daily || g.daily.dateKey !== key || g.daily.gameDay !== g.day || !g.daily.marketPrices) {
       const liveEvent = g.daily?.dateKey === key ? g.daily.liveEvent : undefined;
-      g.daily = generateDaily(key, g.day, g.seedNonce);
+      g.daily = generateDaily(key, g.day, g.seedNonce, g.lifetimeRevenue, g.locationId);
       g.daily.liveEvent = liveEvent; // same real date keeps its real-LA headline
       commit();
     }

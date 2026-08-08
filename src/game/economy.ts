@@ -1,6 +1,7 @@
 import type { GameState, LocationDef, Recipe } from './types';
 import { UPGRADE_BY_ID, DEFAULT_STORAGE } from './content/upgrades';
 import { STAFF_BY_ID } from './content/staff';
+import { LOCATION_BY_ID } from './content/locations';
 import { idealIce } from './content/weather';
 
 // Every tunable number in one place for the balance pass.
@@ -51,6 +52,8 @@ export interface Mods {
   freeIce: boolean;
   secondServer: boolean;
   standTier: number;
+  pipelineBlend: boolean; // next batch blends while the current one pours
+  batchSize: number;      // cups per blended batch
   storage: Record<string, number>;
 }
 
@@ -65,6 +68,8 @@ export function computeMods(state: GameState): Mods {
     freeIce: false,
     secondServer: false,
     standTier: 0,
+    pipelineBlend: false,
+    batchSize: C.CUPS_PER_BATCH,
     storage: { ...DEFAULT_STORAGE },
   };
   for (const id of state.upgrades) {
@@ -78,6 +83,8 @@ export function computeMods(state: GameState): Mods {
     else if (e.kind === 'noSpoilage') m.noSpoilage = true;
     else if (e.kind === 'iceSaver') m.iceKeep = Math.max(m.iceKeep, e.keep);
     else if (e.kind === 'freeIce') m.freeIce = true;
+    else if (e.kind === 'pipelineBlend') m.pipelineBlend = true;
+    else if (e.kind === 'batchSize') m.batchSize += e.cups;
     else if (e.kind === 'stand' && e.tier > m.standTier) {
       m.standTier = e.tier;
       m.drawMult *= e.draw;
@@ -91,6 +98,16 @@ export function computeMods(state: GameState): Mods {
     else if (s.effect.kind === 'patience') m.patienceMult *= s.effect.mult;
   }
   return m;
+}
+
+// Dynamic rent: make a corner famous and the landlord reprices it.
+// Free spots stay free; the premium scales with popularity above neutral.
+export function rentFor(state: GameState, locId: string): number {
+  const loc = LOCATION_BY_ID[locId];
+  if (!loc || loc.rent === 0) return 0;
+  const pop = state.locations[locId]?.popularity ?? 0;
+  const premium = 1 + 0.5 * Math.max(0, pop - 0.5);
+  return Math.round(loc.rent * premium * 100) / 100;
 }
 
 // Diminishing returns on Instagram/TikTok spend; day-scoped like the original.

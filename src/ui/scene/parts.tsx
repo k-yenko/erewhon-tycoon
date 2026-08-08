@@ -586,7 +586,7 @@ export function Cart({ x, y, rival = false, stage = 0 }: { x: number; y: number;
         { body: '#fdfaf2', face: '#f0e8d8', stripe: '#43a047', counter: '#c9b99a', trim: '#2e6b33', pole: '#8a6f4d' },
         { body: '#fdfaf2', face: '#f0e8d8', stripe: '#d94436', counter: '#b8926a', trim: '#a83428', pole: '#8a6f4d' },
         { body: '#c9a06a', face: '#b8905c', stripe: '#2f9ea8', counter: '#f0ede4', trim: '#8a6f4d', pole: '#d9b34a' },
-        { body: '#fdfaf2', face: '#f5efe2', stripe: '#d9b34a', counter: '#2b2a27', trim: '#b8933a', pole: '#d9b34a' },
+        { body: '#fffdf7', face: '#f7f0e0', stripe: '#d9b34a', counter: '#f0ead8', trim: '#b8933a', pole: '#d9b34a' },
       ][s];
   const sign = rival ? 'MOON JUUS' : 'EREWHON';
   const P0: [number, number] = [0, -10];
@@ -658,9 +658,14 @@ export function Cart({ x, y, rival = false, stage = 0 }: { x: number; y: number;
           <rect x="0" y="-22" width="2" height="2" fill="#e05a7a" />
         </g>
       )}
-      {/* glass juice case on the flagship counter */}
+      {/* flagship counter: gold-flecked marble + the glass juice case */}
       {s === 3 && !rival && (
         <g shapeRendering="crispEdges">
+          <rect x="-8" y="-31" width="2" height="2" fill="#d9b34a" />
+          <rect x="4" y="-27" width="2" height="2" fill="#e05a7a" />
+          <rect x="-17" y="-28" width="2" height="2" fill="#d9b34a" />
+          <rect x="13" y="-23" width="2" height="2" fill="#c9b99a" />
+          <rect x="-2" y="-21.5" width="2" height="2" fill="#d9b34a" />
           <rect x="20" y="-46" width="13" height="12" fill="#cfe3ea" stroke={INK} strokeWidth="0.9" />
           <rect x="21.5" y="-43.5" width="10" height="2.2" fill="#e05a7a" />
           <rect x="21.5" y="-40.3" width="10" height="2.2" fill="#f2c53d" />
@@ -747,13 +752,19 @@ export function Cart({ x, y, rival = false, stage = 0 }: { x: number; y: number;
         </g>
       )}
       {s === 3 && (
-        // flagship: double-tier canopy, gold scallops, string lights, flag
+        // flagship: luxe striped double-tier canopy, gold scallops, lights, flag
         <g shapeRendering="crispEdges">
           <rect x="-36" y="-60" width="3.4" height="28" fill={P.pole} />
           <rect x="31" y="-48" width="3.4" height="26" fill={P.pole} />
-          <rect x="-20" y="-88" width="48" height="7" fill={P.stripe} />
-          <rect x="-44" y="-81" width="92" height="11" fill="#fdfaf2" />
-          <rect x="-44" y="-84" width="92" height="3" fill={P.trim} />
+          <rect x="-20" y="-90" width="48" height="7" fill="#e05a7a" />
+          <rect x="-16" y="-90" width="8" height="7" fill="#fdfaf2" />
+          <rect x="0" y="-90" width="8" height="7" fill="#fdfaf2" />
+          <rect x="16" y="-90" width="8" height="7" fill="#fdfaf2" />
+          <rect x="-44" y="-83" width="92" height="13" fill="#fdfaf2" />
+          <rect x="-44" y="-86" width="92" height="3" fill={P.trim} />
+          {[-44, -28, -12, 4, 20, 36].map((vx) => (
+            <rect key={`b${vx}`} x={vx} y={-83} width="8" height="13" fill={P.stripe} />
+          ))}
           {[-44, -28, -12, 4, 20, 36].map((vx) => (
             <rect key={vx} x={vx} y={-70} width="8" height="4" fill={P.stripe} />
           ))}

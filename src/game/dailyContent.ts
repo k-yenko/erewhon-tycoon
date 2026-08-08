@@ -17,7 +17,13 @@ const LA_CACHE_KEY = 'erewhon-tycoon:la-news';
 // Weather and the news event reroll every in-game morning (salted per save so
 // replays differ); Today's Drop, the shelf item, and viral status are pinned to
 // the real-life date, so the game feels fresh the first time it's opened each day.
-export function generateDaily(dateKey: string, gameDay: number, seedNonce: number): DailyContent {
+export function generateDaily(
+  dateKey: string,
+  gameDay: number,
+  seedNonce: number,
+  lifetimeRevenue = 0,
+  playerLocationId = '',
+): DailyContent {
   const dateSeed = seedFromDateKey(dateKey);
   const dayRand = mulberry32((dateSeed ^ Math.imul(gameDay, 2654435761) ^ seedNonce) >>> 0);
   const dateRand = mulberry32(dateSeed);
@@ -42,9 +48,19 @@ export function generateDaily(dateKey: string, gameDay: number, seedNonce: numbe
   });
   if (event.shock) marketPrices[event.shock.ingredient] = event.shock.mult;
 
-  // The Moon Juus truck parks somewhere busy most days.
-  const rivalLocationId =
-    dayRand() < 0.2 ? '' : pickWeighted(dayRand, LOCATIONS, (l) => l.baseTraffic).id;
+  // The Moon Juus truck parks somewhere busy most days — and once your revenue
+  // proves you're worth hunting, it starts parking where YOU are: stalking
+  // past $3k lifetime, actively undercutting past $8k.
+  const rivalTier = lifetimeRevenue >= 8000 ? 2 : lifetimeRevenue >= 3000 ? 1 : 0;
+  const stalkChance = rivalTier === 2 ? 0.55 : rivalTier === 1 ? 0.35 : 0;
+  let rivalLocationId = '';
+  let rivalIntent: 'wander' | 'stalk' | 'undercut' = 'wander';
+  if (rivalTier > 0 && playerLocationId && dayRand() < stalkChance) {
+    rivalLocationId = playerLocationId;
+    rivalIntent = rivalTier === 2 ? 'undercut' : 'stalk';
+  } else if (dayRand() >= 0.2) {
+    rivalLocationId = pickWeighted(dayRand, LOCATIONS, (l) => l.baseTraffic).id;
+  }
 
   return {
     dateKey,
@@ -59,6 +75,7 @@ export function generateDaily(dateKey: string, gameDay: number, seedNonce: numbe
     liveWeather: false,
     marketPrices,
     rivalLocationId,
+    rivalIntent,
   };
 }
 

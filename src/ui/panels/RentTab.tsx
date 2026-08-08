@@ -1,8 +1,14 @@
 import { useState } from 'react';
 import type { GameState } from '../../game/types';
 import { LOCATIONS } from '../../game/content/locations';
-import { fmtMoney } from '../../game/economy';
+import { fmtMoney, rentFor } from '../../game/economy';
 import Meter from '../Meter';
+
+function noveltyRead(n: number): string | null {
+  if (n >= 0.85) return null; // fresh — nothing to say
+  if (n >= 0.6) return 'The crowd knows your cart by now. Still works.';
+  return "Honestly? They're a little over you here. Give it a week.";
+}
 
 export default function RentTab({
   state,
@@ -56,12 +62,30 @@ export default function RentTab({
           </div>
           <div className="info-row">
             <span className="label">Rent</span>
-            <span>{loc.rent === 0 ? 'FREE' : `${fmtMoney(loc.rent)} / day`}</span>
+            <span>
+              {loc.rent === 0
+                ? 'FREE'
+                : `${fmtMoney(rentFor(state, loc.id))} / day`}
+              {rentFor(state, loc.id) > loc.rent ? ' ▲' : ''}
+            </span>
           </div>
+          {rentFor(state, loc.id) > loc.rent && (
+            <div style={{ fontSize: 11, color: 'var(--kraft-dark)', marginTop: 2 }}>
+              The landlord noticed your line. Base rate is {fmtMoney(loc.rent)}.
+            </div>
+          )}
+          {noveltyRead(ls.novelty ?? 1) && (
+            <div style={{ fontSize: 11, color: 'var(--ink-soft)', marginTop: 4 }}>
+              {noveltyRead(ls.novelty ?? 1)}
+            </div>
+          )}
           {state.settings?.rival && state.daily?.rivalLocationId === loc.id && (
             <div style={{ fontSize: 11, color: 'var(--alert)', marginTop: 4 }}>
-              ⚠ The Moon Juus truck is parked here today — expect a thinner,
-              pickier crowd.
+              {state.daily?.rivalIntent === 'undercut'
+                ? '⚠ Moon Juus is parked here and undercutting you today. It’s personal now.'
+                : state.daily?.rivalIntent === 'stalk'
+                  ? '⚠ Moon Juus followed you here. You’ve been noticed.'
+                  : '⚠ The Moon Juus truck is parked here today — expect a thinner, pickier crowd.'}
             </div>
           )}
         </div>

@@ -3,7 +3,7 @@ import { LOCATIONS } from './content/locations';
 import { C } from './economy';
 
 const SAVE_KEY = 'erewhon-tycoon:save';
-const SAVE_VERSION = 5; // v5: seed nonce + shelf economy
+const SAVE_VERSION = 6; // v6: per-location novelty
 
 export function newGame(): GameState {
   return {
@@ -24,7 +24,7 @@ export function newGame(): GameState {
       LOCATIONS.map((l) => [
         l.id,
         // Each spot starts at its own character baseline (visible on the Rent tab).
-        { popularity: l.basePopularity, satisfaction: l.baseSatisfaction },
+        { popularity: l.basePopularity, satisfaction: l.baseSatisfaction, novelty: 1 },
       ]),
     ),
     lifetimeRevenue: 0,

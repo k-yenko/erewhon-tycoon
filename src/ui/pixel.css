@@ -544,6 +544,11 @@ button {
   0% { stroke-dashoffset: 38; }
   100% { stroke-dashoffset: -100; }
 }
+.person-in { animation: person-in 0.35s ease-out; }
+@keyframes person-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
 .leaf-spin {
   animation: leaf-spin 1.1s linear infinite;
   transform-box: fill-box;

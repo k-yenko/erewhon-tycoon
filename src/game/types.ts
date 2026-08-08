@@ -86,6 +86,8 @@ export interface UpgradeDef {
     | { kind: 'iceSaver'; keep: number }          // fraction of ice kept overnight
     | { kind: 'freeIce' }                         // never consume/buy ice
     | { kind: 'draw'; mult: number }              // more passers-by approach
+    | { kind: 'pipelineBlend' }                   // next batch blends while serving
+    | { kind: 'batchSize'; cups: number }         // bigger batches, fewer stalls
     | { kind: 'stand'; tier: number; draw: number; storage: Record<StockId, number> };
 }
 
@@ -138,12 +140,14 @@ export interface DailyContent {
   liveWeather: boolean; // weather mirrors actual LA conditions right now
   marketPrices: Record<StockId, number>; // today's ingredient price multipliers
   rivalLocationId: string; // where the Moon Juus truck parked ('' = day off)
+  rivalIntent?: 'wander' | 'stalk' | 'undercut'; // escalates with your success
   shelfRotated?: boolean;  // today's shelf pick has been drawn from the rotation deck
 }
 
 export interface LocationState {
   popularity: number;   // 0..1
   satisfaction: number; // 0..1
+  novelty: number;      // 0.35..1 — camp a spot and the neighborhood gets over you
 }
 
 export interface GameSettings {

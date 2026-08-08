@@ -33,7 +33,7 @@ function buyTo(state: GameState, id: StockId, target: number, cap: number) {
   }
 }
 
-const UPGRADE_PRIORITY = ['vitamix', 'tipscreen', 'subzero', 'blendtec', 'stand1', 'prepour', 'icedispenser', 'shadesail', 'stand2', 'ledhalo', 'soundbath', 'stand3', 'icemaker'];
+const UPGRADE_PRIORITY = ['vitamix', 'tipscreen', 'subzero', 'blendtec', 'stand1', 'dualpitcher', 'prepour', 'icedispenser', 'shadesail', 'carafe', 'stand2', 'ledhalo', 'soundbath', 'stand3', 'icemaker'];
 const MOVE_PLAN: [number, string][] = [
   [0, 'driveway'],
   [800, 'silverlake'],
@@ -44,10 +44,17 @@ const MOVE_PLAN: [number, string][] = [
 
 let violations = 0;
 for (let d = 1; d <= DAYS; d++) {
-  state.daily = generateDaily('2026-08-07', d, state.seedNonce);
+  state.daily = generateDaily('2026-08-07', d, state.seedNonce, state.lifetimeRevenue, state.locationId);
 
   // strategy
   for (const [minCash, loc] of MOVE_PLAN) if (state.cash >= minCash) state.locationId = loc;
+  // rotate when the neighborhood is over us (novelty decay makes camping lossy)
+  const unlocked = MOVE_PLAN.filter(([minCash]) => state.cash >= minCash).map(([, l]) => l);
+  if ((state.locations[state.locationId].novelty ?? 1) < 0.6 && unlocked.length > 1) {
+    state.locationId = unlocked.reduce((a, b) =>
+      (state.locations[b].novelty ?? 1) > (state.locations[a].novelty ?? 1) ? b : a,
+    );
+  }
   for (const id of UPGRADE_PRIORITY) {
     const u = UPGRADES.find((x) => x.id === id)!;
     if (!state.upgrades.includes(id) && state.cash > u.price * 2.5) {
