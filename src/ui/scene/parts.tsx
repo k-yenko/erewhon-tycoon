@@ -620,11 +620,11 @@ export function Cart({ x, y, rival = false, stage = 0 }: { x: number; y: number;
         {faceStrip(-29.4, 7.4, -6.2, 1.6, 0.5, P.trim, 0.55)}
         {faceStrip(8.6, 37.4, 18.2, 6, -0.5, P.stripe)}
         {faceStrip(8.6, 37.4, 12.6, 1.6, -0.5, P.trim, 0.55)}
-        {/* chalkboard menu on the front face */}
-        {faceStrip(-25, -9, -22.5, 13, 0.5, '#2f3a33')}
-        {faceStrip(-23, -11, -17.2, 1.8, 0.5, '#f0ede4', 0.8)}
-        {faceStrip(-23, -14, -13.4, 1.8, 0.5, '#f0ede4', 0.6)}
-        {faceStrip(-23, -16, -9.6, 1.8, 0.5, '#e05a7a', 0.8)}
+        {/* chalkboard menu low on the front face, under the sign */}
+        {faceStrip(-25, -11, -7, 11, 0.5, '#2f3a33')}
+        {faceStrip(-23, -13, -4.6, 1.6, 0.5, '#f0ede4', 0.8)}
+        {faceStrip(-23, -15, -2, 1.6, 0.5, '#f0ede4', 0.6)}
+        {faceStrip(-23, -17, 0.6, 1.6, 0.5, '#e05a7a', 0.8)}
         {/* strawberry mark on the right face */}
         {faceStrip(18, 26, -8.5, 5, -0.5, '#d94436')}
         {faceStrip(20, 24, -11, 2.5, -0.5, '#43a047')}
@@ -668,25 +668,30 @@ export function Cart({ x, y, rival = false, stage = 0 }: { x: number; y: number;
         </g>
       )}
       {/* marquee glow for the flagship */}
-      {s === 3 && !rival && <ellipse cx="-6" cy="-25" rx="34" ry="12" fill="#ffe08a" opacity="0.3" />}
-      {/* straight marquee sign */}
-      <g shapeRendering="crispEdges">
-        <rect x="-31" y="-32" width="50" height="14" fill="#fdfaf2" stroke={s === 3 ? P.trim : INK} strokeWidth="1.4" />
-        <rect x="-31" y="-32" width="50" height="3" fill={P.stripe} />
-        <rect x="-29" y="-27" width="4" height="4" fill="#d94436" />
-        <rect x="-28" y="-28.6" width="2" height="2" fill="#43a047" />
+      {s === 3 && !rival && <ellipse cx="-12" cy="-14" rx="26" ry="12" fill="#ffe08a" opacity="0.35" />}
+      {/* sign plate lying flat on the front face, following the cart's angle */}
+      <g>
+        <polygon
+          points="-28,-23 4,-7 4,6 -28,-10"
+          fill="#fdfaf2"
+          stroke={s === 3 ? P.trim : INK}
+          strokeWidth="1.2"
+          strokeLinejoin="round"
+        />
+        {faceStrip(-27.4, 3.4, -22, 3, 0.5, P.stripe)}
+        <text
+          x="-12"
+          y="-6"
+          textAnchor="middle"
+          fontFamily="'Press Start 2P', monospace"
+          fontSize={rival ? 3.9 : 4.7}
+          fill={INK}
+          letterSpacing="0.2"
+          transform="rotate(26.565 -12 -8.5)"
+        >
+          {sign}
+        </text>
       </g>
-      <text
-        x="-3"
-        y="-21.5"
-        textAnchor="middle"
-        fontFamily="'Press Start 2P', monospace"
-        fontSize="6.4"
-        fill={INK}
-        letterSpacing="0.5"
-      >
-        {sign}
-      </text>
 
       {/* ——— overhead, per tier ——— */}
       {s <= 0 && (

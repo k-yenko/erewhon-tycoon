@@ -457,12 +457,24 @@ button {
   0% { transform: translateX(0); opacity: 0.55; }
   100% { transform: translateX(120px); opacity: 0.2; }
 }
-.gust-drift { animation: gust-drift 3.2s linear infinite; opacity: 0; }
-@keyframes gust-drift {
-  0% { transform: translateX(-70px); opacity: 0; }
-  12% { opacity: 0.8; }
-  70% { opacity: 0.8; }
-  100% { transform: translateX(230px); opacity: 0; }
+/* A dash segment travels the full path: the gust draws itself in, snakes
+   through its spiral, and dissolves out the far end. */
+.wind-stream {
+  stroke-dasharray: 38 200;
+  stroke-dashoffset: 38;
+  animation: wind-run 3s linear infinite;
+}
+@keyframes wind-run {
+  0% { stroke-dashoffset: 38; }
+  100% { stroke-dashoffset: -100; }
+}
+.leaf-spin {
+  animation: leaf-spin 1.1s linear infinite;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+@keyframes leaf-spin {
+  to { transform: rotate(360deg); }
 }
 .leaf-fly { animation: leaf-fly 2.4s linear infinite; opacity: 0; }
 @keyframes leaf-fly {

@@ -73,9 +73,11 @@ function DrivewayScene({ loc }: { loc: LocationDef }) {
       <Tree x={3.4} y={3.0} />
       <Tree x={6.6} y={3.2} s={0.8} />
       <Hydrant x={0.4} y={3.85} />
+      {/* the neighbor's driveway, SUV parked where it belongs */}
+      <polygon points={poly([iso(8.0, 2.9), iso(9.2, 2.9), iso(9.2, 3.6), iso(8.0, 3.6)])} fill="#cfc9bb" stroke={INK} strokeWidth="1.2" />
+      <SUV x={8.6} y={3.25} color="#b8c4c9" />
       <SidewalkX y0={3.6} y1={4.3} />
       <RoadX y0={4.3} y1={5.7} dashY={5} />
-      <SUV x={8.6} y={4.85} color="#b8c4c9" />
       <SidewalkX y0={5.7} y1={6.6} />
       <Mailbox x={7.15} y={5.85} />
       {/* the driveway itself, running down from the sidewalk to your bungalow */}
@@ -345,9 +347,13 @@ function CalabasasScene({ loc }: { loc: LocationDef }) {
     <g>
       <House x={6.6} y={0.9} w={2.4} d={1.7} h={46} rh={22} wall="#f5f0e4" roof={loc.sceneColors.accent} />
       <House x={0.9} y={1.1} w={2.0} d={1.5} h={40} rh={19} wall="#f5f0e4" roof="#b8926a" />
-      <Fountain x={5.4} y={2.75} s={1.1} />
+      {/* estate driveway from the gate up to the mansion, cars parked ON it */}
+      <polygon points={poly([iso(4.4, 1.9), iso(6.6, 1.9), iso(6.6, 3.55), iso(4.4, 3.55)])} fill="#d8d2c4" stroke={INK} strokeWidth="1.2" />
+      <SUV x={5.0} y={2.3} color="#3a3733" />
+      <SportsCar x={5.95} y={2.75} color="#fdfaf2" />
+      <Fountain x={3.3} y={2.7} s={1.1} />
       <Tree x={9.4} y={2.6} />
-      <Tree x={3.6} y={2.5} s={0.85} />
+      <Tree x={2.9} y={1.9} s={0.85} />
       {/* estate wall with gate pillars */}
       <Box x={-2} y={3.6} w={6.35} d={0.3} h={26} top="#f0e9da" right="#e6dfd0" front="#efe8da" />
       <Box x={6.4} y={3.6} w={5.6} d={0.3} h={26} top="#f0e9da" right="#e6dfd0" front="#efe8da" />
@@ -367,9 +373,6 @@ function CalabasasScene({ loc }: { loc: LocationDef }) {
       <FlowerPatch x={1.9} y={4.32} />
       <FlowerPatch x={8.9} y={4.32} />
       <RoadX y0={4.5} y1={5.9} dashY={5.2} />
-      <SUV x={7.6} y={5.05} color="#3a3733" />
-      <SUV x={9.8} y={5.25} color="#f0e9da" />
-      <SportsCar x={1.6} y={5.1} color="#fdfaf2" />
       <SidewalkX y0={5.9} y1={6.9} />
       <Hydrant x={0.5} y={6.15} />
       <FlowerPatch x={9.4} y={6.7} />
@@ -469,7 +472,9 @@ function BeverlyhillsScene({ loc }: { loc: LocationDef }) {
       <Palm x={2.8} y={5.0} s={0.7} />
       <Palm x={7.2} y={5.0} s={0.7} />
       <Palm x={9.4} y={5.0} s={0.7} />
-      <SportsCar x={8.6} y={4.55} color="#d94436" />
+      {/* valet pad between the boutiques — nobody parks their own car here */}
+      <polygon points={poly([iso(7.65, 3.45), iso(8.95, 3.45), iso(8.95, 4.2), iso(7.65, 4.2)])} fill={ASPHALT_D} stroke={INK} strokeWidth="1.2" />
+      <SportsCar x={8.3} y={3.85} color="#d94436" />
       <Fountain x={9.6} y={6.6} s={0.95} />
       <Planter x={1.5} y={6.7} />
       <Planter x={8.2} y={6.7} />

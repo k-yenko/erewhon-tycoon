@@ -54,7 +54,7 @@ export default function TopBar({
       <button
         className="pixel-btn"
         style={{ padding: '2px 8px', fontSize: 12, boxShadow: 'none' }}
-        title={muted ? 'Unmute' : 'Mute'}
+        title={muted ? 'Music on' : 'Music off (sound effects stay on)'}
         onClick={() => {
           unlock();
           setMuted(toggleMute());

@@ -1,7 +1,9 @@
 // Tiny WebAudio synth: all SFX and the background loop are generated in code —
-// no audio assets. Everything routes through a master gain with a persisted mute.
+// no audio assets. The ♪ toggle silences ONLY the music — button clicks and
+// game sounds always play.
 
 const MUTE_KEY = 'erewhon-tycoon:muted';
+const MUSIC_VOL = 0.09; // well under the sfx
 
 let ctx: AudioContext | null = null;
 let master: GainNode | null = null;
@@ -16,7 +18,7 @@ export function isMuted(): boolean {
 export function toggleMute(): boolean {
   muted = !muted;
   localStorage.setItem(MUTE_KEY, muted ? '1' : '0');
-  if (master) master.gain.value = muted ? 0 : 1;
+  if (musicGain) musicGain.gain.value = muted ? 0 : MUSIC_VOL;
   return muted;
 }
 
@@ -28,10 +30,10 @@ export function unlock(): void {
   }
   ctx = new AudioContext();
   master = ctx.createGain();
-  master.gain.value = muted ? 0 : 1;
+  master.gain.value = 1;
   master.connect(ctx.destination);
   musicGain = ctx.createGain();
-  musicGain.gain.value = 0.09; // well under the sfx
+  musicGain.gain.value = muted ? 0 : MUSIC_VOL;
   musicGain.connect(master);
   startMusic();
 }
@@ -76,7 +78,7 @@ export type Sfx =
   | 'viral';
 
 export function sfx(name: Sfx): void {
-  if (!ctx || muted) return;
+  if (!ctx) return;
   switch (name) {
     case 'click': // cute little tick on every button
       tone(660, { type: 'triangle', dur: 0.045, vol: 0.06 });
