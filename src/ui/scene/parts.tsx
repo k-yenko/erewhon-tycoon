@@ -1,6 +1,102 @@
 // Shared vector building blocks for the location scenes.
 import type { ReactNode } from 'react';
 import { iso, poly, INK, ASPHALT, ASPHALT_D, CONCRETE, CONCRETE_D, DASH } from './iso';
+import { HILL_FAR, HILL_NEAR, SKYLINE_FAR, SKYLINE_NEAR, SKYLINE_WINDOW, OCEAN_FOAM, SAIL } from './palette';
+
+// ——— distant layers: every scene gets a horizon ———
+
+// Rolling hill silhouettes across the top of the frame (the Valley, the
+// canyons, wherever money hides).
+export function Hills({ y = 66 }: { y?: number }) {
+  const bumps = (yy: number, seed: number, h: number) => {
+    const pts: [number, number][] = [[-10, yy]];
+    for (let x = 0; x <= 980; x += 70) {
+      const k = Math.sin((x + seed) / 97) * 0.5 + Math.sin((x + seed) / 41) * 0.5;
+      pts.push([x, yy - h - k * h * 0.7]);
+    }
+    pts.push([980, yy], [-10, yy]);
+    return pts.map((p) => p.join(',')).join(' ');
+  };
+  return (
+    <g>
+      <polygon points={bumps(y, 40, 26)} fill={HILL_FAR} />
+      <polygon points={bumps(y + 14, 260, 20)} fill={HILL_NEAR} />
+    </g>
+  );
+}
+
+// A hazy rooftop skyline strip — LA flat-topped, water towers and all.
+export function Skyline({ y = 64 }: { y?: number }) {
+  const towers: ReactNode[] = [];
+  for (let i = 0; i < 14; i++) {
+    const x = i * 72 + ((i * 37) % 22) - 10;
+    const h = 22 + ((i * 53) % 30);
+    const w = 34 + ((i * 29) % 26);
+    const far = i % 2 === 0;
+    towers.push(
+      <g key={i}>
+        <rect x={x} y={y - h} width={w} height={h} fill={far ? SKYLINE_FAR : SKYLINE_NEAR} />
+        {i % 3 === 0 && (
+          <rect x={x + w * 0.25} y={y - h - 5} width={4} height={5} fill={far ? SKYLINE_FAR : SKYLINE_NEAR} />
+        )}
+        {Array.from({ length: 3 }, (_, j) => (
+          <rect key={j} x={x + 5 + j * 9} y={y - h + 6} width={3.5} height={3.5} fill={SKYLINE_WINDOW} />
+        ))}
+      </g>,
+    );
+  }
+  return <g shapeRendering="crispEdges">{towers}</g>;
+}
+
+// Foam lines, sun glints, and a couple of tiny sailboats for ocean bands.
+export function OceanDetail({ y0, y1 }: { y0: number; y1: number }) {
+  const mid = (y0 + y1) / 2;
+  return (
+    <g shapeRendering="crispEdges">
+      {[0.2, 0.45, 0.7].map((t, i) => (
+        <g key={i}>
+          <rect x={60 + i * 280} y={y0 + (y1 - y0) * t} width={54 - i * 8} height={2.4} fill={OCEAN_FOAM} opacity="0.7" />
+          <rect x={220 + i * 240} y={y0 + (y1 - y0) * t + 9} width={30} height={2} fill={OCEAN_FOAM} opacity="0.5" />
+        </g>
+      ))}
+      {/* sun glint */}
+      <rect x={640} y={mid - 4} width={90} height={2} fill="#ffe08a" opacity="0.5" />
+      <rect x={676} y={mid + 1} width={44} height={2} fill="#ffe08a" opacity="0.35" />
+      {/* sailboats */}
+      <g>
+        <rect x={150} y={mid - 9} width={2} height={9} fill={INK} opacity="0.6" />
+        <polygon points={`152,${mid - 9} 160,${mid - 3} 152,${mid - 3}`} fill={SAIL} stroke={INK} strokeWidth="0.8" shapeRendering="auto" />
+        <rect x={146} y={mid} width={13} height={2.6} fill="#8a6f4d" />
+      </g>
+      <g>
+        <rect x={860} y={mid - 24} width={1.6} height={7} fill={INK} opacity="0.6" />
+        <polygon points={`861,${mid - 24} 868,${mid - 19} 861,${mid - 19}`} fill={SAIL} stroke={INK} strokeWidth="0.7" shapeRendering="auto" />
+        <rect x={857} y={mid - 17} width={10} height={2.2} fill="#8a6f4d" />
+      </g>
+    </g>
+  );
+}
+
+// A white village gazebo — the Palisades' whole personality.
+export function Gazebo({ x, y }: { x: number; y: number }) {
+  const [px, py] = iso(x, y);
+  return (
+    <g transform={`translate(${px} ${py})`} shapeRendering="crispEdges">
+      <ellipse cx="0" cy="1" rx="17" ry="4.5" fill={INK} opacity="0.1" shapeRendering="auto" />
+      <rect x="-15" y="-4" width="30" height="4" fill="#e8e2d2" />
+      <rect x="-13" y="-16" width="2.6" height="12" fill="#fdfaf2" />
+      <rect x="10.4" y="-16" width="2.6" height="12" fill="#fdfaf2" />
+      <rect x="-5" y="-18" width="2.6" height="14" fill="#fdfaf2" />
+      <rect x="2.4" y="-18" width="2.6" height="14" fill="#fdfaf2" />
+      <rect x="-13" y="-9" width="26" height="1.8" fill="#e8e2d2" />
+      {/* stepped roof */}
+      <rect x="-17" y="-20" width="34" height="4" fill="#3f9e63" />
+      <rect x="-11" y="-24" width="22" height="4" fill="#57a84e" />
+      <rect x="-5" y="-28" width="10" height="4" fill="#3f9e63" />
+      <rect x="-1.4" y="-31" width="2.8" height="3" fill="#fdfaf2" />
+    </g>
+  );
+}
 
 // ——— structures ———
 
@@ -15,11 +111,27 @@ export function Box({
 }) {
   const T1 = iso(x, y), T2 = iso(x + w, y), T3 = iso(x + w, y + d), T4 = iso(x, y + d);
   const up = (p: [number, number]): [number, number] => [p[0], p[1] - h];
+  const sh = (p: [number, number]): [number, number] => [p[0] + 12, p[1] + 6];
   return (
     <g stroke={INK} strokeWidth="1.2" strokeLinejoin="round">
+      {/* grounded: every building casts a soft SE shadow */}
+      <polygon points={poly([T2, sh(T2), sh(T3), sh(T4), T4, T3])} fill={INK} opacity="0.09" stroke="none" />
       <polygon points={poly([up(T1), up(T2), up(T3), up(T4)])} fill={top} />
       <polygon points={poly([up(T2), up(T3), T3, T2])} fill={right} />
       <polygon points={poly([up(T4), up(T3), T3, T4])} fill={front} />
+      {/* parapet lip along the roofline for depth */}
+      <polygon
+        points={poly([up(T4), up(T3), [up(T3)[0], up(T3)[1] + 3], [up(T4)[0], up(T4)[1] + 3]])}
+        fill={INK}
+        opacity="0.14"
+        stroke="none"
+      />
+      <polygon
+        points={poly([up(T2), up(T3), [up(T3)[0], up(T3)[1] + 3], [up(T2)[0], up(T2)[1] + 3]])}
+        fill={INK}
+        opacity="0.08"
+        stroke="none"
+      />
       {children}
     </g>
   );
@@ -37,13 +149,24 @@ export function House({
   const RA = up(iso(x + w / 2, y), h + rh);
   const RB = up(iso(x + w / 2, y + d), h + rh);
   const door = iso(x + w * 0.62, y + d);
+  const sh = (p: [number, number]): [number, number] => [p[0] + 10, p[1] + 5];
   return (
     <g stroke={INK} strokeWidth="1.2" strokeLinejoin="round">
+      <polygon points={poly([T2, sh(T2), sh(T3), sh(T4), T4, T3])} fill={INK} opacity="0.09" stroke="none" />
       <polygon points={poly([up(T2, h), up(T3, h), T3, T2])} fill={wall} />
       <polygon points={poly([up(T4, h), up(T3, h), T3, T4])} fill={wall} />
       <polygon points={poly([up(T1, h), RA, RB, up(T4, h)])} fill={roof} opacity="0.85" />
       <polygon points={poly([up(T2, h), RA, RB, up(T3, h)])} fill={roof} />
+      {/* eave line */}
+      <polygon
+        points={poly([up(T4, h), up(T3, h), [up(T3, h)[0], up(T3, h)[1] + 2.6], [up(T4, h)[0], up(T4, h)[1] + 2.6]])}
+        fill={INK}
+        opacity="0.16"
+        stroke="none"
+      />
       <rect x={door[0] - 5} y={door[1] - h * 0.72} width="10" height={h * 0.6} fill={INK} opacity="0.55" />
+      {/* welcome mat, because of course */}
+      <rect x={door[0] - 6.5} y={door[1] - h * 0.1} width="13" height="3.4" fill="#b8926a" stroke="none" />
     </g>
   );
 }
@@ -321,6 +444,9 @@ export function StorefrontGlass({ a, b, h = 22, door = 0.7 }: { a: [number, numb
     <g>
       {quad(0.06, 0.94, h, h - 3, '#bfe0f2')}
       {quad(0.06, 0.94, h, 3, '#fff', 0.5)}
+      {/* diagonal light streak: glass that catches the afternoon */}
+      {quad(0.12, 0.2, h - 2, h - 6, '#ffffff', 0.35)}
+      {quad(0.24, 0.28, h - 2, h - 6, '#ffffff', 0.22)}
       {[0.28, 0.5, 0.72].map((t) => (
         <g key={t}>{quad(t, t + 0.015, h, h - 3, INK, 0.5)}</g>
       ))}

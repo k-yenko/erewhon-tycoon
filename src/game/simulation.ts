@@ -6,7 +6,7 @@ import type {
   SimState,
   StockId,
 } from './types';
-import { C, calendar, computeMods, adBoost, rentFor, tasteQuality, type Mods } from './economy';
+import { C, calendar, computeMods, adBoost, era, rentFor, tasteQuality, type Mods } from './economy';
 import { LOCATION_BY_ID } from './content/locations';
 import { EVENT_BY_ID } from './content/events';
 import { weatherFor } from './dailyContent';
@@ -110,6 +110,7 @@ export function shelfAttachChance(state: GameState): number {
   p *= 1 + adLift * (item.category === 'merch' ? C.SHELF_MERCH_AD_MULT : 1);
   if (daily.viralShelf) p *= C.SHELF_VIRAL_MULT;
   p *= loc.quirk?.shelfMult ?? 1; // souvenir neighborhoods attach more
+  p *= computeMods(state).shelfGlobalMult; // the merch empire
   return Math.min(0.85, p);
 }
 
@@ -122,9 +123,11 @@ export function expectedTraffic(state: GameState): number {
   const weather = weatherFor(daily);
   const ev = activeEvent(daily, state.locationId);
   const { popularity: pop, satisfaction: sat, novelty } = state.locations[state.locationId];
-  const repeatMult = C.SAT_TRAFFIC_MIN + C.SAT_TRAFFIC_SPAN * (loc.quirk?.loyalty ?? 1) * sat;
+  const repeatMult =
+    C.SAT_TRAFFIC_MIN + C.SAT_TRAFFIC_SPAN * (loc.quirk?.loyalty ?? 1) * mods.loyaltyMult * sat;
   const rivalHere = state.settings?.rival && daily.rivalLocationId === state.locationId;
-  const rival = rivalHere ? (daily.rivalIntent === 'undercut' ? 0.7 : C.RIVAL_TRAFFIC) : 1;
+  let rival = rivalHere ? (daily.rivalIntent === 'undercut' ? 0.7 : C.RIVAL_TRAFFIC) : 1;
+  if (rivalHere && mods.rivalResist) rival = 1 - (1 - rival) / 2; // billboard war
   // Day of the week: office districts fill on weekdays and thin out on
   // weekends; beach crowds do the reverse. And commuters still commute in an
   // atmospheric river — bad weather can't empty a work neighborhood on a
@@ -181,7 +184,12 @@ export function createSimContext(state: GameState): SimContext {
       loc.wealth *
       weather.payTolerance *
       ev.pay *
-      (rivalHere ? (daily.rivalIntent === 'undercut' ? 0.8 : C.RIVAL_PAY) : 1),
+      (rivalHere
+        ? (() => {
+            const base = daily.rivalIntent === 'undercut' ? 0.8 : C.RIVAL_PAY;
+            return mods.rivalResist ? 1 - (1 - base) / 2 : base;
+          })()
+        : 1),
     patienceMult:
       ev.patience * mods.patienceMult * (C.SAT_PATIENCE_MIN + C.SAT_PATIENCE_SPAN * sat),
     dropPrice: DROP_BY_ID[daily.dropId]?.price ?? state.price,
@@ -255,9 +263,12 @@ function cupsAvailable(ctx: SimContext, sim: SimState): boolean {
 export function stepSim(ctx: SimContext, sim: SimState): SimState {
   if (sim.finished) return sim;
   const { rand } = ctx;
-  const taste = Math.pow(
-    tasteQuality(ctx.state.recipe, ctx.daily.tempF, LOCATION_BY_ID[ctx.state.locationId]),
-    ctx.tasteStrict,
+  const taste = Math.min(
+    1,
+    Math.pow(
+      tasteQuality(ctx.state.recipe, ctx.daily.tempF, LOCATION_BY_ID[ctx.state.locationId]),
+      ctx.tasteStrict,
+    ) + ctx.mods.tasteAdd,
   );
 
   // — Spawns (Poisson-ish, shaped by the time-of-day curve) —
@@ -266,7 +277,7 @@ export function stepSim(ctx: SimContext, sim: SimState): SimState {
   if (rand() < rate - spawns) spawns += 1;
   for (let i = 0; i < spawns; i++) {
     const wtp = gaussian(rand, ctx.wealthMean, ctx.wtpSd);
-    const wantsDrop = rand() < C.DROP_FAN_CHANCE;
+    const wantsDrop = rand() < C.DROP_FAN_CHANCE * ctx.mods.dropFanMult;
     const effectivePrice = wantsDrop ? ctx.dropPrice : ctx.state.price;
     const willBuy = effectivePrice <= wtp;
     sim.customersTotal += 1;
@@ -482,8 +493,10 @@ export function settleDay(state: GameState, sim: SimState): DayResult {
   for (const [id, n] of Object.entries(sim.stockUsed)) {
     state.stock[id as StockId] = Math.max(0, state.stock[id as StockId] - n);
   }
+  const eraBefore = era(state);
   state.cash += sim.revenue - rent - marketing - wages;
   state.lifetimeRevenue += sim.revenue;
+  const eraAfter = era(state);
 
   // — Satisfaction & popularity (per location) —
   const ls = state.locations[state.locationId];
@@ -502,8 +515,13 @@ export function settleDay(state: GameState, sim: SimState): DayResult {
   ls.popularity += C.POP_APPROACH * (loc.quirk?.hypeGain ?? 1) * (popTarget - ls.popularity);
   if (state.adSpend > 0) ls.popularity = Math.min(1, ls.popularity + 0.02);
   // Novelty: camp a corner and the neighborhood slowly gets over you;
-  // everywhere else, absence makes the crowd grow fonder. Home turf forgives.
-  ls.novelty = Math.max(0.35, (ls.novelty ?? 1) - 0.07 * (loc.quirk?.noveltyRate ?? 1));
+  // everywhere else, absence makes the crowd grow fonder. Home turf forgives,
+  // and the residency program buys goodwill everywhere.
+  const modsNow = computeMods(state);
+  ls.novelty = Math.max(
+    0.35,
+    (ls.novelty ?? 1) - 0.07 * (loc.quirk?.noveltyRate ?? 1) * modsNow.noveltyMult,
+  );
   for (const [id, other] of Object.entries(state.locations)) {
     if (id !== state.locationId) {
       const base = LOCATION_BY_ID[id];
@@ -515,6 +533,13 @@ export function settleDay(state: GameState, sim: SimState): DayResult {
 
   // — Diagnostic tips, like the original's results screen —
   const tips: string[] = [];
+  if (eraAfter > eraBefore) {
+    tips.push(
+      eraAfter === 2
+        ? 'You have entered THE LANDLORD ERA. The city has noticed you — new equipment is available in the upgrades tab.'
+        : 'You have entered THE JUICE WARS. Moon Juus knows your name — wartime equipment is available in the upgrades tab.',
+    );
+  }
   if (sim.complaints.wait >= 3)
     tips.push('You were too slow. Customers left the line. Consider staff or a faster blender.');
   if (sim.complaints.taste >= 3)

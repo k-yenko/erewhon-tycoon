@@ -18,7 +18,7 @@ export default function SuppliesTab({
   const supplies = SUPPLIES.filter((s) => !(s.id === 'ice' && mods.freeIce));
   const marketOn = !!state.settings?.market;
   const px = (id: StockId) =>
-    marketOn ? (state.daily?.marketPrices?.[id] ?? 1) : 1; // today's market
+    (marketOn ? (state.daily?.marketPrices?.[id] ?? 1) : 1) * mods.supplyCostMult;
   const [activeId, setActiveId] = useState<StockId>(supplies[0].id);
   const [order, setOrder] = useState<Record<string, number>>({});
   const [sellQty, setSellQty] = useState(0);

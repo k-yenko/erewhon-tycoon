@@ -22,6 +22,8 @@ import DayView from './DayView';
 import IsoScene, { Cart } from './scene/IsoScene';
 import { LAYOUTS } from './scene/layouts';
 import ResultsModal from './ResultsModal';
+import SeasonReport from './SeasonReport';
+import { SEASON_DAYS } from '../game/hallOfFame';
 import Meter from './Meter';
 import { BubbleIcon, PixelIcon } from './icons';
 import ResultsTab from './panels/ResultsTab';
@@ -57,6 +59,7 @@ export default function GameScreen({
   const [mode, setMode] = useState<'manage' | 'day'>('manage');
   const [speed, setSpeed] = useState<1 | 2>(1);
   const [result, setResult] = useState<DayResult | null>(null);
+  const [showSeason, setShowSeason] = useState(false);
   const [warning, setWarning] = useState<string | null>(null);
   const ctxRef = useRef<SimContext | null>(null);
   const simRef = useRef<SimState | null>(null);
@@ -137,6 +140,10 @@ export default function GameScreen({
     setResult(null);
     setMode('manage');
     refreshDaily();
+    if (state.day > SEASON_DAYS && !state.seasonScored) {
+      setShowSeason(true);
+      return; // the season report takes the stage before win/lose screens
+    }
     if (state.gameOver) onGameOver();
     else onWin();
   };
@@ -377,6 +384,18 @@ export default function GameScreen({
       </div>
 
       {result && <ResultsModal result={result} onContinue={nextMorning} />}
+      {showSeason && (
+        <SeasonReport
+          state={state}
+          onDone={() => {
+            state.seasonScored = true;
+            commit();
+            setShowSeason(false);
+            if (state.gameOver) onGameOver();
+            else onWin();
+          }}
+        />
+      )}
     </div>
   );
 }

@@ -8,7 +8,7 @@ import {
   settleDay,
   skipToEnd,
 } from '../src/game/simulation';
-import { computeMods, C } from '../src/game/economy';
+import { computeMods, era, C } from '../src/game/economy';
 import { idealIce } from '../src/game/content/weather';
 import { SUPPLIES } from '../src/game/content/supplies';
 import { UPGRADES } from '../src/game/content/upgrades';
@@ -28,12 +28,12 @@ function buyTo(state: GameState, id: StockId, target: number, cap: number) {
     );
     if (affordable.length === 0) break;
     const fitting = affordable.reduce((a, b) => (a.cost / a.qty <= b.cost / b.qty ? a : b));
-    state.cash -= fitting.cost;
+    state.cash -= fitting.cost * computeMods(state).supplyCostMult;
     state.stock[id] += fitting.qty;
   }
 }
 
-const UPGRADE_PRIORITY = ['vitamix', 'tipscreen', 'subzero', 'blendtec', 'stand1', 'dualpitcher', 'prepour', 'icedispenser', 'shadesail', 'carafe', 'stand2', 'ledhalo', 'soundbath', 'stand3', 'icemaker'];
+const UPGRADE_PRIORITY = ['vitamix', 'tipscreen', 'subzero', 'blendtec', 'stand1', 'dualpitcher', 'prepour', 'leaselawyer', 'residency', 'icedispenser', 'shadesail', 'carafe', 'stand2', 'loyaltyapp', 'billboard', 'ledhalo', 'soundbath', 'exclusive', 'stand3', 'icemaker'];
 const MOVE_PLAN: [number, string][] = [
   [0, 'driveway'],
   [800, 'silverlake'],
@@ -57,6 +57,7 @@ for (let d = 1; d <= DAYS; d++) {
   }
   for (const id of UPGRADE_PRIORITY) {
     const u = UPGRADES.find((x) => x.id === id)!;
+    if ((u.era ?? 1) > era(state)) continue; // locked behind a later act
     if (!state.upgrades.includes(id) && state.cash > u.price * 2.5) {
       state.cash -= u.price;
       state.upgrades.push(id);

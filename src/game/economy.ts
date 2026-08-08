@@ -42,6 +42,13 @@ export const C = {
   START_CASH: 300,
 } as const;
 
+// Which act of the game you're in: 1 grind, 2 the landlord notices, 3 juice war.
+export const ERA_2_AT = 3000;
+export const ERA_3_AT = 8000;
+export function era(state: GameState): 1 | 2 | 3 {
+  return state.lifetimeRevenue >= ERA_3_AT ? 3 : state.lifetimeRevenue >= ERA_2_AT ? 2 : 1;
+}
+
 export interface Mods {
   serveTicks: number;
   blendTicks: number;
@@ -54,6 +61,14 @@ export interface Mods {
   standTier: number;
   pipelineBlend: boolean; // next batch blends while the current one pours
   batchSize: number;      // cups per blended batch
+  rentCap: boolean;       // the lawyer halves the landlord's premium
+  noveltyMult: number;    // ×0.6 with the residency program
+  loyaltyMult: number;    // satisfaction repays more repeat traffic
+  rivalResist: boolean;   // halves Moon Juus's bite
+  dropFanMult: number;    // superfan chance multiplier
+  supplyCostMult: number; // ingredient order discount
+  tasteAdd: number;       // recipe floor from the R&D chef
+  shelfGlobalMult: number;// merch empire attach multiplier
   storage: Record<string, number>;
 }
 
@@ -70,8 +85,17 @@ export function computeMods(state: GameState): Mods {
     standTier: 0,
     pipelineBlend: false,
     batchSize: C.CUPS_PER_BATCH,
+    rentCap: false,
+    noveltyMult: 1,
+    loyaltyMult: 1,
+    rivalResist: false,
+    dropFanMult: 1,
+    supplyCostMult: 1,
+    tasteAdd: 0,
+    shelfGlobalMult: 1,
     storage: { ...DEFAULT_STORAGE },
   };
+  let storageBoost = 1;
   for (const id of state.upgrades) {
     const u = UPGRADE_BY_ID[id];
     if (!u) continue;
@@ -85,11 +109,23 @@ export function computeMods(state: GameState): Mods {
     else if (e.kind === 'freeIce') m.freeIce = true;
     else if (e.kind === 'pipelineBlend') m.pipelineBlend = true;
     else if (e.kind === 'batchSize') m.batchSize += e.cups;
+    else if (e.kind === 'rentCap') m.rentCap = true;
+    else if (e.kind === 'noveltyGuard') m.noveltyMult = 0.6;
+    else if (e.kind === 'loyaltyBoost') m.loyaltyMult *= e.mult;
+    else if (e.kind === 'storageBoost') storageBoost *= e.mult;
+    else if (e.kind === 'rivalResist') m.rivalResist = true;
+    else if (e.kind === 'dropFanBoost') m.dropFanMult = 2;
+    else if (e.kind === 'supplyDiscount') m.supplyCostMult *= e.mult;
+    else if (e.kind === 'tasteBoost') m.tasteAdd += e.add;
+    else if (e.kind === 'shelfBoost') m.shelfGlobalMult *= e.mult;
     else if (e.kind === 'stand' && e.tier > m.standTier) {
       m.standTier = e.tier;
       m.drawMult *= e.draw;
       m.storage = { ...e.storage };
     }
+  }
+  if (storageBoost !== 1) {
+    for (const k of Object.keys(m.storage)) m.storage[k] = Math.round(m.storage[k] * storageBoost);
   }
   for (const id of state.staff) {
     const s = STAFF_BY_ID[id];
@@ -106,7 +142,8 @@ export function rentFor(state: GameState, locId: string): number {
   const loc = LOCATION_BY_ID[locId];
   if (!loc || loc.rent === 0) return 0;
   const pop = state.locations[locId]?.popularity ?? 0;
-  const premium = 1 + 0.5 * Math.max(0, pop - 0.5);
+  const lawyer = state.upgrades.includes('leaselawyer') ? 0.5 : 1;
+  const premium = 1 + 0.5 * lawyer * Math.max(0, pop - 0.5);
   return Math.round(loc.rent * premium * 100) / 100;
 }
 

@@ -93,6 +93,7 @@ export interface UpgradeDef {
   price: number;
   tagline: string;
   icon: IconName;
+  era?: 1 | 2 | 3; // which act of the game this belongs to (default 1)
   effect:
     | { kind: 'blendSpeed'; ticks: number }       // reduces batch remix stall
     | { kind: 'serveSpeed'; ticks: number }       // reduces transaction time
@@ -103,6 +104,15 @@ export interface UpgradeDef {
     | { kind: 'draw'; mult: number }              // more passers-by approach
     | { kind: 'pipelineBlend' }                   // next batch blends while serving
     | { kind: 'batchSize'; cups: number }         // bigger batches, fewer stalls
+    | { kind: 'rentCap' }                         // halves the landlord's premium
+    | { kind: 'noveltyGuard' }                    // the city forgets you slower
+    | { kind: 'loyaltyBoost'; mult: number }      // satisfaction repays more traffic
+    | { kind: 'storageBoost'; mult: number }      // more room for everything
+    | { kind: 'rivalResist' }                     // halves Moon Juus's bite
+    | { kind: 'dropFanBoost' }                    // doubles Today's-Drop superfans
+    | { kind: 'supplyDiscount'; mult: number }    // cheaper ingredient orders
+    | { kind: 'tasteBoost'; add: number }         // recipe floor raised
+    | { kind: 'shelfBoost'; mult: number }        // shelf items attach more
     | { kind: 'stand'; tier: number; draw: number; storage: Record<StockId, number> };
 }
 
@@ -191,6 +201,7 @@ export interface GameState {
   daily: DailyContent | null;
   wonShown: boolean;
   gameOver: boolean;
+  seasonScored?: boolean; // the Day-60 season report has been shown
 }
 
 export interface DayResult {

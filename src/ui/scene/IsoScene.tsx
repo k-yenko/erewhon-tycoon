@@ -4,6 +4,25 @@ import type { ReactNode } from 'react';
 import type { LocationDef } from '../../game/types';
 import { VIEW_W, VIEW_H } from './iso';
 import { SCENES } from './locations';
+import { shade } from './palette';
+
+// Deterministic scatter of grass tufts + sun patches under the scene layer:
+// paving covers them, so texture only shows on living ground.
+function GroundTexture({ ground }: { ground: string }) {
+  const tuft = shade(ground, -0.2);
+  const els: ReactNode[] = [];
+  for (let i = 0; i < 85; i++) {
+    const x = (i * 137 + 31) % VIEW_W;
+    const y = (i * 211 + 67) % VIEW_H;
+    els.push(
+      <g key={i} opacity={0.85}>
+        <rect x={x} y={y} width={2.2} height={4} fill={tuft} />
+        <rect x={x + 3} y={y + 1.4} width={2.2} height={2.6} fill={tuft} />
+      </g>,
+    );
+  }
+  return <g shapeRendering="crispEdges">{els}</g>;
+}
 
 export { iso, VIEW_W, VIEW_H } from './iso';
 export { Cart } from './parts';
@@ -143,6 +162,7 @@ export default function IsoScene({
       </defs>
       <rect x="0" y="0" width={VIEW_W} height={VIEW_H} fill={loc.sceneColors.ground} />
       <rect x="0" y="0" width={VIEW_W} height={VIEW_H} fill="url(#speckle)" opacity="0.09" />
+      <GroundTexture ground={loc.sceneColors.ground} />
       <Scene loc={loc} />
       <rect x="0" y="0" width={VIEW_W} height={VIEW_H} fill="url(#dither)" opacity="0.06" style={{ pointerEvents: 'none' }} />
       {children}

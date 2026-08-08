@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { QUOTES } from '../game/content/quotes';
 import type { GameSettings } from '../game/types';
+import { loadBoard } from '../game/hallOfFame';
 import { PixelIcon } from './icons';
 
 export default function TitleScreen({
@@ -18,6 +19,7 @@ export default function TitleScreen({
 }) {
   const [quote] = useState(() => QUOTES[Math.floor(Math.random() * QUOTES.length)]);
   const [showModes, setShowModes] = useState(false);
+  const [board] = useState(loadBoard);
   return (
     <div className="fullscreen">
       <div>
@@ -38,6 +40,34 @@ export default function TitleScreen({
       <p className="quote" style={{ fontSize: 11 }}>
         A tribute to Lemonade Tycoon. The prices are real.
       </p>
+      <div style={{ fontSize: 10, color: 'var(--kraft-dark)', marginTop: 2 }}>
+        SEASON: 60 DAYS · EMPIRE SCORE = WORTH + REPUTATION + DEVOTION
+      </div>
+      {board.length > 0 && (
+        <div className="panel" style={{ padding: '10px 16px', marginTop: 10, minWidth: 300 }}>
+          <div style={{ fontFamily: "'Press Start 2P', monospace", fontSize: 9, marginBottom: 8 }}>
+            HALL OF FAME
+          </div>
+          {board.slice(0, 5).map((e, i) => (
+            <div
+              key={`${e.initials}${i}`}
+              style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                gap: 18,
+                fontFamily: "'Press Start 2P', monospace",
+                fontSize: 9,
+                padding: '3px 0',
+              }}
+            >
+              <span>
+                {i + 1}. {e.initials}
+              </span>
+              <span>{e.total.toLocaleString()}</span>
+            </div>
+          ))}
+        </div>
+      )}
 
       {/* advanced modes tucked behind a gear, bottom-left */}
       <div style={{ position: 'fixed', left: 16, bottom: 16, textAlign: 'left' }}>

@@ -5,9 +5,9 @@ import type { LocationDef } from '../../game/types';
 import { iso, poly, INK, ASPHALT, ASPHALT_D, CONCRETE, CONCRETE_D, DASH } from './iso';
 import {
   AFrame, Awning, Bench, Bike, Bin, Box, CrossRoads, FerrisWheel, FlowerPatch, Fountain,
-  Hedge, House, Hydrant, LampPost, Mailbox, Palm, Planter, RoadX, RoofUnits, SUV, Seagull,
-  ShoppingCart, SidewalkX, SportsCar, Spotlight, StorefrontGlass, StringLights, Topiary,
-  Tree, WaterTower, Windows,
+  Gazebo, Hedge, Hills, House, Hydrant, LampPost, Mailbox, OceanDetail, Palm, Planter,
+  RoadX, RoofUnits, SUV, Seagull, ShoppingCart, SidewalkX, Skyline, SportsCar, Spotlight,
+  StorefrontGlass, StringLights, Topiary, Tree, WaterTower, Windows,
 } from './parts';
 import { LAYOUTS, type GridPt } from './layouts';
 
@@ -66,6 +66,7 @@ function DrivewayScene({ loc }: { loc: LocationDef }) {
   const hoop = iso(5.55, 8.15);
   return (
     <g>
+      <Hills />
       <House x={0.7} y={1.7} w={1.7} d={1.4} h={32} rh={15} wall="#efe8da" roof={loc.sceneColors.accent} />
       <House x={7.6} y={1.5} w={1.7} d={1.4} h={34} rh={16} wall="#e6dccb" roof="#7b5ec7" />
       <FlowerPatch x={2.75} y={3.35} />
@@ -105,6 +106,7 @@ function SilverlakeScene({ loc }: { loc: LocationDef }) {
   const [w2x, w2y] = iso(11, 3.4);
   return (
     <g>
+      <Skyline />
       {/* coffee shop + record store, with actual windows and doors */}
       <Box x={0.6} y={1.8} w={1.9} d={1.5} h={44} top="#e6dfd0" right="#efe8da" front="#f0e9da">
         <Awning a={[0.6, 3.3]} b={[2.5, 3.3]} top={30} drop={9} color={loc.sceneColors.accent} />
@@ -152,6 +154,7 @@ function SilverlakeScene({ loc }: { loc: LocationDef }) {
 function CulverScene({ loc }: { loc: LocationDef }) {
   return (
     <g>
+      <Skyline />
       <Box x={0.8} y={1.2} w={1.8} d={1.6} h={72} top="#b9c4c9" right="#9aa7ad" front="#aab6bc">
         <Windows x={0.8} y={1.2} w={1.8} d={1.6} h={72} cols={4} rows={4} />
       </Box>
@@ -180,6 +183,7 @@ function CulverScene({ loc }: { loc: LocationDef }) {
 function StudioScene({ loc }: { loc: LocationDef }) {
   return (
     <g>
+      <Hills />
       <Box x={0.4} y={0.8} w={3.4} d={2.2} h={88} top="#d8cdb8" right="#cfc4ac" front="#e0d5c0">
         {/* elephant door */}
         <polygon
@@ -229,6 +233,7 @@ function VeniceScene({ loc }: { loc: LocationDef }) {
         strokeWidth="2"
         opacity="0.7"
       />
+      <OceanDetail y0={8} y1={92} />
       <polygon points={poly([iso(-2, 0.8), iso(12, 0.8), iso(12, 5.2), iso(-2, 5.2)])} fill="#efd68f" stroke="none" />
       {/* beach setups: towels, umbrellas, a cooler */}
       <polygon points={poly([iso(1.8, 2.2), iso(2.5, 2.2), iso(2.5, 2.55), iso(1.8, 2.55)])} fill="#e05a7a" stroke={INK} strokeWidth="1" />
@@ -345,6 +350,7 @@ function CalabasasScene({ loc }: { loc: LocationDef }) {
   const g2 = iso(6.05, 3.95);
   return (
     <g>
+      <Hills />
       <House x={6.6} y={0.9} w={2.4} d={1.7} h={46} rh={22} wall="#f5f0e4" roof={loc.sceneColors.accent} />
       <House x={0.9} y={1.1} w={2.0} d={1.5} h={40} rh={19} wall="#f5f0e4" roof="#b8926a" />
       {/* estate driveway from the gate up to the mansion, cars parked ON it */}
@@ -384,6 +390,7 @@ function CalabasasScene({ loc }: { loc: LocationDef }) {
 function BeverlygroveScene(_props: { loc: LocationDef }) {
   return (
     <g>
+      <Skyline />
       <Box x={0.6} y={1.4} w={5.2} d={1.9} h={54} top="#f5f0e4" right="#efe8da" front="#f0e9da">
         {/* sign band */}
         <polygon
@@ -448,6 +455,7 @@ function BeverlyhillsScene({ loc }: { loc: LocationDef }) {
   ];
   return (
     <g>
+      <Skyline y={58} />
       {shops.map((b, i) => (
         <Box key={i} x={b.x} y={1.7} w={b.w} d={1.4} h={48} top="#f5f0e4" right="#efe8da" front="#f7f2e8">
           <Awning a={[b.x, 3.1]} b={[b.x + b.w, 3.1]} top={34} drop={9} color={b.awn} />
@@ -491,6 +499,7 @@ function PalisadesScene({ loc }: { loc: LocationDef }) {
     <g>
       {/* ocean sliver + bluff ridge */}
       <polygon points={poly([iso(-2, -2), iso(12, -2), iso(12, -0.6), iso(-2, -0.6)])} fill="#3f97d9" stroke="none" />
+      <OceanDetail y0={4} y1={40} />
       <polygon
         points={poly([
           iso(-2, -0.6),
@@ -531,17 +540,23 @@ function PalisadesScene({ loc }: { loc: LocationDef }) {
         stroke={INK}
         strokeWidth="1.2"
       />
-      <PathPaving pts={LAYOUTS.palisades.path} width={20} />
+      <PathPaving pts={LAYOUTS.palisades.path} width={20} color="#ddd3ba" />
+      <Gazebo x={6.6} y={5.15} />
       <Tree x={1.6} y={5.2} s={0.9} />
       <Tree x={7.6} y={5.0} s={0.85} />
+      <Tree x={3.4} y={7.6} s={0.8} />
+      <Tree x={9.2} y={5.6} s={0.75} />
       <StringLights a={[1.6, 5.2]} b={[4.6, 5.35]} lift={30} dip={10} />
       <StringLights a={[4.6, 5.35]} b={[7.6, 5.0]} lift={30} dip={10} />
       <Bench x={4.5} y={5.35} />
       <FlowerPatch x={0.5} y={5.4} />
       <FlowerPatch x={6.5} y={5.7} />
       <FlowerPatch x={9.8} y={6.7} />
+      <FlowerPatch x={2.8} y={6.2} />
+      <FlowerPatch x={5.2} y={7.5} />
       <Palm x={9.6} y={7.0} s={0.9} />
       <Planter x={5.8} y={5.6} />
+      <Planter x={1.0} y={6.9} />
     </g>
   );
 }

@@ -140,6 +140,124 @@ export const UPGRADES: UpgradeDef[] = [
   },
 ];
 
+// ——— Era 2: The Landlord Era (unlocks at $3,000 lifetime revenue) ———
+// The city noticed you. These are the tools for surviving being noticed.
+UPGRADES.push(
+  {
+    id: 'leaselawyer',
+    name: 'Entertainment Lawyer On Retainer',
+    price: 1999.99,
+    tagline: 'He also does leases. Your landlord hates him.',
+    icon: 'tablet',
+    era: 2,
+    effect: { kind: 'rentCap' },
+  },
+  {
+    id: 'porter',
+    name: 'Supply Porter Service',
+    price: 2299.99,
+    tagline: 'A man named Julio brings more of everything. Ask no questions.',
+    icon: 'store',
+    era: 2,
+    effect: { kind: 'storageBoost', mult: 1.3 },
+  },
+  {
+    id: 'mister',
+    name: 'Sidewalk Misting System',
+    price: 2499.99,
+    tagline: 'A gentle fog of patience, straight from Palm Springs.',
+    icon: 'snowflake',
+    era: 2,
+    effect: { kind: 'patience', mult: 1.2 },
+  },
+  {
+    id: 'residency',
+    name: 'Neighborhood Residency Program',
+    price: 2999.99,
+    tagline: 'Sponsor a mural, a bench, a vibe. They forget you slower.',
+    icon: 'pin',
+    era: 2,
+    effect: { kind: 'noveltyGuard' },
+  },
+  {
+    id: 'valet',
+    name: 'Valet Stand',
+    price: 3499.99,
+    tagline: 'Nothing says destination like paying a stranger to park.',
+    icon: 'person',
+    era: 2,
+    effect: { kind: 'draw', mult: 1.15 },
+  },
+  {
+    id: 'loyaltyapp',
+    name: 'Loyalty Punch App',
+    price: 4499.99,
+    tagline: 'Ten smoothies and the eleventh one is still full price. They love it.',
+    icon: 'tablet',
+    era: 2,
+    effect: { kind: 'loyaltyBoost', mult: 1.2 },
+  },
+);
+
+// ——— Era 3: The Juice Wars (unlocks at $8,000 lifetime revenue) ———
+// Moon Juus started it. You're going to finish it.
+UPGRADES.push(
+  {
+    id: 'billboard',
+    name: 'Counter-Billboard Campaign',
+    price: 4999.99,
+    tagline: 'Directly above their truck. Nothing personal. Everything personal.',
+    icon: 'bulb',
+    era: 3,
+    effect: { kind: 'rivalResist' },
+  },
+  {
+    id: 'flowguru',
+    name: 'Crowd Flow Consultant',
+    price: 5499.99,
+    tagline: 'Former nightclub door guy. The line becomes an experience.',
+    icon: 'person',
+    era: 3,
+    effect: { kind: 'patience', mult: 1.15 },
+  },
+  {
+    id: 'collab',
+    name: 'Celebrity Collab Series',
+    price: 5999.99,
+    tagline: 'Limited runs. Legal-cleared names. Unhinged demand.',
+    icon: 'camera',
+    era: 3,
+    effect: { kind: 'dropFanBoost' },
+  },
+  {
+    id: 'exclusive',
+    name: 'Exclusive Supplier Contract',
+    price: 6999.99,
+    tagline: 'The strawberry farm answers to you now.',
+    icon: 'strawberry',
+    era: 3,
+    effect: { kind: 'supplyDiscount', mult: 0.8 },
+  },
+  {
+    id: 'rdchef',
+    name: 'In-House R&D Chef',
+    price: 7999.99,
+    tagline: 'Poached from a tasting menu. The recipe simply cannot miss anymore.',
+    icon: 'blender',
+    era: 3,
+    effect: { kind: 'tasteBoost', add: 0.1 },
+  },
+  {
+    id: 'merchempire',
+    name: 'Merch Empire',
+    price: 8999.99,
+    tagline: 'The smoothie is the loss leader. The hoodie is the business.',
+    icon: 'tag',
+    era: 3,
+    effect: { kind: 'shelfBoost', mult: 1.4 },
+  },
+);
+
 export const UPGRADE_BY_ID = Object.fromEntries(UPGRADES.map((u) => [u.id, u]));
 
 // Secondhand wellness equipment: half what you paid, no warranty, no regrets.
