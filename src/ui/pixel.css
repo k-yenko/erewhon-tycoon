@@ -496,6 +496,13 @@ button {
   line-height: 1.9;
   text-transform: uppercase;
 }
+.person-card .pc-mood {
+  padding: 0 8px 4px;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 7px;
+  text-transform: uppercase;
+  color: var(--kraft-dark, #8a6f4d);
+}
 .person-card .pc-weak {
   padding: 0 8px 4px;
   font-family: 'Press Start 2P', monospace;

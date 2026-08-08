@@ -49,7 +49,24 @@ function samplePos(a: Anim, now: number): [number, number] {
 }
 
 const CARD_W = 224;
-const CARD_H = 250;
+const CARD_H = 264;
+
+// What this person is going through right now, per the sim's actual state.
+function moodOf(c: {
+  bubble: string | null;
+  state: string;
+  willBuy: boolean;
+  patienceLeft: number;
+}): string {
+  if (c.bubble === 'price') return 'personally offended by the price';
+  if (c.bubble === 'wait') return 'done waiting, telling everyone';
+  if (c.bubble === 'taste') return 'betrayed by the recipe';
+  if (c.bubble === 'happy') return 'genuinely glowing';
+  if (c.state === 'queued') return c.patienceLeft > 6 ? 'waiting, serenely' : 'waiting, barely';
+  if (c.state === 'served') return 'sipping and thriving';
+  if (c.state === 'leaving' && !c.willBuy) return 'just here for the vibes';
+  return c.willBuy ? 'craving a smoothie' : 'window shopping';
+}
 
 export default function DayView({
   state,
@@ -274,6 +291,8 @@ export default function DayView({
                 onMouseEnter={hoverEnter(c.id)}
                 onMouseLeave={hoverLeave(c.id)}
               >
+                {/* generous invisible hit target — sprites are small */}
+                <rect x="-10" y="-44" width="20" height="48" fill="transparent" />
                 <Person
                   variant={c.id}
                   walking={walking}
@@ -339,6 +358,7 @@ export default function DayView({
                   <div key={m}>- {m}</div>
                 ))}
               </div>
+              <div className="pc-mood">mood: {moodOf(c)}</div>
               <div className="pc-weak">weakness: {card.weakness}</div>
               <div className="pc-quote">"{card.quote}"</div>
             </div>

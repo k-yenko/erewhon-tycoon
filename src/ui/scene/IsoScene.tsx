@@ -147,7 +147,9 @@ export default function IsoScene({
       <rect x="0" y="0" width={VIEW_W} height={VIEW_H} fill="url(#dither)" opacity="0.06" style={{ pointerEvents: 'none' }} />
       {children}
 
-      {/* ——— weather, visible on screen ——— */}
+      {/* ——— weather, visible on screen ———
+          pointer-events off: overlays must never swallow hovers on the crowd */}
+      <g style={{ pointerEvents: 'none' }}>
       {sunny && <PixelSun x={VIEW_W - 80} y={62} s={hot ? 1.3 : 1} hot={hot} />}
       {weatherId === 'perfect75' && (
         <>
@@ -232,6 +234,7 @@ export default function IsoScene({
           )}
         </g>
       )}
+      </g>
     </svg>
   );
 }
