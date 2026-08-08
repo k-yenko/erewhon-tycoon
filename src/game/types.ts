@@ -69,6 +69,21 @@ export interface LocationDef {
   touristy: number;         // 0..1 — share of the crowd that's tourists
   industry: number;         // 0..1 — share tied to entertainment/tech money
   tasteBias?: Partial<Recipe>; // what this neighborhood wants more (or less) of
+  perk: string;  // the mechanical upside, in plain words (Rent tab)
+  catch: string; // the mechanical downside, in plain words (Rent tab)
+  quirk?: {
+    noveltyRate?: number;    // × the 0.07/day novelty decay (home turf forgives)
+    rushBias?: number;       // sharpens the lunch curve: peaks peakier, lulls deader
+    priceGripeMult?: number; // chance a priced-out walker actually complains
+    patienceMod?: number;    // × customer patience
+    weatherSens?: number;    // amplifies weather's traffic swing, both directions
+    shelfMult?: number;      // × shelf-item attach rate
+    wtpSpread?: number;      // × willingness-to-pay spread (whales overshoot)
+    tasteStrict?: number;    // taste quality raised to this power (critics)
+    loyalty?: number;        // × the satisfaction→repeat-traffic payoff
+    hypeGain?: number;       // × how fast popularity moves here
+    rivalMagnet?: number;    // × rival's preference for parking here
+  };
   sceneColors: { sky: string; ground: string; accent: string };
 }
 

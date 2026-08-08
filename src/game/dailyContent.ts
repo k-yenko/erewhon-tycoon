@@ -59,7 +59,11 @@ export function generateDaily(
     rivalLocationId = playerLocationId;
     rivalIntent = rivalTier === 2 ? 'undercut' : 'stalk';
   } else if (dayRand() >= 0.2) {
-    rivalLocationId = pickWeighted(dayRand, LOCATIONS, (l) => l.baseTraffic).id;
+    rivalLocationId = pickWeighted(
+      dayRand,
+      LOCATIONS,
+      (l) => l.baseTraffic * (l.quirk?.rivalMagnet ?? 1),
+    ).id;
   }
 
   return {

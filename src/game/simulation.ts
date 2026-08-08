@@ -19,11 +19,11 @@ import { pickReview, type ReviewVariant } from './content/reviews';
 
 // Intra-day traffic curve like the original's hourly customer counts:
 // quiet open, lunch-rush peak, afternoon taper. Averages ~1 over the day.
-export function trafficCurve(minute: number): number {
+// rushBias > 1 (office districts) makes peaks peakier and lulls deader.
+export function trafficCurve(minute: number, rushBias = 1): number {
   const t = minute / C.DAY_TICKS;
-  if (t < 0.25) return 0.6;
-  if (t < 0.65) return 1.45;
-  return 0.8;
+  const base = t < 0.25 ? 0.6 : t < 0.65 ? 1.45 : 0.8;
+  return Math.max(0.1, 1 + (base - 1) * rushBias);
 }
 
 export interface SimContext {
@@ -36,6 +36,10 @@ export interface SimContext {
   patienceMult: number;
   dropPrice: number;
   shelfAttachChance: number;
+  wtpSd: number;       // willingness-to-pay spread (whale neighborhoods widen it)
+  priceGripe: number;  // chance a priced-out walker actually complains
+  tasteStrict: number; // taste quality raised to this power (critic neighborhoods)
+  rushBias: number;    // lunch-curve sharpness for this location
   nextId: number;
 }
 
@@ -105,6 +109,7 @@ export function shelfAttachChance(state: GameState): number {
   const adLift = (adBoost(state.adSpend) - 1) * C.SHELF_AD_SENS;
   p *= 1 + adLift * (item.category === 'merch' ? C.SHELF_MERCH_AD_MULT : 1);
   if (daily.viralShelf) p *= C.SHELF_VIRAL_MULT;
+  p *= loc.quirk?.shelfMult ?? 1; // souvenir neighborhoods attach more
   return Math.min(0.85, p);
 }
 
@@ -117,20 +122,21 @@ export function expectedTraffic(state: GameState): number {
   const weather = weatherFor(daily);
   const ev = activeEvent(daily, state.locationId);
   const { popularity: pop, satisfaction: sat, novelty } = state.locations[state.locationId];
-  const repeatMult = C.SAT_TRAFFIC_MIN + C.SAT_TRAFFIC_SPAN * sat;
+  const repeatMult = C.SAT_TRAFFIC_MIN + C.SAT_TRAFFIC_SPAN * (loc.quirk?.loyalty ?? 1) * sat;
   const rivalHere = state.settings?.rival && daily.rivalLocationId === state.locationId;
   const rival = rivalHere ? (daily.rivalIntent === 'undercut' ? 0.7 : C.RIVAL_TRAFFIC) : 1;
   // Day of the week: office districts fill on weekdays and thin out on
   // weekends; beach crowds do the reverse. And commuters still commute in an
   // atmospheric river — bad weather can't empty a work neighborhood on a
-  // weekday, it just mutes it.
+  // weekday, it just mutes it. Beach spots feel weather harder both ways.
   const cal = calendar(state.day);
   const weekMult = cal.weekend
     ? 1 - 0.22 * loc.industry + 0.3 * loc.touristy
     : 1 + 0.16 * loc.industry - 0.18 * loc.touristy;
+  const sensed = 1 + (weather.traffic - 1) * (loc.quirk?.weatherSens ?? 1);
   const weatherTraffic = cal.weekend
-    ? weather.traffic
-    : weather.traffic + Math.max(0, 0.75 - weather.traffic) * loc.industry;
+    ? sensed
+    : sensed + Math.max(0, 0.75 - sensed) * loc.industry;
   return (
     loc.baseTraffic *
     weatherTraffic *
@@ -180,6 +186,10 @@ export function createSimContext(state: GameState): SimContext {
       ev.patience * mods.patienceMult * (C.SAT_PATIENCE_MIN + C.SAT_PATIENCE_SPAN * sat),
     dropPrice: DROP_BY_ID[daily.dropId]?.price ?? state.price,
     shelfAttachChance: shelfAttachChance(state),
+    wtpSd: C.WTP_SD * (loc.quirk?.wtpSpread ?? 1),
+    priceGripe: loc.quirk?.priceGripeMult ?? 1,
+    tasteStrict: loc.quirk?.tasteStrict ?? 1,
+    rushBias: loc.quirk?.rushBias ?? 1,
     nextId: 1,
   };
 }
@@ -245,14 +255,17 @@ function cupsAvailable(ctx: SimContext, sim: SimState): boolean {
 export function stepSim(ctx: SimContext, sim: SimState): SimState {
   if (sim.finished) return sim;
   const { rand } = ctx;
-  const taste = tasteQuality(ctx.state.recipe, ctx.daily.tempF, LOCATION_BY_ID[ctx.state.locationId]);
+  const taste = Math.pow(
+    tasteQuality(ctx.state.recipe, ctx.daily.tempF, LOCATION_BY_ID[ctx.state.locationId]),
+    ctx.tasteStrict,
+  );
 
   // — Spawns (Poisson-ish, shaped by the time-of-day curve) —
-  const rate = ctx.spawnPerTick * trafficCurve(sim.minute);
+  const rate = ctx.spawnPerTick * trafficCurve(sim.minute, ctx.rushBias);
   let spawns = Math.floor(rate);
   if (rand() < rate - spawns) spawns += 1;
   for (let i = 0; i < spawns; i++) {
-    const wtp = gaussian(rand, ctx.wealthMean, C.WTP_SD);
+    const wtp = gaussian(rand, ctx.wealthMean, ctx.wtpSd);
     const wantsDrop = rand() < C.DROP_FAN_CHANCE;
     const effectivePrice = wantsDrop ? ctx.dropPrice : ctx.state.price;
     const willBuy = effectivePrice <= wtp;
@@ -270,13 +283,16 @@ export function stepSim(ctx: SimContext, sim: SimState): SimState {
       wantsDrop,
       pace: 0.8 + rand() * 0.5,
     };
-    // Price-shy customers glance at the sign, complain, and keep walking.
+    // Price-shy customers glance at the sign, complain, and keep walking —
+    // unless the neighborhood expenses everything and can't be bothered.
     if (!willBuy) {
-      cust.bubble = 'price';
-      cust.bubbleTtl = 4;
       cust.state = 'leaving';
-      sim.complaints.price += 1;
-      addReview(ctx, sim, 'price');
+      if (rand() < ctx.priceGripe) {
+        cust.bubble = 'price';
+        cust.bubbleTtl = 4;
+        sim.complaints.price += 1;
+        addReview(ctx, sim, 'price');
+      }
     }
     sim.customers.push(cust);
     if (willBuy && !sim.soldOut) {
@@ -483,11 +499,11 @@ export function settleDay(state: GameState, sim: SimState): DayResult {
   }
   const servedFraction = Math.min(1, sim.cupsSold / Math.max(1, loc.baseTraffic));
   const popTarget = Math.min(1, servedFraction * 0.8 + ls.satisfaction * 0.4);
-  ls.popularity += C.POP_APPROACH * (popTarget - ls.popularity);
+  ls.popularity += C.POP_APPROACH * (loc.quirk?.hypeGain ?? 1) * (popTarget - ls.popularity);
   if (state.adSpend > 0) ls.popularity = Math.min(1, ls.popularity + 0.02);
   // Novelty: camp a corner and the neighborhood slowly gets over you;
-  // everywhere else, absence makes the crowd grow fonder.
-  ls.novelty = Math.max(0.35, (ls.novelty ?? 1) - 0.07);
+  // everywhere else, absence makes the crowd grow fonder. Home turf forgives.
+  ls.novelty = Math.max(0.35, (ls.novelty ?? 1) - 0.07 * (loc.quirk?.noveltyRate ?? 1));
   for (const [id, other] of Object.entries(state.locations)) {
     if (id !== state.locationId) {
       const base = LOCATION_BY_ID[id];

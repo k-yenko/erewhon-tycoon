@@ -60,6 +60,13 @@ export default function RentTab({
             <Meter value={loc.baseTraffic / 90} label="foot traffic" color="green" />
             <Meter value={(loc.wealth - 14) / 16} label="spending power" color="gold" />
           </div>
+          {/* every spot has a deal: the thing it gives you, the thing it costs you */}
+          <div style={{ fontSize: 11, margin: '6px 0 2px', color: 'var(--go, #2e6b33)' }}>
+            + {loc.perk}
+          </div>
+          <div style={{ fontSize: 11, marginBottom: 6, color: 'var(--alert)' }}>
+            − {loc.catch}
+          </div>
           <div className="info-row">
             <span className="label">Rent</span>
             <span>

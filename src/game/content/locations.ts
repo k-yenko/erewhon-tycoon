@@ -15,6 +15,9 @@ export const LOCATIONS: LocationDef[] = [
     baseSatisfaction: 0.8,
     touristy: 0.0,
     industry: 0.1,
+    perk: 'Home turf: the neighborhood never gets tired of you (novelty barely decays).',
+    catch: "Fourteen people a day, and one of them is your roommate.",
+    quirk: { noveltyRate: 0.4 },
     sceneColors: { sky: '#cfe3ea', ground: '#7cb85c', accent: '#4a9e46' },
   },
   {
@@ -30,6 +33,9 @@ export const LOCATIONS: LocationDef[] = [
     touristy: 0.15,
     industry: 0.25,
     tasteBias: { seaMoss: 1 },
+    perk: 'Tastemakers: word travels — popularity builds 40% faster here.',
+    catch: "Critics: every recipe flaw gets noticed, and mentioned.",
+    quirk: { hypeGain: 1.4, tasteStrict: 1.3 },
     sceneColors: { sky: '#cfe3ea', ground: '#74b054', accent: '#43a047' },
   },
   {
@@ -45,6 +51,9 @@ export const LOCATIONS: LocationDef[] = [
     touristy: 0.1,
     industry: 0.8,
     tasteBias: { ice: -1 },
+    perk: 'The lunch rush is a stampede — peak hours run far hotter.',
+    catch: "Outside the rush, it is a ghost town with lanyards.",
+    quirk: { rushBias: 1.6 },
     sceneColors: { sky: '#d5e6ee', ground: '#a4adb5', accent: '#3f6fd9' },
   },
   {
@@ -60,6 +69,9 @@ export const LOCATIONS: LocationDef[] = [
     touristy: 0.1,
     industry: 0.85,
     tasteBias: { ice: -1 },
+    perk: 'Expense accounts: almost nobody complains about price.',
+    catch: "Everyone is between meetings — patience runs short.",
+    quirk: { priceGripeMult: 0.35, patienceMod: 0.8 },
     sceneColors: { sky: '#e8e0cf', ground: '#c8a96e', accent: '#c78f3f' },
   },
   {
@@ -75,6 +87,9 @@ export const LOCATIONS: LocationDef[] = [
     touristy: 0.8,
     industry: 0.1,
     tasteBias: { ice: 1 },
+    perk: 'Sunny days are a goldmine — good weather hits harder here.',
+    catch: "Bad weather empties the boardwalk just as hard.",
+    quirk: { weatherSens: 1.5 },
     sceneColors: { sky: '#bfe0ec', ground: '#e8cf8e', accent: '#2f9ea8' },
   },
   {
@@ -90,6 +105,9 @@ export const LOCATIONS: LocationDef[] = [
     touristy: 0.85,
     industry: 0.1,
     tasteBias: { ice: 1 },
+    perk: 'Tourists grab the shelf item as a souvenir (+35% attach).',
+    catch: "Trend-hoppers: they get over you 40% faster.",
+    quirk: { shelfMult: 1.35, noveltyRate: 1.4, weatherSens: 1.2 },
     sceneColors: { sky: '#bfe0ec', ground: '#e3ca88', accent: '#2f86c7' },
   },
   {
@@ -105,6 +123,9 @@ export const LOCATIONS: LocationDef[] = [
     touristy: 0.05,
     industry: 0.3,
     tasteBias: { coconutCream: 1 },
+    perk: 'Whales: some customers will massively overpay. Price brave.',
+    catch: "Teenagers do not wait in lines.",
+    quirk: { wtpSpread: 1.6, patienceMod: 0.85 },
     sceneColors: { sky: '#e9ddc8', ground: '#84b660', accent: '#cf9c3f' },
   },
   {
@@ -119,6 +140,9 @@ export const LOCATIONS: LocationDef[] = [
     baseSatisfaction: 0.2,
     touristy: 0.5,
     industry: 0.4,
+    perk: 'Flagship halo: shoppers attach the shelf item 50% more.',
+    catch: "Moon Juus considers this corner its birthright.",
+    quirk: { shelfMult: 1.5, rivalMagnet: 2 },
     sceneColors: { sky: '#d8e4ea', ground: '#b0b0a8', accent: '#7b5ec7' },
   },
   {
@@ -133,6 +157,9 @@ export const LOCATIONS: LocationDef[] = [
     baseSatisfaction: 0.4,
     touristy: 0.75,
     industry: 0.3,
+    perk: 'The deepest wallets in the city, and some overshoot.',
+    catch: "Brutally picky — an off recipe gets torched here.",
+    quirk: { wtpSpread: 1.25, tasteStrict: 1.5 },
     sceneColors: { sky: '#d8e4ea', ground: '#95bd6f', accent: '#c76f5a' },
   },
   {
@@ -148,6 +175,9 @@ export const LOCATIONS: LocationDef[] = [
     touristy: 0.1,
     industry: 0.2,
     tasteBias: { seaMoss: 1 },
+    perk: 'Loyalty: keep them happy and they repay it in waves (+40% repeat pull).',
+    catch: "The rent assumes you are already famous.",
+    quirk: { loyalty: 1.4 },
     sceneColors: { sky: '#c8e2ee', ground: '#79b45c', accent: '#3f9e63' },
   },
 ];

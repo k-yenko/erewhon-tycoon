@@ -314,7 +314,12 @@ export default function DayView({
                   if (node) nodes.current.set(c.id, node);
                   else nodes.current.delete(c.id);
                 }}
-                style={{ transform: `translate(${px}px, ${py}px)`, cursor: 'pointer' }}
+                style={{
+                  transform: `translate(${px}px, ${py}px)`,
+                  cursor: 'pointer',
+                  // while a card is open, passers-by can't steal the cursor
+                  pointerEvents: hover && hover.id !== c.id ? 'none' : undefined,
+                }}
                 onMouseEnter={hoverEnter(c.id)}
                 onMouseLeave={hoverLeave(c.id)}
               >
