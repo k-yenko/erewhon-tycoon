@@ -101,8 +101,40 @@ export default function SuppliesTab({
           vs. usual{px(active.id) < 0.9 ? ' — a good day to stock up' : px(active.id) > 1.3 ? ' — maybe wait it out' : ''}
         </div>
         )}
+        {active.tiers.map((t, i) => {
+          const key = `${active.id}_${i}`;
+          return (
+            <div
+              key={i}
+              style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}
+            >
+              <div style={{ flex: 1, fontSize: 13 }}>
+                {t.qty} units
+                <div style={{ fontSize: 11, color: 'var(--ink-soft)' }}>
+                  {fmtMoney(t.cost * px(active.id))}
+                </div>
+              </div>
+              <Stepper
+                value={order[key] ?? 0}
+                onChange={(v) => setOrder({ ...order, [key]: v })}
+                step={1}
+                min={0}
+                max={9}
+              />
+            </div>
+          );
+        })}
         {state.stock[active.id] > 0 && (
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 10,
+              marginTop: 10,
+              paddingTop: 8,
+              borderTop: '1.5px solid rgba(26, 26, 24, 0.2)',
+            }}
+          >
             <div style={{ flex: 1, fontSize: 13 }}>
               Sell back
               <div style={{ fontSize: 11, color: 'var(--ink-soft)' }}>
@@ -134,29 +166,6 @@ export default function SuppliesTab({
             </button>
           </div>
         )}
-        {active.tiers.map((t, i) => {
-          const key = `${active.id}_${i}`;
-          return (
-            <div
-              key={i}
-              style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}
-            >
-              <div style={{ flex: 1, fontSize: 13 }}>
-                {t.qty} units
-                <div style={{ fontSize: 11, color: 'var(--ink-soft)' }}>
-                  {fmtMoney(t.cost * px(active.id))}
-                </div>
-              </div>
-              <Stepper
-                value={order[key] ?? 0}
-                onChange={(v) => setOrder({ ...order, [key]: v })}
-                step={1}
-                min={0}
-                max={9}
-              />
-            </div>
-          );
-        })}
       </div>
       <div className="info-row" style={{ marginTop: 8 }}>
         <span className="label">Current stock covers</span>
