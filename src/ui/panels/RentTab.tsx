@@ -36,8 +36,7 @@ export default function RentTab({
     <div className="panel">
       <h2 className="panel-title">Locations</h2>
       <div style={{ fontSize: 12, marginBottom: 8 }}>
-        Choose a location. Moving is free — your cash, upgrades, staff, and stock all
-        come with you. Each spot remembers its own reputation.
+        Moving is free. Every spot remembers its reputation.
       </div>
       <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
         <button
@@ -62,12 +61,30 @@ export default function RentTab({
             <Meter value={loc.baseTraffic / 90} label="foot traffic" color="green" />
             <Meter value={(loc.wealth - 14) / 16} label="spending power" color="gold" />
           </div>
-          {/* every spot has a deal: the thing it gives you, the thing it costs you */}
-          <div style={{ fontSize: 11, margin: '6px 0 2px', color: 'var(--go, #2e6b33)' }}>
-            + {loc.perk}
-          </div>
-          <div style={{ fontSize: 11, marginBottom: 6, color: 'var(--alert)' }}>
-            − {loc.catch}
+          {/* the deal, as chips: what it gives you · what it costs you */}
+          <div style={{ display: 'flex', gap: 6, margin: '6px 0 8px', flexWrap: 'wrap' }}>
+            <span
+              style={{
+                fontSize: 11,
+                border: '1.5px solid #2e6b33',
+                color: '#2e6b33',
+                padding: '1px 7px',
+                borderRadius: 3,
+              }}
+            >
+              + {loc.perk}
+            </span>
+            <span
+              style={{
+                fontSize: 11,
+                border: '1.5px solid var(--alert)',
+                color: 'var(--alert)',
+                padding: '1px 7px',
+                borderRadius: 3,
+              }}
+            >
+              − {loc.catch}
+            </span>
           </div>
           <div className="info-row">
             <span className="label">Rent</span>

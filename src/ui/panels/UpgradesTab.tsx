@@ -7,13 +7,11 @@ const ERA_META: Record<number, { title: string; locked: (cur: number) => string 
   1: { title: 'ACT I — THE HUSTLE', locked: () => null },
   2: {
     title: 'ACT II — THE LANDLORD ERA',
-    locked: (cur) =>
-      cur >= 2 ? null : `Unlocks at ${fmtMoney(ERA_2_AT)} lifetime revenue — when the city notices you.`,
+    locked: (cur) => (cur >= 2 ? null : `Unlocks at $${ERA_2_AT.toLocaleString()} lifetime.`),
   },
   3: {
     title: 'ACT III — THE JUICE WARS',
-    locked: (cur) =>
-      cur >= 3 ? null : `Unlocks at ${fmtMoney(ERA_3_AT)} lifetime revenue — when Moon Juus learns your name.`,
+    locked: (cur) => (cur >= 3 ? null : `Unlocks at $${ERA_3_AT.toLocaleString()} lifetime.`),
   },
 };
 

@@ -59,8 +59,7 @@ export default function SuppliesTab({
     <div className="panel">
       <h2 className="panel-title">Supplies</h2>
       <div style={{ fontSize: 12, marginBottom: 4 }}>
-        Running out of stock in the middle of a promising day is a painful experience.
-        Strawberries spoil, ice melts, and the customers do not forgive.
+        Strawberries spoil, ice melts, customers don't forgive.
       </div>
       <div className="subtabs">
         {supplies.map((s) => (
@@ -138,8 +137,7 @@ export default function SuppliesTab({
             <div style={{ flex: 1, fontSize: 13 }}>
               Sell back
               <div style={{ fontSize: 11, color: 'var(--ink-soft)' }}>
-                {fmtMoney(UNIT_VALUE[active.id] * BUYBACK_RATE)}/unit — cash-flow problems
-                happen to the best of us
+                {fmtMoney(UNIT_VALUE[active.id] * BUYBACK_RATE)}/unit, no judgment
               </div>
             </div>
             <Stepper

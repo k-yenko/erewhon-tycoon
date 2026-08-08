@@ -44,8 +44,7 @@ export default function MarketingTab({
     <div className="panel">
       <h2 className="panel-title">Price</h2>
       <div style={{ fontSize: 12, marginBottom: 8 }}>
-        Skills, instinct, judgment, generational wealth... do you have what it takes to set
-        the perfect price?
+        Read the room. Charge accordingly.
       </div>
       <div style={{ display: 'flex', alignItems: 'center', gap: 14, flexWrap: 'wrap' }}>
         <Stepper
@@ -69,8 +68,7 @@ export default function MarketingTab({
 
       <h2 className="panel-title">Advertising</h2>
       <div style={{ fontSize: 12, marginBottom: 8 }}>
-        When your reputation needs a little boost, a few dollars into the algorithm can
-        really make the difference. Charged each day you trade.
+        A few dollars into the algorithm. Charged daily.
       </div>
       <div style={{ display: 'flex', alignItems: 'center', gap: 14, flexWrap: 'wrap' }}>
         <Stepper
