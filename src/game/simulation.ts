@@ -12,6 +12,7 @@ import { EVENT_BY_ID } from './content/events';
 import { weatherFor } from './dailyContent';
 import { DROP_BY_ID } from './content/products';
 import { UNIT_VALUE } from './content/supplies';
+import { UPGRADE_BY_ID, RESALE_RATE } from './content/upgrades';
 import { STAFF_BY_ID } from './content/staff';
 import { gaussian, mulberry32 } from './rng';
 import { pickReview, type ReviewVariant } from './content/reviews';
@@ -544,12 +545,17 @@ export function overnight(state: GameState): void {
 
   state.day += 1; // staff stay hired (and paid daily) until fired, like the original
 
-  // Bankruptcy: even selling every last jar back wouldn't fund a supply run.
-  const liquidation = Object.entries(state.stock).reduce(
+  // Bankruptcy: even selling every jar AND the equipment wouldn't fund a
+  // supply run. Until then, there's always something left to liquidate.
+  const stockValue = Object.entries(state.stock).reduce(
     (s, [id, n]) => s + (UNIT_VALUE[id] ?? 0) * n * 0.6,
     0,
   );
-  if (state.cash + liquidation < 45) {
+  const gearValue = state.upgrades.reduce(
+    (s, id) => s + (UPGRADE_BY_ID[id]?.price ?? 0) * RESALE_RATE,
+    0,
+  );
+  if (state.cash + stockValue + gearValue < 45) {
     state.gameOver = true;
   }
 }

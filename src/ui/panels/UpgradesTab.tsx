@@ -1,5 +1,5 @@
 import type { GameState } from '../../game/types';
-import { UPGRADES } from '../../game/content/upgrades';
+import { UPGRADES, RESALE_RATE } from '../../game/content/upgrades';
 import { fmtMoney } from '../../game/economy';
 import { PixelIcon } from '../icons';
 
@@ -29,7 +29,18 @@ export default function UpgradesTab({
               <div className="tagline">{u.tagline}</div>
             </div>
             {owned ? (
-              <span className="price">OWNED</span>
+              <button
+                className="pixel-btn"
+                style={{ fontSize: 10, padding: '4px 8px' }}
+                title={`Sell for ${fmtMoney(u.price * RESALE_RATE)} — someone on the marketplace app wants it`}
+                onClick={() => {
+                  state.upgrades = state.upgrades.filter((id) => id !== u.id);
+                  state.cash += Math.round(u.price * RESALE_RATE * 100) / 100;
+                  commit();
+                }}
+              >
+                SELL {fmtMoney(u.price * RESALE_RATE)}
+              </button>
             ) : (
               <button
                 className="pixel-btn"

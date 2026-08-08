@@ -126,6 +126,9 @@ export const UPGRADES: UpgradeDef[] = [
 
 export const UPGRADE_BY_ID = Object.fromEntries(UPGRADES.map((u) => [u.id, u]));
 
+// Secondhand wellness equipment: half what you paid, no warranty, no regrets.
+export const RESALE_RATE = 0.5;
+
 export const DEFAULT_STORAGE: Record<string, number> = {
   strawberries: 100,
   coconutCream: 100,
