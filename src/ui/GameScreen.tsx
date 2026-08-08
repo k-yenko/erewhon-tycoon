@@ -151,6 +151,7 @@ export default function GameScreen({
         simMinute={inDay && sim ? sim.minute : null}
         liveRevenue={inDay && sim && !settledRef.current ? sim.revenue : 0}
         batchCups={inDay && sim ? sim.batchCupsLeft : null}
+        stockUsed={inDay && sim && !settledRef.current ? sim.stockUsed : null}
       />
 
       <div className="game-columns">

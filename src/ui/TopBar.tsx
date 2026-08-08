@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import type { GameState } from '../game/types';
+import type { GameState, StockId } from '../game/types';
 import { SUPPLIES } from '../game/content/supplies';
 import { fmtMoney, C } from '../game/economy';
 import { isMuted, toggleMute, unlock } from '../game/audio';
@@ -18,11 +18,13 @@ export default function TopBar({
   simMinute,
   liveRevenue,
   batchCups,
+  stockUsed,
 }: {
   state: GameState;
   simMinute: number | null; // null when not mid-day
   liveRevenue: number;
   batchCups: number | null; // cups ready in the blender, shown during the day
+  stockUsed?: Record<StockId, number> | null; // live mid-day consumption, so the counts drain in real time
 }) {
   const [muted, setMuted] = useState(isMuted);
   return (
@@ -30,7 +32,7 @@ export default function TopBar({
       {SUPPLIES.map((s) => (
         <div className="stock-item" key={s.id} title={s.name}>
           <PixelIcon name={s.icon} size={18} />
-          <span>{state.stock[s.id]}</span>
+          <span>{Math.max(0, state.stock[s.id] - (stockUsed?.[s.id] ?? 0))}</span>
           <span className="stock-label">{SHORT_NAMES[s.id]}</span>
         </div>
       ))}

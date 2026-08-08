@@ -214,6 +214,7 @@ export interface SimCustomer {
   bubbleTtl: number;
   willBuy: boolean;
   wantsDrop: boolean;   // pays the drop's price instead of yours
+  pace: number;         // personal walking speed, so crowds don't march in platoons
 }
 
 export interface SimReview {

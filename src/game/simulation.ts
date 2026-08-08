@@ -249,6 +249,7 @@ export function stepSim(ctx: SimContext, sim: SimState): SimState {
       bubbleTtl: 0,
       willBuy,
       wantsDrop,
+      pace: 0.8 + rand() * 0.5,
     };
     // Price-shy customers glance at the sign, complain, and keep walking.
     if (!willBuy) {
@@ -270,7 +271,7 @@ export function stepSim(ctx: SimContext, sim: SimState): SimState {
   // — Movement & queue joining —
   for (const c of sim.customers) {
     if (c.state === 'walking') {
-      c.x += 0.12;
+      c.x += 0.12 * c.pace;
       if (c.x >= 0.45) {
         if (sim.soldOut) {
           c.state = 'leaving';
@@ -294,7 +295,7 @@ export function stepSim(ctx: SimContext, sim: SimState): SimState {
         }
       }
     } else if (c.state === 'leaving' || c.state === 'served') {
-      c.x += 0.15;
+      c.x += 0.15 * c.pace;
     }
     if (c.bubbleTtl > 0) {
       c.bubbleTtl -= 1;

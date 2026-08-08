@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 import type { SimState, GameState } from '../game/types';
+import { C } from '../game/economy';
 import { sfx } from '../game/audio';
 import { LOCATION_BY_ID } from '../game/content/locations';
 import IsoScene, { Cart, iso } from './scene/IsoScene';
@@ -21,6 +22,28 @@ function quirks(id: number) {
   };
 }
 
+// One person's movement segment: from → to over dur ms starting at t0.
+// Walkers keep extrapolating past the end so a late sim tick reads as a
+// longer stride, never a freeze; queue shuffles ease out and stop.
+interface Anim {
+  fx: number;
+  fy: number;
+  tx: number;
+  ty: number;
+  t0: number;
+  dur: number;
+  mode: 'walk' | 'queue';
+}
+
+function samplePos(a: Anim, now: number): [number, number] {
+  const raw = a.dur <= 0 ? 1 : (now - a.t0) / a.dur;
+  const k =
+    a.mode === 'queue'
+      ? 1 - (1 - Math.min(1, Math.max(0, raw))) ** 2 // ease-out shuffle
+      : Math.min(1.35, Math.max(0, raw)); // linear glide, tolerant of timer jitter
+  return [a.fx + (a.tx - a.fx) * k, a.fy + (a.ty - a.fy) * k];
+}
+
 export default function DayView({
   state,
   sim,
@@ -36,13 +59,57 @@ export default function DayView({
 }) {
   const loc = LOCATION_BY_ID[state.locationId];
   const layout = LAYOUTS[state.locationId] ?? LAYOUTS.silverlake;
-  // movement transition matches the real tick rate, so walking is one
-  // continuous glide — and the ▶▶ button visibly speeds people up
-  const tickSec = (1.5 / speed) * 1.08; // slight overlap so timer jitter never leaves a dead frame
+  const tickMs = C.MS_PER_TICK / speed;
 
-  // Legs only move when the body actually moves: track last positions and
+  // Legs only move when the body actually moves: track last targets and
   // compare per render, so nobody moonwalks in place.
   const lastPos = useRef(new Map<number, [number, number]>());
+
+  // rAF-driven movement: React only sets the *targets* once per sim tick;
+  // a frame loop glides every sprite between targets so walking is one
+  // continuous motion no matter how the timers land.
+  const nodes = useRef(new Map<number, SVGGElement>());
+  const anims = useRef(new Map<number, Anim>());
+  const targets = useRef(new Map<number, { x: number; y: number; queued: boolean }>());
+
+  // Retarget every sim tick (after commit, so mount order never matters).
+  useEffect(() => {
+    const now = performance.now();
+    for (const [id, t] of targets.current) {
+      const a = anims.current.get(id);
+      if (!a) {
+        anims.current.set(id, { fx: t.x, fy: t.y, tx: t.x, ty: t.y, t0: now, dur: tickMs, mode: 'walk' });
+      } else {
+        const [cx, cy] = samplePos(a, now);
+        a.fx = cx;
+        a.fy = cy;
+        a.tx = t.x;
+        a.ty = t.y;
+        a.t0 = now;
+        a.mode = t.queued ? 'queue' : 'walk';
+        a.dur = t.queued ? 420 / speed : tickMs;
+      }
+    }
+    for (const id of [...anims.current.keys()]) {
+      if (!targets.current.has(id)) anims.current.delete(id);
+    }
+  });
+
+  useEffect(() => {
+    let raf = 0;
+    const frame = () => {
+      const now = performance.now();
+      for (const [id, node] of nodes.current) {
+        const a = anims.current.get(id);
+        if (!a) continue;
+        const [x, y] = samplePos(a, now);
+        node.style.transform = `translate(${x}px, ${y}px)`;
+      }
+      raf = requestAnimationFrame(frame);
+    };
+    raf = requestAnimationFrame(frame);
+    return () => cancelAnimationFrame(raf);
+  }, []);
 
   // Fire sounds by diffing the sim's counters — staggered inside the tick
   // window so reactions land at individual moments, not on the heartbeat.
@@ -69,27 +136,27 @@ export default function DayView({
   return (
     <div className="scene">
       <IsoScene loc={loc} weatherId={state.daily?.weatherId}>
-        {/* People render in STABLE id order (so DOM nodes never move and CSS
-            transitions run uninterrupted) — split only into behind/in-front of
-            the cart, the one occlusion that matters. */}
+        {/* People render in STABLE id order (so DOM nodes never churn) —
+            split only into behind/in-front of the cart, the one occlusion
+            that matters. Position comes from the rAF loop via refs. */}
         {(() => {
           const cartDepth = iso(layout.cart[0], layout.cart[1])[1];
           const routes = [layout.path, ...(layout.ambient ?? [])];
           const behind: React.ReactNode[] = [];
           const front: React.ReactNode[] = [];
+          const seen = new Set<number>();
 
           for (const c of sim.customers) {
             const q = quirks(c.id);
             let px: number, py: number;
             let walking = true;
-            let moveSeconds = tickSec;
+            const queued = c.state === 'queued';
 
-            if (c.state === 'queued') {
+            if (queued) {
               const qi = sim.queue.indexOf(c.id);
               const [gx, gy] = queueSpot(layout, Math.min(Math.max(qi, 0), 11));
               [px, py] = iso(gx + q.sway * 0.4, gy + q.sway);
               walking = false;
-              moveSeconds = 0.45 / speed;
             } else {
               const strolling = !c.willBuy && q.reversed;
               const progress = strolling ? Math.max(0, EXIT_X - c.x) : c.x;
@@ -115,22 +182,40 @@ export default function DayView({
               [px, py] = iso(gx, gy);
               const was = lastPos.current.get(c.id);
               walking = !was || Math.hypot(px - was[0], py - was[1]) > 0.5;
-              lastPos.current.set(c.id, [px, py]);
             }
+            lastPos.current.set(c.id, [px, py]);
+            targets.current.set(c.id, { x: px, y: py, queued });
+            seen.add(c.id);
 
             const el = (
-              <Person
+              <g
                 key={`p${c.id}`}
-                variant={c.id}
-                walking={walking}
-                bubble={c.bubble}
-                x={px}
-                y={py}
-                moveSeconds={moveSeconds}
-                locId={state.locationId}
-              />
+                ref={(node) => {
+                  if (node) nodes.current.set(c.id, node);
+                  else nodes.current.delete(c.id);
+                }}
+                style={{ transform: `translate(${px}px, ${py}px)` }}
+              >
+                <Person
+                  variant={c.id}
+                  walking={walking}
+                  bubble={c.bubble}
+                  x={0}
+                  y={0}
+                  moveSeconds={0}
+                  locId={state.locationId}
+                />
+              </g>
             );
             (py < cartDepth ? behind : front).push(el);
+          }
+
+          // forget departed customers
+          for (const id of [...targets.current.keys()]) {
+            if (!seen.has(id)) {
+              targets.current.delete(id);
+              lastPos.current.delete(id);
+            }
           }
 
           return (
