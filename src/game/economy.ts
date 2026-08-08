@@ -1,8 +1,11 @@
 import type { GameState, LocationDef, Recipe } from './types';
-import { UPGRADE_BY_ID, DEFAULT_STORAGE } from './content/upgrades';
+import { UPGRADE_BY_ID, DEFAULT_STORAGE, RESALE_RATE } from './content/upgrades';
+import { UNIT_VALUE, BUYBACK_RATE } from './content/supplies';
 import { STAFF_BY_ID } from './content/staff';
 import { LOCATION_BY_ID } from './content/locations';
 import { idealIce } from './content/weather';
+
+export const round2 = (n: number): number => Math.round(n * 100) / 100;
 
 // Every tunable number in one place for the balance pass.
 export const C = {
@@ -56,6 +59,30 @@ export function era(state: GameState): 1 | 2 | 3 {
 // The advanced-mode toggle just invites it from day 1.
 export function rivalActive(state: GameState): boolean {
   return !!state.settings?.rival || era(state) >= 2;
+}
+
+// Is the Moon Juus truck parked at this location today?
+export function rivalAt(state: GameState, locId: string): boolean {
+  return rivalActive(state) && state.daily?.rivalLocationId === locId;
+}
+
+// The Flagship Dream: reserve-tier revenue AND the flagship cart.
+export function hasWon(state: GameState): boolean {
+  return state.lifetimeRevenue >= C.WIN_LIFETIME_REVENUE && state.upgrades.includes('stand3');
+}
+
+// What everything would fetch in a fire sale — supplies at buyback, gear at
+// resale. One formula for the balance sheet, the bankruptcy check, the score.
+export function liquidationValue(state: GameState): number {
+  const stock = Object.entries(state.stock).reduce(
+    (s, [id, n]) => s + (UNIT_VALUE[id] ?? 0) * n * BUYBACK_RATE,
+    0,
+  );
+  const gear = state.upgrades.reduce(
+    (s, id) => s + (UPGRADE_BY_ID[id]?.price ?? 0) * RESALE_RATE,
+    0,
+  );
+  return stock + gear;
 }
 
 export interface Mods {
@@ -159,7 +186,7 @@ export function rentFor(state: GameState, locId: string): number {
   const pop = state.locations[locId]?.popularity ?? 0;
   const lawyer = state.upgrades.includes('leaselawyer') ? 0.5 : 1;
   const premium = 1 + 0.5 * lawyer * Math.max(0, pop - 0.5);
-  return Math.round(loc.rent * premium * 100) / 100;
+  return round2(loc.rent * premium);
 }
 
 // Diminishing returns on Instagram/TikTok spend; day-scoped like the original.
@@ -201,7 +228,7 @@ export function stockCoverage(state: GameState, freeIce: boolean): number {
 // In-game calendar: Year 1 starts Jan 1, 30-day months, 12-month years.
 // Day 1 is a Monday; every 7th day the city changes character.
 const WEEKDAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'] as const;
-export const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'] as const;
+const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'] as const;
 export function calendar(day: number): {
   year: number;
   month: number;

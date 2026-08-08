@@ -4,7 +4,7 @@ import { LOCATION_BY_ID } from '../../game/content/locations';
 import { C, calendar, fmtMoney } from '../../game/economy';
 import { UPGRADES } from '../../game/content/upgrades';
 import { UNIT_VALUE } from '../../game/content/supplies';
-import { PixelIcon } from '../icons';
+import { PixelIcon, PXFONT } from '../icons';
 
 interface MonthAgg {
   label: string;
@@ -54,7 +54,7 @@ function Yesterday({ r }: { r: DayResult }) {
         : 'A rough one. Adjust and rehydrate.';
   return (
     <div>
-      <div className="info-row" style={{ fontFamily: "'Press Start 2P', monospace", fontSize: 9 }}>
+      <div className="info-row" style={{ fontFamily: PXFONT, fontSize: 9 }}>
         <span>Day {r.day} — {LOCATION_BY_ID[r.locationId]?.name.split(' (')[0]}</span>
       </div>
       <div className="info-row"><span className="label">Revenue</span><span>{r.cupsSold} cups · <Money n={r.revenue} /></span></div>
@@ -217,14 +217,14 @@ function BalanceSheet({ state }: { state: GameState }) {
   const total = state.cash + stockValue + equipment;
   return (
     <div>
-      <div className="info-row" style={{ fontFamily: "'Press Start 2P', monospace", fontSize: 9 }}>
+      <div className="info-row" style={{ fontFamily: PXFONT, fontSize: 9 }}>
         <span>Assets</span>
       </div>
       <div className="info-row"><span className="label">Cash</span><span><Money n={state.cash} /></span></div>
       <div className="info-row"><span className="label">Stock</span><span><Money n={stockValue} /></span></div>
       <div className="info-row"><span className="label">Equipment</span><span><Money n={equipment} /></span></div>
       <div className="info-row total"><span className="label">Total</span><span><Money n={total} /></span></div>
-      <div className="info-row" style={{ fontFamily: "'Press Start 2P', monospace", fontSize: 9, marginTop: 12 }}>
+      <div className="info-row" style={{ fontFamily: PXFONT, fontSize: 9, marginTop: 12 }}>
         <span>Equity</span>
       </div>
       <div className="info-row"><span className="label">Share capital</span><span><Money n={C.START_CASH} /></span></div>

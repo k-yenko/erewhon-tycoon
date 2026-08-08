@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import type { SimState, GameState } from '../game/types';
-import { C, calendar, computeMods, rivalActive } from '../game/economy';
+import { C, calendar, computeMods, rivalAt } from '../game/economy';
 import { sfx } from '../game/audio';
 import { cardFor } from '../game/content/archetypes';
 import { SIGNS, signFor, readingFor } from '../game/content/astrology';
@@ -354,8 +354,7 @@ export default function DayView({
               {behind}
               <Cart x={layout.cart[0]} y={layout.cart[1]} stage={mods.standTier} />
               <CartExtras x={layout.cart[0]} y={layout.cart[1]} upgrades={state.upgrades} />
-              {rivalActive(state) &&
-                state.daily?.rivalLocationId === state.locationId && (
+              {rivalAt(state, state.locationId) && (
                   <Cart x={layout.cart[0] + 2.4} y={layout.cart[1]} rival />
                 )}
               {front}

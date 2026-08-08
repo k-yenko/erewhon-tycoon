@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { QUOTES } from '../game/content/quotes';
 import type { GameSettings } from '../game/types';
 import { loadBoard } from '../game/hallOfFame';
-import { PixelIcon } from './icons';
+import { PixelIcon, PXFONT } from './icons';
 
 export default function TitleScreen({
   hasSave,
@@ -45,7 +45,7 @@ export default function TitleScreen({
       </div>
       {board.length > 0 && (
         <div className="panel" style={{ padding: '10px 16px', marginTop: 10, minWidth: 300 }}>
-          <div style={{ fontFamily: "'Press Start 2P', monospace", fontSize: 9, marginBottom: 8 }}>
+          <div style={{ fontFamily: PXFONT, fontSize: 9, marginBottom: 8 }}>
             HALL OF FAME
           </div>
           {board.slice(0, 5).map((e, i) => (
@@ -55,7 +55,7 @@ export default function TitleScreen({
                 display: 'flex',
                 justifyContent: 'space-between',
                 gap: 18,
-                fontFamily: "'Press Start 2P', monospace",
+                fontFamily: PXFONT,
                 fontSize: 9,
                 padding: '3px 0',
               }}
@@ -73,7 +73,7 @@ export default function TitleScreen({
       <div style={{ position: 'fixed', left: 16, bottom: 16, textAlign: 'left' }}>
         {showModes && (
           <div className="panel" style={{ padding: '10px 14px', marginBottom: 8, maxWidth: 340 }}>
-            <div style={{ fontFamily: "'Press Start 2P', monospace", fontSize: 9, marginBottom: 8 }}>
+            <div style={{ fontFamily: PXFONT, fontSize: 9, marginBottom: 8 }}>
               ADVANCED MODES
             </div>
             <label style={{ display: 'flex', gap: 8, alignItems: 'center', fontSize: 12, cursor: 'pointer' }}>

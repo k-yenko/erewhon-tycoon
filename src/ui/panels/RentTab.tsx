@@ -1,7 +1,8 @@
 import { useState } from 'react';
+import { PXFONT } from '../icons';
 import type { GameState } from '../../game/types';
 import { LOCATIONS } from '../../game/content/locations';
-import { fmtMoney, rentFor, rivalActive } from '../../game/economy';
+import { fmtMoney, rentFor, rivalAt } from '../../game/economy';
 import Meter from '../Meter';
 
 function noveltyRead(n: number): string | null {
@@ -29,6 +30,7 @@ export default function RentTab({
   const loc = LOCATIONS[idx];
   const ls = state.locations[loc.id];
   const isCurrent = state.locationId === loc.id;
+  const rent = rentFor(state, loc.id);
 
   return (
     <div className="panel">
@@ -45,7 +47,7 @@ export default function RentTab({
           ◀
         </button>
         <div style={{ flex: 1, border: '2px solid var(--cream-deep)', padding: 10 }}>
-          <div className="name" style={{ fontFamily: "'Press Start 2P', monospace", fontSize: 11 }}>
+          <div className="name" style={{ fontFamily: PXFONT, fontSize: 11 }}>
             {loc.name}
           </div>
           <div className="tagline" style={{ fontSize: 11, color: 'var(--ink-soft)', margin: '6px 0' }}>
@@ -70,13 +72,11 @@ export default function RentTab({
           <div className="info-row">
             <span className="label">Rent</span>
             <span>
-              {loc.rent === 0
-                ? 'FREE'
-                : `${fmtMoney(rentFor(state, loc.id))} / day`}
-              {rentFor(state, loc.id) > loc.rent ? ' ▲' : ''}
+              {loc.rent === 0 ? 'FREE' : `${fmtMoney(rent)} / day`}
+              {rent > loc.rent ? ' ▲' : ''}
             </span>
           </div>
-          {rentFor(state, loc.id) > loc.rent && (
+          {rent > loc.rent && (
             <div style={{ fontSize: 11, color: 'var(--kraft-dark)', marginTop: 2 }}>
               The landlord noticed your line. Base rate is {fmtMoney(loc.rent)}.
             </div>
@@ -86,7 +86,7 @@ export default function RentTab({
               {noveltyRead(ls.novelty ?? 1)}
             </div>
           )}
-          {rivalActive(state) && state.daily?.rivalLocationId === loc.id && (
+          {rivalAt(state, loc.id) && (
             <div style={{ fontSize: 11, color: 'var(--alert)', marginTop: 4 }}>
               {state.daily?.rivalIntent === 'undercut'
                 ? '⚠ Moon Juus is parked here and undercutting you today. It’s personal now.'

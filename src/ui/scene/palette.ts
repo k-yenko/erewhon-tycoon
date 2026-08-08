@@ -13,6 +13,5 @@ export function shade(hex: string, amt: number): string {
 }
 
 // Distant-layer tones: always muted, always cooler than the foreground.
-export const OCEAN_DEEP = '#2f7fc0';
 export const OCEAN_FOAM = '#dff0f8';
 export const SAIL = '#fdfaf2';

@@ -41,7 +41,7 @@ body {
 }
 html, body, #root { height: 100%; }
 
-h1, h2, h3, .pixel-title {
+h1, h2, h3 {
   font-family: 'Press Start 2P', monospace;
   font-weight: normal;
   letter-spacing: 1px;
@@ -641,28 +641,11 @@ button {
 
 /* ——— Sliders ——— */
 
-.slider-row {
-  display: grid;
-  grid-template-columns: 30px 1fr 46px;
-  align-items: center;
-  gap: 10px;
-  margin: 10px 0;
-}
 .slider-row.labeled {
   grid-template-columns: 30px 120px 1fr 46px;
 }
-.slider-row .ing-label {
-  font-size: 11px;
-  text-transform: lowercase;
-  color: var(--ink-soft);
-}
 .slider-row input[type='range'] {
   accent-color: var(--ink);
-}
-.slider-row .val {
-  font-family: 'Press Start 2P', monospace;
-  font-size: 11px;
-  text-align: right;
 }
 
 /* ——— Full-screen states (title, game over, win) ——— */

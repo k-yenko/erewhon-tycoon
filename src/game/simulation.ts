@@ -6,13 +6,12 @@ import type {
   SimState,
   StockId,
 } from './types';
-import { C, calendar, computeMods, adBoost, era, rentFor, rivalActive, tasteQuality, type Mods } from './economy';
+import { C, calendar, computeMods, adBoost, era, liquidationValue, rentFor, rivalAt, tasteQuality, type Mods } from './economy';
 import { LOCATION_BY_ID } from './content/locations';
 import { EVENT_BY_ID } from './content/events';
 import { weatherFor } from './dailyContent';
 import { DROP_BY_ID } from './content/products';
 import { UNIT_VALUE } from './content/supplies';
-import { UPGRADE_BY_ID, RESALE_RATE } from './content/upgrades';
 import { STAFF_BY_ID } from './content/staff';
 import { gaussian, mulberry32 } from './rng';
 import { pickReview, type ReviewVariant } from './content/reviews';
@@ -20,7 +19,7 @@ import { pickReview, type ReviewVariant } from './content/reviews';
 // Intra-day traffic curve like the original's hourly customer counts:
 // quiet open, lunch-rush peak, afternoon taper. Averages ~1 over the day.
 // rushBias > 1 (office districts) makes peaks peakier and lulls deader.
-export function trafficCurve(minute: number, rushBias = 1): number {
+function trafficCurve(minute: number, rushBias = 1): number {
   const t = minute / C.DAY_TICKS;
   const base = t < 0.25 ? 0.6 : t < 0.65 ? 1.45 : 0.8;
   return Math.max(0.1, 1 + (base - 1) * rushBias);
@@ -125,7 +124,7 @@ export function expectedTraffic(state: GameState): number {
   const { popularity: pop, satisfaction: sat, novelty } = state.locations[state.locationId];
   const repeatMult =
     C.SAT_TRAFFIC_MIN + C.SAT_TRAFFIC_SPAN * (loc.quirk?.loyalty ?? 1) * mods.loyaltyMult * sat;
-  const rivalHere = rivalActive(state) && daily.rivalLocationId === state.locationId;
+  const rivalHere = rivalAt(state, state.locationId);
   let rival = rivalHere
     ? daily.rivalIntent === 'undercut'
       ? C.RIVAL_TRAFFIC_UNDERCUT
@@ -174,7 +173,7 @@ export function createSimContext(state: GameState): SimContext {
   const ev = activeEvent(daily, state.locationId);
 
   const sat = state.locations[state.locationId].satisfaction;
-  const rivalHere = rivalActive(state) && daily.rivalLocationId === state.locationId;
+  const rivalHere = rivalAt(state, state.locationId);
   const expectedCustomers = expectedTraffic(state);
 
   return {
@@ -624,15 +623,7 @@ export function overnight(state: GameState): void {
 
   // Bankruptcy: even selling every jar AND the equipment wouldn't fund a
   // supply run. Until then, there's always something left to liquidate.
-  const stockValue = Object.entries(state.stock).reduce(
-    (s, [id, n]) => s + (UNIT_VALUE[id] ?? 0) * n * 0.6,
-    0,
-  );
-  const gearValue = state.upgrades.reduce(
-    (s, id) => s + (UPGRADE_BY_ID[id]?.price ?? 0) * RESALE_RATE,
-    0,
-  );
-  if (state.cash + stockValue + gearValue < 45) {
+  if (state.cash + liquidationValue(state) < 45) {
     state.gameOver = true;
   }
 }

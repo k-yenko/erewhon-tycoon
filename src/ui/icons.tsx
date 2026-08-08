@@ -348,6 +348,9 @@ const ICONS: Record<string, ReactNode> = {
   ),
 };
 
+// The pixel display face, referenced everywhere a heading needs to shout.
+export const PXFONT = "'Press Start 2P', monospace";
+
 export type IconName =
   | 'strawberry' | 'coconut' | 'seamoss' | 'ice' | 'cup' | 'heart' | 'gear'
   | 'ledger' | 'pin' | 'store' | 'person' | 'camera' | 'blender' | 'box'

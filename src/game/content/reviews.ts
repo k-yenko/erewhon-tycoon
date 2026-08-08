@@ -34,7 +34,7 @@ const TASTE_GENERIC = [
 ];
 
 // Recipe-direction tips, like the repo's "More sugar will be better."
-export function tasteReview(recipe: Recipe, tempF: number): string {
+function tasteReview(recipe: Recipe, tempF: number): string {
   const ideal = idealIce(tempF);
   if (recipe.ice < ideal - 1) return 'Basically room temperature. More ice.';
   if (recipe.ice > ideal + 1) return 'This is a slushie. Less ice.';

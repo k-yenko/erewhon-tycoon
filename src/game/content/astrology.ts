@@ -14,7 +14,7 @@ const CUTOFFS = [20, 19, 21, 20, 21, 21, 23, 23, 23, 23, 22, 22];
 // sign index in season before the cutoff of month m (1-based)
 const BEFORE = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
 const AFTER = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 0];
-export function seasonSign(month: number, dayOfMonth: number): number {
+function seasonSign(month: number, dayOfMonth: number): number {
   return dayOfMonth < CUTOFFS[month - 1] ? BEFORE[month - 1] : AFTER[month - 1];
 }
 

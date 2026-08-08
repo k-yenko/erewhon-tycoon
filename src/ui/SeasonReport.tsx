@@ -1,5 +1,6 @@
 // Day 60: the season report. Arcade rules — three initials, no take-backs.
 import { useState } from 'react';
+import { PXFONT } from './icons';
 import type { GameState } from '../game/types';
 import { empireScore, addRun, runCard } from '../game/hallOfFame';
 import { fmtMoney } from '../game/economy';
@@ -56,7 +57,7 @@ export default function SeasonReport({
             <span>+{s.flagshipBonus.toLocaleString()}</span>
           </div>
         )}
-        <div className="info-row" style={{ fontFamily: "'Press Start 2P', monospace", fontSize: 12, marginTop: 8 }}>
+        <div className="info-row" style={{ fontFamily: PXFONT, fontSize: 12, marginTop: 8 }}>
           <span>EMPIRE SCORE</span>
           <span>{s.total.toLocaleString()}</span>
         </div>
@@ -66,14 +67,14 @@ export default function SeasonReport({
 
         {!saved ? (
           <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginTop: 6 }}>
-            <span style={{ fontFamily: "'Press Start 2P', monospace", fontSize: 9 }}>INITIALS</span>
+            <span style={{ fontFamily: PXFONT, fontSize: 9 }}>INITIALS</span>
             <input
               value={initials}
               maxLength={3}
               onChange={(e) => setInitials(e.target.value.replace(/[^a-zA-Z]/g, '').toUpperCase())}
               style={{
                 width: 64,
-                fontFamily: "'Press Start 2P', monospace",
+                fontFamily: PXFONT,
                 fontSize: 14,
                 padding: '6px 8px',
                 border: '2px solid var(--ink)',

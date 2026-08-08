@@ -65,8 +65,6 @@ export const SUPPLIES: SupplyDef[] = [
   },
 ];
 
-export const SUPPLY_BY_ID = Object.fromEntries(SUPPLIES.map((s) => [s.id, s]));
-
 // Average unit cost (mid tier) — used to value stock used/lost on the results screen
 export const UNIT_VALUE: Record<string, number> = {
   strawberries: 2.4,

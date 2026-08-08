@@ -10,7 +10,7 @@ import {
   stepSim,
   type SimContext,
 } from '../game/simulation';
-import { C, ERA_2_AT, ERA_3_AT, calendar, computeMods, era, fmtMoney, rentFor, rivalActive } from '../game/economy';
+import { C, ERA_2_AT, ERA_3_AT, calendar, computeMods, era, fmtMoney, rentFor, rivalAt } from '../game/economy';
 import { forecastRange } from '../game/simulation';
 import { sfx, unlock } from '../game/audio';
 import { weatherFor } from '../game/dailyContent';
@@ -25,7 +25,7 @@ import ResultsModal from './ResultsModal';
 import SeasonReport from './SeasonReport';
 import { SEASON_DAYS } from '../game/hallOfFame';
 import Meter from './Meter';
-import { BubbleIcon, PixelIcon } from './icons';
+import { BubbleIcon, PixelIcon, PXFONT } from './icons';
 import ResultsTab from './panels/ResultsTab';
 import RentTab from './panels/RentTab';
 import UpgradesTab from './panels/UpgradesTab';
@@ -75,6 +75,7 @@ export default function GameScreen({
       ? (LOCATION_BY_ID[previewLocId] ?? loc)
       : loc;
   const viewLs = state.locations[viewLoc.id];
+  const viewLayout = LAYOUTS[viewLoc.id] ?? LAYOUTS.silverlake;
   const cal = calendar(state.day);
   const weather = daily ? weatherFor(daily) : null;
   const todayNews = daily ? activeEvent(daily, state.locationId) : null;
@@ -236,7 +237,7 @@ export default function GameScreen({
                   <span className="label">Forecast</span>
                   <span>
                     ~{forecastRange(state)[0]}–{forecastRange(state)[1]} customers
-                    {rivalActive(state) && daily.rivalLocationId === state.locationId ? ' (rival here)' : ''}
+                    {rivalAt(state, state.locationId) ? ' (rival here)' : ''}
                   </span>
                 </div>
               )}
@@ -297,7 +298,7 @@ export default function GameScreen({
                   const next = e === 1 ? ERA_2_AT : e === 2 ? ERA_3_AT : null;
                   const name = e === 1 ? 'ACT I · THE HUSTLE' : e === 2 ? 'ACT II · THE LANDLORD ERA' : 'ACT III · THE JUICE WARS';
                   return (
-                    <div style={{ fontFamily: "'Press Start 2P', monospace", fontSize: 7, color: 'var(--kraft-dark)', margin: '2px 0 4px' }}>
+                    <div style={{ fontFamily: PXFONT, fontSize: 7, color: 'var(--kraft-dark)', margin: '2px 0 4px' }}>
                       {name}
                       {next !== null &&
                         ` · ${Math.round(state.lifetimeRevenue).toLocaleString()} / ${next.toLocaleString()} $`}
@@ -348,20 +349,12 @@ export default function GameScreen({
           ) : (
             <div className="scene">
               <IsoScene loc={viewLoc} weatherId={daily?.weatherId}>
-                <Cart
-                  x={(LAYOUTS[viewLoc.id] ?? LAYOUTS.silverlake).cart[0]}
-                  y={(LAYOUTS[viewLoc.id] ?? LAYOUTS.silverlake).cart[1]}
-                  stage={mods.standTier}
-                />
-                <CartExtras
-                  x={(LAYOUTS[viewLoc.id] ?? LAYOUTS.silverlake).cart[0]}
-                  y={(LAYOUTS[viewLoc.id] ?? LAYOUTS.silverlake).cart[1]}
-                  upgrades={state.upgrades}
-                />
-                {rivalActive(state) && daily?.rivalLocationId === viewLoc.id && (
+                <Cart x={viewLayout.cart[0]} y={viewLayout.cart[1]} stage={mods.standTier} />
+                <CartExtras x={viewLayout.cart[0]} y={viewLayout.cart[1]} upgrades={state.upgrades} />
+                {rivalAt(state, viewLoc.id) && (
                   <Cart
-                    x={(LAYOUTS[viewLoc.id] ?? LAYOUTS.silverlake).cart[0] + 2.4}
-                    y={(LAYOUTS[viewLoc.id] ?? LAYOUTS.silverlake).cart[1]}
+                    x={viewLayout.cart[0] + 2.4}
+                    y={viewLayout.cart[1]}
                     rival
                   />
                 )}

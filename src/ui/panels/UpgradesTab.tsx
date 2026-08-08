@@ -1,7 +1,7 @@
 import type { GameState, UpgradeDef } from '../../game/types';
 import { UPGRADES, RESALE_RATE } from '../../game/content/upgrades';
-import { fmtMoney, era, ERA_2_AT, ERA_3_AT } from '../../game/economy';
-import { PixelIcon } from '../icons';
+import { fmtMoney, era, round2, ERA_2_AT, ERA_3_AT } from '../../game/economy';
+import { PixelIcon, PXFONT } from '../icons';
 
 const ERA_META: Record<number, { title: string; locked: (cur: number) => string | null }> = {
   1: { title: 'ACT I — THE HUSTLE', locked: () => null },
@@ -56,7 +56,7 @@ export default function UpgradesTab({
             title={`Sell for ${fmtMoney(u.price * RESALE_RATE)} — someone on the marketplace app wants it`}
             onClick={() => {
               state.upgrades = state.upgrades.filter((id) => id !== u.id);
-              state.cash += Math.round(u.price * RESALE_RATE * 100) / 100;
+              state.cash += round2(u.price * RESALE_RATE);
               commit();
             }}
           >
@@ -90,7 +90,7 @@ export default function UpgradesTab({
           <div key={e} style={{ marginBottom: 12 }}>
             <div
               style={{
-                fontFamily: "'Press Start 2P', monospace",
+                fontFamily: PXFONT,
                 fontSize: 9,
                 margin: '10px 0 6px',
                 color: lockedLine ? 'var(--kraft-dark)' : 'var(--ink)',

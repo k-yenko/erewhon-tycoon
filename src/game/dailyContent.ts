@@ -142,7 +142,7 @@ export async function fetchLiveLAWeather(
 
 // ——— live shelf item (ship.erewhon.com Shopify feed) ———
 
-export function classifyShelfItem(title: string, productType?: string): ShelfCategory {
+function classifyShelfItem(title: string, productType?: string): ShelfCategory {
   const t = `${title} ${productType ?? ''}`.toLowerCase();
   const match = (words: string[]) => words.some((w) => t.includes(w));
   if (match(['hoodie', 'hat', 'tote', 'candle', 'sock', 'towel', 'crewneck', 'tee', 'shirt', 'spray', 'bag', 'gift']))

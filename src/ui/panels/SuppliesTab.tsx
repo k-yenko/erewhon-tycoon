@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import type { GameState, StockId } from '../../game/types';
 import { SUPPLIES, UNIT_VALUE, BUYBACK_RATE } from '../../game/content/supplies';
-import { computeMods, fmtMoney, stockCoverage } from '../../game/economy';
+import { computeMods, fmtMoney, round2, stockCoverage } from '../../game/economy';
 import { sfx, unlock } from '../../game/audio';
 import { PixelIcon } from '../icons';
 import Stepper from '../Stepper';
@@ -156,7 +156,7 @@ export default function SuppliesTab({
                 unlock();
                 const n = Math.min(sellQty, state.stock[active.id]);
                 state.stock[active.id] -= n;
-                state.cash += Math.round(n * UNIT_VALUE[active.id] * BUYBACK_RATE * 100) / 100;
+                state.cash += round2(n * UNIT_VALUE[active.id] * BUYBACK_RATE);
                 setSellQty(0);
                 sfx('sale');
                 commit();
