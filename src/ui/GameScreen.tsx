@@ -283,8 +283,7 @@ export default function GameScreen({
             <div className="header-grid">
               <div>
                 <div className="date-line">
-                  Year {cal.year} - Month {cal.month} - Day {cal.dayOfMonth} ·{' '}
-                  {cal.weekday.toUpperCase()}
+                  {cal.monthName} {cal.dayOfMonth} · {cal.weekday.toUpperCase()} · Year {cal.year}
                 </div>
                 <div className="cw-label">Current Weather</div>
                 {weather && (

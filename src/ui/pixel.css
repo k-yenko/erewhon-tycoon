@@ -510,6 +510,21 @@ button {
   text-transform: uppercase;
   color: var(--alert, #d94436);
 }
+.person-card .pc-astro {
+  padding: 4px 8px 2px;
+  border-top: 1.5px solid rgba(26, 26, 24, 0.25);
+  font-size: 10.5px;
+  font-style: italic;
+  color: var(--ink-soft, #4a4740);
+}
+.person-card .pc-astro .pc-sign {
+  font-family: 'Press Start 2P', monospace;
+  font-style: normal;
+  font-size: 7px;
+  text-transform: uppercase;
+  color: var(--kraft-dark, #8a6f4d);
+  margin-right: 4px;
+}
 .person-card .pc-quote {
   padding: 5px 8px 7px;
   border-top: 1.5px solid rgba(26, 26, 24, 0.25);

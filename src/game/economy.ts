@@ -146,20 +146,24 @@ export function stockCoverage(state: GameState, freeIce: boolean): number {
   return Math.min(batches * C.CUPS_PER_BATCH, state.stock.cups);
 }
 
-// In-game calendar: Year 1 – Month 1 – Day 1, 30-day months, 12-month years.
+// In-game calendar: Year 1 starts Jan 1, 30-day months, 12-month years.
 // Day 1 is a Monday; every 7th day the city changes character.
 const WEEKDAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'] as const;
+export const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'] as const;
 export function calendar(day: number): {
   year: number;
   month: number;
+  monthName: string;
   dayOfMonth: number;
   weekday: string;
   weekend: boolean;
 } {
   const d = day - 1;
+  const month = (Math.floor(d / 30) % 12) + 1;
   return {
     year: Math.floor(d / 360) + 1,
-    month: (Math.floor(d / 30) % 12) + 1,
+    month,
+    monthName: MONTHS[month - 1],
     dayOfMonth: (d % 30) + 1,
     weekday: WEEKDAYS[d % 7],
     weekend: d % 7 >= 5,

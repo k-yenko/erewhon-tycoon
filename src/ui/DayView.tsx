@@ -1,8 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
 import type { SimState, GameState } from '../game/types';
-import { C, computeMods } from '../game/economy';
+import { C, calendar, computeMods } from '../game/economy';
 import { sfx } from '../game/audio';
 import { cardFor } from '../game/content/archetypes';
+import { SIGNS, signFor, readingFor } from '../game/content/astrology';
 import { LOCATION_BY_ID } from '../game/content/locations';
 import IsoScene, { Cart, iso } from './scene/IsoScene';
 import {
@@ -368,6 +369,9 @@ export default function DayView({
           if (!c) return null;
           const oi = outfitIndexFor(c.id, state.locationId);
           const card = cardFor(oi, c.id);
+          const cal = calendar(state.day);
+          const sign = signFor(c.id);
+          const reading = readingFor(sign, cal.month, cal.dayOfMonth, state.day);
           const left = Math.max(8, Math.min(hover.x + 16, hover.w - CARD_W - 8));
           const top = Math.max(8, Math.min(hover.y - 30, hover.h - CARD_H - 8));
           return (
@@ -392,6 +396,9 @@ export default function DayView({
               </div>
               <div className="pc-mood">mood: {moodOf(c)}</div>
               <div className="pc-weak">weakness: {card.weakness}</div>
+              <div className="pc-astro">
+                <span className="pc-sign">{SIGNS[sign]}</span> {reading}
+              </div>
               <div className="pc-quote">"{card.quote}"</div>
             </div>
           );
