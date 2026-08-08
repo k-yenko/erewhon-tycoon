@@ -457,6 +457,22 @@ button {
   0% { transform: translateX(0); opacity: 0.55; }
   100% { transform: translateX(120px); opacity: 0.2; }
 }
+.gust-drift { animation: gust-drift 3.2s linear infinite; opacity: 0; }
+@keyframes gust-drift {
+  0% { transform: translateX(-70px); opacity: 0; }
+  12% { opacity: 0.8; }
+  70% { opacity: 0.8; }
+  100% { transform: translateX(230px); opacity: 0; }
+}
+.leaf-fly { animation: leaf-fly 2.4s linear infinite; opacity: 0; }
+@keyframes leaf-fly {
+  0% { transform: translate(0, 0); opacity: 0; }
+  10% { opacity: 0.9; }
+  30% { transform: translate(75px, -10px); }
+  55% { transform: translate(155px, 5px); }
+  80% { transform: translate(235px, -7px); opacity: 0.85; }
+  100% { transform: translate(310px, 3px); opacity: 0; }
+}
 .heat-pulse { animation: heat-pulse 5s ease-in-out infinite; }
 @keyframes heat-pulse {
   0%, 100% { opacity: 0.06; }

@@ -14,13 +14,20 @@ const weatherFor: Record<string, string> = {
   culver: 'heatwave',
   palisades: 'junegloom',
   beverlyhills: 'rain',
+  silverlake: 'santaana',
+};
+const stageFor: Record<string, number> = {
+  driveway: 0,
+  silverlake: 1,
+  culver: 2,
+  venice: 3,
 };
 
 for (const loc of LOCATIONS) {
   const layout = LAYOUTS[loc.id];
   const svg = renderToStaticMarkup(
     <IsoScene loc={loc} weatherId={weatherFor[loc.id] ?? 'perfect75'}>
-      <Cart x={layout.cart[0]} y={layout.cart[1]} />
+      <Cart x={layout.cart[0]} y={layout.cart[1]} stage={stageFor[loc.id] ?? 0} />
       {[0, 1, 2].map((qi) => {
         const [gx, gy] = queueSpot(layout, qi);
         const [px, py] = iso(gx, gy);

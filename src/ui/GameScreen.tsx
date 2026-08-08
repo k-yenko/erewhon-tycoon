@@ -329,6 +329,7 @@ export default function GameScreen({
                 <Cart
                   x={(LAYOUTS[viewLoc.id] ?? LAYOUTS.silverlake).cart[0]}
                   y={(LAYOUTS[viewLoc.id] ?? LAYOUTS.silverlake).cart[1]}
+                  stage={mods.standTier}
                 />
                 {state.settings?.rival && daily?.rivalLocationId === viewLoc.id && (
                   <Cart

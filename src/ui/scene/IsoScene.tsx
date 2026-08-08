@@ -52,6 +52,40 @@ function PixelSun({ x, y, s = 1, hot = false }: { x: number; y: number; s?: numb
   );
 }
 
+// A Santa Ana gust: a stepped streak that curls into a blocky spiral,
+// like the classic pixel wind glyph.
+function PixelGust({ x, y, s = 1, tone = '#e8d6a4' }: { x: number; y: number; s?: number; tone?: string }) {
+  const hi = '#f7efd8';
+  return (
+    <g transform={`translate(${x} ${y}) scale(${s})`} shapeRendering="crispEdges">
+      {/* stepped tail */}
+      <rect x="-88" y="8" width="30" height="4" fill={tone} />
+      <rect x="-62" y="4" width="32" height="4" fill={tone} />
+      <rect x="-34" y="0" width="34" height="4" fill={tone} />
+      {/* spiral curl head */}
+      <rect x="-2" y="0" width="18" height="4" fill={tone} />
+      <rect x="12" y="-16" width="4" height="16" fill={tone} />
+      <rect x="0" y="-16" width="12" height="4" fill={tone} />
+      <rect x="0" y="-12" width="4" height="6" fill={tone} />
+      <rect x="2" y="-8" width="6" height="4" fill={tone} />
+      {/* sun glints along the stream */}
+      <rect x="-58" y="4" width="6" height="2" fill={hi} />
+      <rect x="-26" y="0" width="6" height="2" fill={hi} />
+      <rect x="2" y="-16" width="6" height="2" fill={hi} />
+    </g>
+  );
+}
+
+// A leaf snatched by the wind, tumbling across the scene.
+function WindLeaf({ x, y, delay, dur, fill }: { x: number; y: number; delay: number; dur: number; fill: string }) {
+  return (
+    <g className="leaf-fly" style={{ animationDelay: `${delay}s`, animationDuration: `${dur}s` }} shapeRendering="crispEdges">
+      <rect x={x} y={y} width="5" height="5" fill={fill} />
+      <rect x={x + 4} y={y - 4} width="4" height="4" fill={fill} opacity="0.75" />
+    </g>
+  );
+}
+
 function PixelFogBand({ y, widths, drift }: { y: number; widths: number[]; drift: 'fog-drift' | 'fog-drift-rev' }) {
   // a stepped bar of misaligned blocks reads as low marine layer
   let x = -80;
@@ -131,12 +165,31 @@ export default function IsoScene({
         </g>
       )}
       {windy && (
-        <g className="dust-drift" stroke="#e0cfa0" strokeWidth="2" strokeLinecap="round" opacity="0.55">
-          {Array.from({ length: 9 }, (_, i) => {
-            const y = 60 + i * 44;
-            const x = (i * 173) % (VIEW_W - 120);
-            return <line key={i} x1={x} y1={y} x2={x + 60 + (i % 3) * 24} y2={y} />;
-          })}
+        <g>
+          {/* dry desert-wind warmth */}
+          <rect x="0" y="0" width={VIEW_W} height={VIEW_H} fill="#e0b46a" opacity="0.05" />
+          {/* curling gusts sweeping through at their own rhythms */}
+          <g className="gust-drift">
+            <PixelGust x={170} y={96} />
+          </g>
+          <g className="gust-drift" style={{ animationDelay: '1.4s', animationDuration: '2.8s' }}>
+            <PixelGust x={520} y={190} s={0.7} tone="#efe0b8" />
+          </g>
+          <g className="gust-drift" style={{ animationDelay: '0.6s', animationDuration: '3.8s' }}>
+            <PixelGust x={300} y={330} s={0.9} />
+          </g>
+          <g className="gust-drift" style={{ animationDelay: '2.2s', animationDuration: '3.1s' }}>
+            <PixelGust x={640} y={70} s={0.55} tone="#efe0b8" />
+          </g>
+          <g className="gust-drift" style={{ animationDelay: '1s', animationDuration: '3.4s' }}>
+            <PixelGust x={120} y={420} s={0.65} />
+          </g>
+          {/* loose leaves snatched off the trees */}
+          <WindLeaf x={90} y={150} delay={0} dur={2.4} fill="#57a84e" />
+          <WindLeaf x={340} y={70} delay={0.9} dur={2.9} fill="#cf9c3f" />
+          <WindLeaf x={200} y={280} delay={1.6} dur={2.2} fill="#6fbc5f" />
+          <WindLeaf x={480} y={370} delay={0.4} dur={2.7} fill="#cf9c3f" />
+          <WindLeaf x={560} y={120} delay={2} dur={2.5} fill="#57a84e" />
         </g>
       )}
       {rainy && (

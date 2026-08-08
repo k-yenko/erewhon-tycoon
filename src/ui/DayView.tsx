@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 import type { SimState, GameState } from '../game/types';
-import { C } from '../game/economy';
+import { C, computeMods } from '../game/economy';
 import { sfx } from '../game/audio';
 import { LOCATION_BY_ID } from '../game/content/locations';
 import IsoScene, { Cart, iso } from './scene/IsoScene';
@@ -221,7 +221,7 @@ export default function DayView({
           return (
             <>
               {behind}
-              <Cart x={layout.cart[0]} y={layout.cart[1]} />
+              <Cart x={layout.cart[0]} y={layout.cart[1]} stage={computeMods(state).standTier} />
               {state.settings?.rival &&
                 state.daily?.rivalLocationId === state.locationId && (
                   <Cart x={layout.cart[0] + 2.4} y={layout.cart[1]} rival />

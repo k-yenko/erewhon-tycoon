@@ -299,6 +299,213 @@ export function FerrisWheel({ x, y, s = 1 }: { x: number; y: number; s?: number 
   );
 }
 
+// A glass storefront band along a building's front face: window glass,
+// mullions, and a door, so shops read as shops instead of blank boxes.
+export function StorefrontGlass({ a, b, h = 22, door = 0.7 }: { a: [number, number]; b: [number, number]; h?: number; door?: number }) {
+  const [ax, ay] = iso(a[0], a[1]);
+  const [bx, by] = iso(b[0], b[1]);
+  const lerp = (t: number): [number, number] => [ax + (bx - ax) * t, ay + (by - ay) * t];
+  const quad = (t0: number, t1: number, y0: number, hh: number, fill: string, opacity?: number) => {
+    const [x0, yy0] = lerp(t0);
+    const [x1, yy1] = lerp(t1);
+    return (
+      <polygon
+        points={`${x0},${yy0 - y0} ${x1},${yy1 - y0} ${x1},${yy1 - y0 + hh} ${x0},${yy0 - y0 + hh}`}
+        fill={fill}
+        stroke="none"
+        opacity={opacity}
+      />
+    );
+  };
+  return (
+    <g>
+      {quad(0.06, 0.94, h, h - 3, '#bfe0f2')}
+      {quad(0.06, 0.94, h, 3, '#fff', 0.5)}
+      {[0.28, 0.5, 0.72].map((t) => (
+        <g key={t}>{quad(t, t + 0.015, h, h - 3, INK, 0.5)}</g>
+      ))}
+      {/* door */}
+      {quad(door, door + 0.16, h + 2, h - 1, '#8a6f4d')}
+      {quad(door + 0.115, door + 0.145, h - 8, 3, '#f2c53d')}
+    </g>
+  );
+}
+
+// Rooftop AC units + a vent pipe — the honest LA roofline.
+export function RoofUnits({ x, y, h }: { x: number; y: number; h: number }) {
+  const [px, py] = iso(x, y);
+  return (
+    <g transform={`translate(${px} ${py - h})`} shapeRendering="crispEdges">
+      <rect x="-10" y="-8" width="12" height="8" fill="#9aa7ad" stroke={INK} strokeWidth="0.9" />
+      <rect x="-8" y="-6" width="8" height="4" fill="#7d8a90" />
+      <rect x="8" y="-10" width="3" height="10" fill="#7d8a90" stroke={INK} strokeWidth="0.9" />
+    </g>
+  );
+}
+
+// String lights swagged between two grid points, with colored bulb pixels.
+export function StringLights({ a, b, lift = 34, dip = 14 }: { a: [number, number]; b: [number, number]; lift?: number; dip?: number }) {
+  const [ax, ay] = iso(a[0], a[1]);
+  const [bx, by] = iso(b[0], b[1]);
+  const y0 = ay - lift;
+  const y1 = by - lift;
+  const cx = (ax + bx) / 2;
+  const cy = (y0 + y1) / 2 + dip;
+  const bulbs = [0.15, 0.32, 0.5, 0.68, 0.85].map((t, i) => {
+    const bxp = (1 - t) * (1 - t) * ax + 2 * (1 - t) * t * cx + t * t * bx;
+    const byp = (1 - t) * (1 - t) * y0 + 2 * (1 - t) * t * cy + t * t * y1;
+    return (
+      <rect
+        key={t}
+        x={bxp - 1.5}
+        y={byp}
+        width="3"
+        height="3"
+        fill={['#ffe08a', '#e05a7a', '#7fb4c9', '#f2c53d', '#6fbc5f'][i]}
+        shapeRendering="crispEdges"
+      />
+    );
+  });
+  return (
+    <g>
+      <path d={`M${ax} ${y0} Q ${cx} ${cy} ${bx} ${y1}`} fill="none" stroke={INK} strokeWidth="1" opacity="0.5" />
+      {bulbs}
+    </g>
+  );
+}
+
+// A bicycle leaning where its owner left it (probably against a mural).
+export function Bike({ x, y, color = '#2f9ea8' }: { x: number; y: number; color?: string }) {
+  const [px, py] = iso(x, y);
+  return (
+    <g transform={`translate(${px} ${py})`} shapeRendering="crispEdges">
+      <rect x="-11" y="-8" width="8" height="8" fill="none" stroke={INK} strokeWidth="1.4" />
+      <rect x="4" y="-8" width="8" height="8" fill="none" stroke={INK} strokeWidth="1.4" />
+      <rect x="-6" y="-11" width="13" height="2.4" fill={color} />
+      <rect x="1" y="-15" width="2.4" height="6" fill={color} />
+      <rect x="-7" y="-14" width="2.4" height="5" fill={color} />
+      <rect x="-9.4" y="-15.4" width="7" height="2.4" fill={INK} />
+      <rect x="1" y="-16.6" width="5" height="2.4" fill="#8a6f4d" />
+    </g>
+  );
+}
+
+// A seagull — two-block wings, always eyeing someone's smoothie.
+export function Seagull({ x, y, flip = false }: { x: number; y: number; flip?: boolean }) {
+  return (
+    <g transform={`translate(${x} ${y})${flip ? ' scale(-1 1)' : ''}`} shapeRendering="crispEdges">
+      <rect x="-6" y="-2" width="5" height="2.4" fill="#fdfaf2" />
+      <rect x="1" y="-4" width="5" height="2.4" fill="#fdfaf2" />
+      <rect x="-1" y="-2.6" width="2.6" height="2.6" fill="#d8dde2" />
+    </g>
+  );
+}
+
+// A tiered fountain for the neighborhoods that gate themselves.
+export function Fountain({ x, y, s = 1 }: { x: number; y: number; s?: number }) {
+  const [px, py] = iso(x, y);
+  return (
+    <g transform={`translate(${px} ${py}) scale(${s})`} shapeRendering="crispEdges">
+      <rect x="-16" y="-6" width="32" height="6" fill="#d8d2c4" stroke={INK} strokeWidth="1" />
+      <rect x="-13" y="-8" width="26" height="3" fill="#7fb4c9" />
+      <rect x="-3" y="-16" width="6" height="10" fill="#d8d2c4" stroke={INK} strokeWidth="1" />
+      <rect x="-8" y="-18" width="16" height="3.4" fill="#d8d2c4" stroke={INK} strokeWidth="1" />
+      <rect x="-6" y="-19.4" width="12" height="2" fill="#7fb4c9" />
+      <rect x="-1.4" y="-25" width="2.8" height="6" fill="#7fb4c9" />
+      <rect x="-4" y="-21" width="2" height="3" fill="#a8d4e4" />
+      <rect x="2" y="-21" width="2" height="3" fill="#a8d4e4" />
+    </g>
+  );
+}
+
+// Topiary ball on a stem — landscaping with money behind it.
+export function Topiary({ x, y }: { x: number; y: number }) {
+  const [px, py] = iso(x, y);
+  return (
+    <g transform={`translate(${px} ${py})`} shapeRendering="crispEdges">
+      <rect x="-5" y="-6" width="10" height="6" fill="#b8926a" />
+      <rect x="-1.4" y="-12" width="2.8" height="6" fill="#8a6f4d" />
+      <rect x="-6" y="-22" width="12" height="10" fill="#4c9440" />
+      <rect x="-4" y="-24" width="8" height="4" fill="#57a84e" />
+      <rect x="-4" y="-20" width="3" height="3" fill="#6fbc5f" />
+    </g>
+  );
+}
+
+// A stray shopping cart, nowhere near the corral.
+export function ShoppingCart({ x, y }: { x: number; y: number }) {
+  const [px, py] = iso(x, y);
+  return (
+    <g transform={`translate(${px} ${py})`} shapeRendering="crispEdges">
+      <rect x="-8" y="-12" width="14" height="8" fill="none" stroke="#7d8a90" strokeWidth="1.6" />
+      <rect x="-7" y="-10" width="12" height="1.6" fill="#7d8a90" />
+      <rect x="6" y="-16" width="2" height="12" fill="#7d8a90" />
+      <rect x="-7" y="-3" width="3" height="3" fill="#1a1a18" />
+      <rect x="2" y="-3" width="3" height="3" fill="#1a1a18" />
+    </g>
+  );
+}
+
+// A low convertible for the tax bracket that doesn't drive SUVs.
+export function SportsCar({ x, y, color }: { x: number; y: number; color: string }) {
+  const [px, py] = iso(x, y);
+  return (
+    <g transform={`translate(${px} ${py})`} shapeRendering="crispEdges">
+      <rect x="-24" y="-10" width="48" height="8" fill={color} />
+      <rect x="-10" y="-14" width="22" height="4" fill={color} />
+      <rect x="-8" y="-13.4" width="8" height="3.4" fill="#bfe0f2" />
+      <rect x="-24" y="-10" width="48" height="1.4" fill="#fff" opacity="0.4" />
+      <rect x="-24" y="-8" width="2.2" height="2.2" fill="#f2c53d" />
+      <rect x="21.8" y="-8" width="2.2" height="2.2" fill="#d94436" />
+      <rect x="-16" y="-3" width="8" height="8" fill="#1a1a18" />
+      <rect x="-13.6" y="-0.6" width="3.2" height="3.2" fill="#c9b99a" />
+      <rect x="8" y="-3" width="8" height="8" fill="#1a1a18" />
+      <rect x="10.4" y="-0.6" width="3.2" height="3.2" fill="#c9b99a" />
+    </g>
+  );
+}
+
+// A studio spotlight on legs.
+export function Spotlight({ x, y, flip = false }: { x: number; y: number; flip?: boolean }) {
+  const [px, py] = iso(x, y);
+  return (
+    <g transform={`translate(${px} ${py})${flip ? ' scale(-1 1)' : ''}`} shapeRendering="crispEdges">
+      <rect x="-1.2" y="-20" width="2.4" height="20" fill="#1a1a18" />
+      <rect x="-5" y="-2.4" width="4" height="2.4" fill="#1a1a18" />
+      <rect x="1" y="-2.4" width="4" height="2.4" fill="#1a1a18" />
+      <rect x="-2" y="-28" width="10" height="8" fill="#3a3733" />
+      <rect x="8" y="-27" width="2.6" height="6" fill="#ffe08a" />
+    </g>
+  );
+}
+
+// Curbside mailbox on a post.
+export function Mailbox({ x, y }: { x: number; y: number }) {
+  const [px, py] = iso(x, y);
+  return (
+    <g transform={`translate(${px} ${py})`} shapeRendering="crispEdges">
+      <rect x="-1" y="-12" width="2.4" height="12" fill="#8a6f4d" />
+      <rect x="-4" y="-17" width="9" height="5.4" fill="#3f97d9" />
+      <rect x="-4" y="-17" width="9" height="1.4" fill="#fff" opacity="0.4" />
+      <rect x="4" y="-20" width="1.6" height="4" fill="#d94436" />
+    </g>
+  );
+}
+
+// Sidewalk A-frame chalk sign.
+export function AFrame({ x, y, accent = '#e05a7a' }: { x: number; y: number; accent?: string }) {
+  const [px, py] = iso(x, y);
+  return (
+    <g transform={`translate(${px} ${py})`} shapeRendering="crispEdges">
+      <polygon points="-7,0 -2,-16 2,-16 7,0" fill="#8a6f4d" stroke={INK} strokeWidth="0.9" shapeRendering="auto" />
+      <rect x="-4.6" y="-13" width="9.2" height="9" fill="#2f3a33" />
+      <rect x="-3" y="-11" width="6" height="1.6" fill="#f0ede4" opacity="0.8" />
+      <rect x="-3" y="-8.4" width="4.4" height="1.6" fill={accent} opacity="0.9" />
+      <rect x="-3" y="-5.8" width="5.4" height="1.6" fill="#f0ede4" opacity="0.6" />
+    </g>
+  );
+}
+
 // ——— roads & paving (grid-space bands) ———
 
 export function RoadX({ y0, y1, dashY, dashXs }: { y0: number; y1: number; dashY?: number; dashXs?: number[] }) {
@@ -354,16 +561,33 @@ export function CrossRoads() {
 
 // ——— the Erewhon cart ———
 
-// The Erewhon cart, drawn as a real isometric object: iso-box body with
-// sign and jars flat on the visible faces, umbrella overhead, grounded wheels.
-// The Erewhon cart — pixel build: blocky striped umbrella, straight marquee
-// sign, produce crates on the counter, square wheels.
-export function Cart({ x, y, rival = false }: { x: number; y: number; rival?: boolean }) {
+// A slanted strip that follows one of the cart's iso faces (slope ±0.5),
+// for skirt stripes, seams, and boards that sit flat on the body.
+function faceStrip(xa: number, xb: number, ya: number, h: number, slope: number, fill: string, opacity?: number) {
+  const yb = ya + slope * (xb - xa);
+  return (
+    <polygon
+      points={`${xa},${ya} ${xb},${yb} ${xb},${yb + h} ${xa},${ya + h}`}
+      fill={fill}
+      stroke="none"
+      opacity={opacity}
+    />
+  );
+}
+
+// The Erewhon cart — a real isometric body dressed up per stand tier:
+// 0 sidewalk cart → 1 farmers-market tent → 2 boutique oak kiosk → 3 flagship.
+export function Cart({ x, y, rival = false, stage = 0 }: { x: number; y: number; rival?: boolean; stage?: number }) {
   const [px, py] = iso(x, y);
-  const body = rival ? '#d8ecec' : '#fdfaf2';
-  const face = rival ? '#c4e0e0' : '#efe8da';
-  const stripe = rival ? '#4a9ea8' : '#9db98a';
-  const counter = rival ? '#3f8a94' : '#c9b99a';
+  const s = rival ? 0 : Math.max(0, Math.min(3, Math.floor(stage)));
+  const P = rival
+    ? { body: '#d8ecec', face: '#c4e0e0', stripe: '#4a9ea8', counter: '#3f8a94', trim: '#2f6e78', pole: '#4a9ea8' }
+    : [
+        { body: '#fdfaf2', face: '#f0e8d8', stripe: '#43a047', counter: '#c9b99a', trim: '#2e6b33', pole: '#8a6f4d' },
+        { body: '#fdfaf2', face: '#f0e8d8', stripe: '#d94436', counter: '#b8926a', trim: '#a83428', pole: '#8a6f4d' },
+        { body: '#c9a06a', face: '#b8905c', stripe: '#2f9ea8', counter: '#f0ede4', trim: '#8a6f4d', pole: '#d9b34a' },
+        { body: '#fdfaf2', face: '#f5efe2', stripe: '#d9b34a', counter: '#2b2a27', trim: '#b8933a', pole: '#d9b34a' },
+      ][s];
   const sign = rival ? 'MOON JUUS' : 'EREWHON';
   const P0: [number, number] = [0, -10];
   const P1: [number, number] = [38, 9];
@@ -375,34 +599,85 @@ export function Cart({ x, y, rival = false }: { x: number; y: number; rival?: bo
   return (
     <g transform={`translate(${px} ${py - 22})`}>
       <ellipse cx="4" cy="22" rx="40" ry="9" fill={INK} opacity="0.1" />
-      {/* square pixel wheels */}
+      {/* wagon wheels: chunky pixel build with hub + rim */}
       <g shapeRendering="crispEdges">
-        <rect x="19" y="12" width="10" height="10" fill="#1a1a18" />
-        <rect x="22" y="15" width="4" height="4" fill={counter} />
-        <rect x="-21" y="6" width="10" height="10" fill="#1a1a18" />
-        <rect x="-18" y="9" width="4" height="4" fill={counter} />
+        <rect x="18" y="11" width="12" height="12" fill="#1a1a18" />
+        <rect x="20" y="13" width="8" height="8" fill={rival ? '#3f8a94' : '#c9b99a'} />
+        <rect x="23" y="16" width="2" height="2" fill="#1a1a18" />
+        <rect x="-22" y="5" width="12" height="12" fill="#1a1a18" />
+        <rect x="-20" y="7" width="8" height="8" fill={rival ? '#3f8a94' : '#c9b99a'} />
+        <rect x="-17" y="10" width="2" height="2" fill="#1a1a18" />
       </g>
       {/* iso body */}
       <g stroke={INK} strokeWidth="1.1" strokeLinejoin="round">
-        <polygon points={poly([T1, T2, P2, P1])} fill={face} />
-        <polygon points={poly([T2, T3, P3, P2])} fill={body} />
-        <polygon points={poly([T0, T1, T2, T3])} fill={counter} />
+        <polygon points={poly([T1, T2, P2, P1])} fill={P.face} />
+        <polygon points={poly([T2, T3, P3, P2])} fill={P.body} />
+        <polygon points={poly([T0, T1, T2, T3])} fill={P.counter} />
       </g>
-      {/* produce crates on the counter */}
-      <g shapeRendering="crispEdges">
-        <rect x="-8" y="-44" width="9" height="6" fill="#e05a7a" />
-        <rect x="3" y="-46" width="9" height="7" fill="#57a84e" />
-        <rect x="14" y="-42" width="8" height="6" fill="#3f97d9" />
-        <rect x="-8" y="-44" width="9" height="1.6" fill="#fff" opacity="0.4" />
-        <rect x="3" y="-46" width="9" height="1.6" fill="#fff" opacity="0.4" />
+      {/* face dressing: striped skirt + seam + chalk menu board */}
+      <g>
+        {faceStrip(-29.4, 7.4, -0.5, 6, 0.5, P.stripe)}
+        {faceStrip(-29.4, 7.4, -6.2, 1.6, 0.5, P.trim, 0.55)}
+        {faceStrip(8.6, 37.4, 18.2, 6, -0.5, P.stripe)}
+        {faceStrip(8.6, 37.4, 12.6, 1.6, -0.5, P.trim, 0.55)}
+        {/* chalkboard menu on the front face */}
+        {faceStrip(-25, -9, -22.5, 13, 0.5, '#2f3a33')}
+        {faceStrip(-23, -11, -17.2, 1.8, 0.5, '#f0ede4', 0.8)}
+        {faceStrip(-23, -14, -13.4, 1.8, 0.5, '#f0ede4', 0.6)}
+        {faceStrip(-23, -16, -9.6, 1.8, 0.5, '#e05a7a', 0.8)}
+        {/* strawberry mark on the right face */}
+        {faceStrip(18, 26, -8.5, 5, -0.5, '#d94436')}
+        {faceStrip(20, 24, -11, 2.5, -0.5, '#43a047')}
       </g>
-      {/* straight marquee sign — no more glitch-skewed lettering */}
+      {/* counter goods: crates, cup stack, blender */}
       <g shapeRendering="crispEdges">
-        <rect x="-31" y="-32" width="50" height="14" fill="#fdfaf2" stroke={INK} strokeWidth="1.4" />
-        <rect x="-31" y="-32" width="50" height="3" fill={stripe} />
+        <rect x="-12" y="-42" width="10" height="7" fill="#b8926a" />
+        <rect x="-11" y="-46" width="3.4" height="4" fill="#e05a7a" />
+        <rect x="-7" y="-46.6" width="3.4" height="4.6" fill="#d94436" />
+        <rect x="-12" y="-42" width="10" height="1.6" fill="#fff" opacity="0.35" />
+        <rect x="0" y="-45" width="10" height="7" fill="#b8926a" />
+        <rect x="1" y="-49" width="3.4" height="4" fill="#57a84e" />
+        <rect x="5" y="-49.6" width="3.4" height="4.6" fill="#f2c53d" />
+        <rect x="0" y="-45" width="10" height="1.6" fill="#fff" opacity="0.35" />
+        {/* cup stack */}
+        <rect x="-22" y="-38" width="7" height="8" fill="#fdfaf2" stroke={INK} strokeWidth="0.8" />
+        <rect x="-22" y="-35.5" width="7" height="1.2" fill={INK} opacity="0.25" />
+        <rect x="-22" y="-33" width="7" height="1.2" fill={INK} opacity="0.25" />
+        {/* blender */}
+        <rect x="13" y="-36" width="8" height="4" fill="#1f1e1c" />
+        <rect x="14" y="-43" width="6" height="7" fill="#cfe3ea" />
+        <rect x="14" y="-40" width="6" height="2" fill="#e05a7a" opacity="0.8" />
+      </g>
+      {/* terrazzo speckle on the boutique counter */}
+      {s === 2 && !rival && (
+        <g shapeRendering="crispEdges">
+          <rect x="-6" y="-32" width="2" height="2" fill="#e05a7a" />
+          <rect x="6" y="-28" width="2" height="2" fill="#1a1a18" opacity="0.5" />
+          <rect x="-16" y="-29" width="2" height="2" fill="#d9b34a" />
+          <rect x="16" y="-24" width="2" height="2" fill="#2f9ea8" />
+          <rect x="0" y="-22" width="2" height="2" fill="#e05a7a" />
+        </g>
+      )}
+      {/* glass juice case on the flagship counter */}
+      {s === 3 && !rival && (
+        <g shapeRendering="crispEdges">
+          <rect x="20" y="-46" width="13" height="12" fill="#cfe3ea" stroke={INK} strokeWidth="0.9" />
+          <rect x="21.5" y="-43.5" width="10" height="2.2" fill="#e05a7a" />
+          <rect x="21.5" y="-40.3" width="10" height="2.2" fill="#f2c53d" />
+          <rect x="21.5" y="-37.1" width="10" height="2.2" fill="#57a84e" />
+        </g>
+      )}
+      {/* marquee glow for the flagship */}
+      {s === 3 && !rival && <ellipse cx="-6" cy="-25" rx="34" ry="12" fill="#ffe08a" opacity="0.3" />}
+      {/* straight marquee sign */}
+      <g shapeRendering="crispEdges">
+        <rect x="-31" y="-32" width="50" height="14" fill="#fdfaf2" stroke={s === 3 ? P.trim : INK} strokeWidth="1.4" />
+        <rect x="-31" y="-32" width="50" height="3" fill={P.stripe} />
+        <rect x="-29" y="-27" width="4" height="4" fill="#d94436" />
+        <rect x="-28" y="-28.6" width="2" height="2" fill="#43a047" />
       </g>
       <text
-        x="-6"
+        x="-3"
         y="-21.5"
         textAnchor="middle"
         fontFamily="'Press Start 2P', monospace"
@@ -412,22 +687,101 @@ export function Cart({ x, y, rival = false }: { x: number; y: number; rival?: bo
       >
         {sign}
       </text>
-      {/* pixel umbrella: stepped striped dome with a scalloped edge */}
-      <g shapeRendering="crispEdges">
-        <rect x="2" y="-56" width="4" height="22" fill="#8a6f4d" />
-        <rect x="-8" y="-84" width="20" height="6" fill={stripe} />
-        <rect x="-20" y="-78" width="44" height="6" fill={body} />
-        <rect x="-30" y="-72" width="64" height="6" fill={stripe} />
-        <rect x="-36" y="-66" width="76" height="6" fill={body} />
-        {/* scallops */}
-        <rect x="-36" y="-60" width="10" height="4" fill={stripe} />
-        <rect x="-18" y="-60" width="10" height="4" fill={stripe} />
-        <rect x="0" y="-60" width="10" height="4" fill={stripe} />
-        <rect x="18" y="-60" width="10" height="4" fill={stripe} />
-        <rect x="30" y="-60" width="10" height="4" fill={stripe} />
-        {/* finial */}
-        <rect x="0" y="-88" width="8" height="4" fill="#e05a7a" />
-      </g>
+
+      {/* ——— overhead, per tier ——— */}
+      {s <= 0 && (
+        // classic striped umbrella
+        <g shapeRendering="crispEdges">
+          <rect x="2" y="-56" width="4" height="22" fill={P.pole} />
+          <rect x="-6" y="-84" width="20" height="6" fill={P.stripe} />
+          <rect x="-18" y="-78" width="44" height="6" fill="#fdfaf2" />
+          <rect x="-28" y="-72" width="64" height="6" fill={P.stripe} />
+          <rect x="-34" y="-66" width="76" height="6" fill="#fdfaf2" />
+          <rect x="-34" y="-60" width="10" height="4" fill={P.stripe} />
+          <rect x="-16" y="-60" width="10" height="4" fill={P.stripe} />
+          <rect x="2" y="-60" width="10" height="4" fill={P.stripe} />
+          <rect x="20" y="-60" width="10" height="4" fill={P.stripe} />
+          <rect x="32" y="-60" width="10" height="4" fill={P.stripe} />
+          <rect x="-34" y="-66" width="76" height="1.6" fill={INK} opacity="0.12" />
+          <rect x="0" y="-88" width="8" height="4" fill="#e05a7a" />
+        </g>
+      )}
+      {s === 1 && (
+        // farmers-market tent: striped valance on two poles
+        <g shapeRendering="crispEdges">
+          <rect x="-36" y="-58" width="4" height="26" fill={P.pole} />
+          <rect x="30" y="-46" width="4" height="24" fill={P.pole} />
+          <rect x="-42" y="-72" width="88" height="8" fill="#fdfaf2" />
+          <rect x="-42" y="-76" width="88" height="4" fill={P.trim} opacity="0.85" />
+          {[-42, -20, 2, 24].map((vx) => (
+            <rect key={vx} x={vx} y={-64} width="11" height="8" fill={P.stripe} />
+          ))}
+          {[-31, -9, 13, 35].map((vx) => (
+            <rect key={vx} x={vx} y={-64} width="11" height="8" fill="#fdfaf2" />
+          ))}
+          {[-42, -20, 2, 24].map((vx) => (
+            <rect key={`s${vx}`} x={vx + 2} y={-56} width="7" height="3" fill={P.stripe} />
+          ))}
+        </g>
+      )}
+      {s === 2 && (
+        // boutique kiosk: cream canopy, brass poles, hanging pendant bulbs
+        <g shapeRendering="crispEdges">
+          <rect x="-36" y="-58" width="3.4" height="26" fill={P.pole} />
+          <rect x="31" y="-46" width="3.4" height="24" fill={P.pole} />
+          <rect x="-42" y="-74" width="88" height="10" fill="#f5efe2" />
+          <rect x="-42" y="-78" width="88" height="4" fill="#c9a06a" />
+          {[-40, -24, -8, 8, 24, 36].map((vx) => (
+            <rect key={vx} x={vx} y={-64} width="8" height="3.4" fill="#c9a06a" />
+          ))}
+          {/* pendants */}
+          <rect x="-13" y="-64" width="1.6" height="9" fill={INK} opacity="0.6" />
+          <rect x="-15.4" y="-55" width="6" height="5" fill="#ffe08a" />
+          <rect x="14" y="-60" width="1.6" height="9" fill={INK} opacity="0.6" />
+          <rect x="11.6" y="-51" width="6" height="5" fill="#ffe08a" />
+        </g>
+      )}
+      {s === 3 && (
+        // flagship: double-tier canopy, gold scallops, string lights, flag
+        <g shapeRendering="crispEdges">
+          <rect x="-36" y="-60" width="3.4" height="28" fill={P.pole} />
+          <rect x="31" y="-48" width="3.4" height="26" fill={P.pole} />
+          <rect x="-20" y="-88" width="48" height="7" fill={P.stripe} />
+          <rect x="-44" y="-81" width="92" height="11" fill="#fdfaf2" />
+          <rect x="-44" y="-84" width="92" height="3" fill={P.trim} />
+          {[-44, -28, -12, 4, 20, 36].map((vx) => (
+            <rect key={vx} x={vx} y={-70} width="8" height="4" fill={P.stripe} />
+          ))}
+          {/* string lights swooping across the front */}
+          <path d="M-44 -66 Q 2 -52 48 -68" fill="none" stroke={INK} strokeWidth="1" opacity="0.5" shapeRendering="auto" />
+          {[-38, -26, -14, -2, 10, 22, 34, 44].map((vx, i) => {
+            const t = (vx + 44) / 92;
+            const vy = (1 - t) * (1 - t) * -66 + 2 * (1 - t) * t * -52 + t * t * -68;
+            return (
+              <rect key={vx} x={vx - 1.6} y={vy} width="3.4" height="3.4" fill={['#ffe08a', '#e05a7a', '#7fb4c9'][i % 3]} />
+            );
+          })}
+          {/* flag */}
+          <rect x="2" y="-102" width="2.4" height="14" fill={P.pole} />
+          <rect x="4.4" y="-101" width="12" height="6" fill="#e05a7a" />
+        </g>
+      )}
+      {/* potted plants flanking the fancier stands */}
+      {s >= 2 && !rival && (
+        <g shapeRendering="crispEdges">
+          <rect x="-52" y="8" width="11" height="9" fill="#b8674f" />
+          <rect x="-50" y="1" width="7" height="7" fill="#57a84e" />
+          <rect x="-52" y="-3" width="5" height="5" fill="#4c9440" />
+          <rect x="-46" y="-4" width="4" height="4" fill="#6fbc5f" />
+          {s === 3 && (
+            <>
+              <rect x="42" y="0" width="11" height="9" fill="#b8674f" />
+              <rect x="44" y="-7" width="7" height="7" fill="#57a84e" />
+              <rect x="42" y="-11" width="5" height="5" fill="#6fbc5f" />
+            </>
+          )}
+        </g>
+      )}
     </g>
   );
 }
