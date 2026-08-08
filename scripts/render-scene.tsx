@@ -24,12 +24,12 @@ for (const loc of LOCATIONS) {
       {[0, 1, 2].map((qi) => {
         const [gx, gy] = queueSpot(layout, qi);
         const [px, py] = iso(gx, gy);
-        return <Person key={`q${qi}`} variant={qi} walking={false} bubble={qi === 0 ? 'happy' : null} x={px} y={py} />;
+        return <Person key={`q${qi}`} variant={qi} walking={false} bubble={qi === 0 ? 'happy' : null} x={px} y={py} locId={loc.id} />;
       })}
-      {[0.1, 0.3, 0.7, 0.95, 1.15].map((p, i) => {
+      {[0.05, 0.2, 0.35, 0.55, 0.7, 0.85, 1.0, 1.1, 1.2].map((p, i) => {
         const [gx, gy] = walkPoint(layout, p);
         const [px, py] = iso(gx, gy);
-        return <Person key={i} variant={i + 2} walking={true} bubble={i === 2 ? 'price' : null} x={px} y={py} />;
+        return <Person key={i} variant={i * 7 + 4} walking={true} bubble={i === 2 ? 'price' : null} x={px} y={py} locId={loc.id} />;
       })}
     </IsoScene>,
   );

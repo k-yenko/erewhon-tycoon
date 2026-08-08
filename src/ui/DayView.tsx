@@ -127,6 +127,7 @@ export default function DayView({
                 x={px}
                 y={py}
                 moveSeconds={moveSeconds}
+                locId={state.locationId}
               />
             );
             (py < cartDepth ? behind : front).push(el);

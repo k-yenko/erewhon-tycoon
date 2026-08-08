@@ -487,6 +487,7 @@ export function settleDay(state: GameState, sim: SimState): DayResult {
     walkedAway: sim.walkedAway,
     satisfactionPct:
       interactions > 0 ? Math.round((positives / interactions) * 100) : 100,
+    tempF: state.daily!.tempF,
     forecastLo,
     forecastHi,
     soldOut: sim.soldOut,

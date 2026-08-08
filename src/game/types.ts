@@ -190,6 +190,7 @@ export interface DayResult {
   customersTotal: number;
   walkedAway: number;
   satisfactionPct: number; // that day's customer satisfaction, 0..100
+  tempF?: number;          // that day's temperature, for the Charts tab
   forecastLo: number;      // what the morning forecast promised
   forecastHi: number;
   soldOut: boolean;

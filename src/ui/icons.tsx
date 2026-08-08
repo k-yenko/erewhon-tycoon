@@ -85,6 +85,37 @@ const ICONS: Record<string, ReactNode> = {
       <path d="M12.5 8 H17 M12.5 11 H17 M12.5 14 H17" stroke={KRAFT_D} strokeWidth="1.4" strokeLinecap="round" />
     </g>
   ),
+  calendar: (
+    <g>
+      <rect x="4.5" y="4" width="15" height="16" rx="1.5" fill="#fff" {...S} />
+      <rect x="4.5" y="4" width="15" height="4.6" fill="#2f3f8c" stroke={INK} strokeWidth="1.4" />
+      <path d="M12 11 L12 17.5 M10.4 12.2 L12 11 M10.4 17.5 H13.6" stroke="#2f3f8c" strokeWidth="1.8" fill="none" strokeLinecap="round" />
+    </g>
+  ),
+  chart: (
+    <g>
+      <path d="M6 19 L9 21 M18 19 L15 21" stroke={INK} strokeWidth="1.4" strokeLinecap="round" />
+      <path d="M4 4 L20 4 L21.5 18.5 L5.5 18.5Z" fill="#fff" {...S} />
+      <path d="M8.2 4 L9.2 18.5 M12.6 4 L13.2 18.5 M16.8 4 L17.2 18.5 M4.4 8 H20.5 M4.8 12 H20.9 M5.2 15.6 H21.2" stroke="#d0ccc0" strokeWidth="0.9" fill="none" />
+      <path d="M5.5 14 L9 11 L12 13.5 L15.5 8.5 L20 10.5" stroke="#d94436" strokeWidth="1.7" fill="none" strokeLinejoin="round" strokeLinecap="round" />
+    </g>
+  ),
+  bookred: (
+    <g>
+      <path d="M3.5 13 L12 9 L20.5 13 L12 17Z" fill="#fff" {...S} />
+      <path d="M3.5 13 V15.5 L12 19.5 L20.5 15.5 V13 L12 17Z" fill="#f0ede4" {...S} strokeWidth={1.1} />
+      <path d="M3.5 10.8 L12 6.8 L20.5 10.8 L12 14.8Z" fill={RED} {...S} />
+      <path d="M6.5 10.6 L11 8.5" stroke="#fff" strokeWidth="1.4" strokeLinecap="round" opacity="0.65" />
+    </g>
+  ),
+  bookgold: (
+    <g>
+      <path d="M3.5 13 L12 9 L20.5 13 L12 17Z" fill="#fff" {...S} />
+      <path d="M3.5 13 V15.5 L12 19.5 L20.5 15.5 V13 L12 17Z" fill="#f0ede4" {...S} strokeWidth={1.1} />
+      <path d="M3.5 10.8 L12 6.8 L20.5 10.8 L12 14.8Z" fill={YELLOW} {...S} />
+      <path d="M6.5 10.6 L11 8.5" stroke="#fff" strokeWidth="1.4" strokeLinecap="round" opacity="0.65" />
+    </g>
+  ),
   pin: (
     <g>
       <path d="M12 21.5 C12 21.5 5 14.5 5 9.5 C5 5.5 8 2.5 12 2.5 C16 2.5 19 5.5 19 9.5 C19 14.5 12 21.5 12 21.5Z" fill={RED} {...S} />
@@ -320,6 +351,7 @@ const ICONS: Record<string, ReactNode> = {
 export type IconName =
   | 'strawberry' | 'coconut' | 'seamoss' | 'ice' | 'cup' | 'heart' | 'gear'
   | 'ledger' | 'pin' | 'store' | 'person' | 'camera' | 'blender' | 'box'
+  | 'calendar' | 'chart' | 'bookred' | 'bookgold'
   | 'smile' | 'frown' | 'tag' | 'hourglass'
   | 'sun' | 'cloud' | 'wind' | 'rain' | 'storm' | 'heat'
   | 'tent' | 'tablet' | 'fridge' | 'snowflake' | 'bell' | 'bulb' | 'mountain'

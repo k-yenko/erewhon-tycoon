@@ -85,11 +85,14 @@ export function Awning({ a, b, top, drop, color }: { a: [number, number]; b: [nu
 export function Tree({ x, y, s = 1 }: { x: number; y: number; s?: number }) {
   const [px, py] = iso(x, y);
   return (
-    <g stroke={INK} strokeWidth="1.1">
-      <path d={`M${px} ${py} L${px} ${py - 16 * s}`} strokeWidth={3 * s} stroke="#8a6f4d" />
-      <circle cx={px - 6 * s} cy={py - 20 * s} r={8 * s} fill="#4c9440" />
-      <circle cx={px + 6 * s} cy={py - 21 * s} r={8.5 * s} fill="#57a84e" />
-      <circle cx={px} cy={py - 27 * s} r={8 * s} fill="#5aa552" />
+    <g transform={`translate(${px} ${py}) scale(${s})`} shapeRendering="crispEdges">
+      <rect x="-2.4" y="-14" width="4.8" height="14" fill="#8a6f4d" />
+      <rect x="-11" y="-24" width="22" height="9" fill="#4c9440" />
+      <rect x="-14" y="-18" width="28" height="6" fill="#3f8236" />
+      <rect x="-8" y="-31" width="16" height="8" fill="#57a84e" />
+      <rect x="-4" y="-36" width="8" height="6" fill="#6fbc5f" />
+      <rect x="-6" y="-29" width="4" height="4" fill="#8fd47f" />
+      <rect x="4" y="-22" width="4" height="4" fill="#8fd47f" />
     </g>
   );
 }
@@ -97,15 +100,22 @@ export function Tree({ x, y, s = 1 }: { x: number; y: number; s?: number }) {
 export function Palm({ x, y, s = 1 }: { x: number; y: number; s?: number }) {
   const [px, py] = iso(x, y);
   return (
-    <g stroke={INK} strokeWidth="1.1" transform={`translate(${px} ${py}) scale(${s})`}>
-      <path d="M0 0 C1 -10 0 -20 -2 -28" fill="none" stroke="#8a6f4d" strokeWidth="4" strokeLinecap="round" />
-      <g fill="#57a84e">
-        <path d="M-2 -28 C-10 -32 -16 -31 -20 -27 C-13 -29 -7 -28 -2 -26Z" />
-        <path d="M-2 -28 C-8 -35 -14 -36 -19 -34 C-12 -33 -6 -30 -2 -27Z" />
-        <path d="M-2 -28 C4 -35 10 -36 15 -34 C9 -32 3 -30 -1 -27Z" />
-        <path d="M-2 -28 C6 -31 12 -30 17 -26 C10 -29 3 -28 -2 -26Z" />
-        <path d="M-2 -28 C-1 -36 1 -39 5 -41 C1 -37 0 -32 -1 -27Z" />
-      </g>
+    <g transform={`translate(${px} ${py}) scale(${s})`} shapeRendering="crispEdges">
+      {/* segmented trunk with a slight lean */}
+      <rect x="-2" y="-9" width="4" height="9" fill="#8a6f4d" />
+      <rect x="-3" y="-18" width="4" height="9" fill="#9a7d58" />
+      <rect x="-4" y="-27" width="4" height="9" fill="#8a6f4d" />
+      {/* blocky fronds */}
+      <rect x="-18" y="-31" width="14" height="4" fill="#4c9440" />
+      <rect x="-22" y="-28" width="8" height="3" fill="#3f8236" />
+      <rect x="2" y="-31" width="14" height="4" fill="#57a84e" />
+      <rect x="12" y="-28" width="8" height="3" fill="#3f8236" />
+      <rect x="-12" y="-36" width="10" height="4" fill="#57a84e" />
+      <rect x="0" y="-36" width="10" height="4" fill="#4c9440" />
+      <rect x="-4" y="-40" width="6" height="5" fill="#6fbc5f" />
+      {/* coconuts */}
+      <rect x="-5" y="-30" width="3" height="3" fill="#6b4a2f" />
+      <rect x="0" y="-29" width="3" height="3" fill="#6b4a2f" />
     </g>
   );
 }
@@ -114,9 +124,18 @@ export function Hedge({ x, y, w }: { x: number; y: number; w: number }) {
   const [px, py] = iso(x, y);
   const [qx, qy] = iso(x + w, y);
   return (
-    <g stroke={INK} strokeWidth="1.1">
-      <path d={`M${px} ${py} L${qx} ${qy}`} stroke="#4c9440" strokeWidth="14" strokeLinecap="round" />
-      <path d={`M${px} ${py - 3} L${qx} ${qy - 3}`} stroke="#57a84e" strokeWidth="8" strokeLinecap="round" />
+    <g shapeRendering="crispEdges">
+      {Array.from({ length: Math.max(2, Math.round(w * 2.2)) }, (_, i) => {
+        const t = i / Math.max(1, Math.round(w * 2.2) - 1);
+        const bx = px + (qx - px) * t;
+        const by = py + (qy - py) * t;
+        return (
+          <g key={i}>
+            <rect x={bx - 7} y={by - 13} width={14} height={13} fill={i % 2 ? '#4c9440' : '#57a84e'} />
+            <rect x={bx - 5} y={by - 16} width={10} height={4} fill="#6fbc5f" />
+          </g>
+        );
+      })}
     </g>
   );
 }
@@ -124,10 +143,15 @@ export function Hedge({ x, y, w }: { x: number; y: number; w: number }) {
 export function Umbrella({ x, y, c1, c2 }: { x: number; y: number; c1: string; c2: string }) {
   const [px, py] = iso(x, y);
   return (
-    <g stroke={INK} strokeWidth="1.1" transform={`translate(${px} ${py})`}>
-      <path d="M0 0 V-26" stroke="#8a6f4d" strokeWidth="2.5" />
-      <path d="M-18 -22 C-12 -32 12 -32 18 -22 L10 -24 L0 -22 L-10 -24Z" fill={c1} strokeLinejoin="round" />
-      <path d="M-10 -24 C-5 -29 5 -29 10 -24 L0 -22Z" fill={c2} strokeLinejoin="round" />
+    <g transform={`translate(${px} ${py})`} shapeRendering="crispEdges">
+      <rect x="-1.4" y="-26" width="2.8" height="26" fill="#8a6f4d" />
+      <rect x="-6" y="-34" width="12" height="5" fill={c1} />
+      <rect x="-13" y="-30" width="26" height="5" fill={c2} />
+      <rect x="-19" y="-26" width="38" height="5" fill={c1} />
+      <rect x="-19" y="-21" width="6" height="3" fill={c2} />
+      <rect x="-7" y="-21" width="6" height="3" fill={c2} />
+      <rect x="5" y="-21" width="6" height="3" fill={c2} />
+      <rect x="-1.5" y="-37" width="3" height="3" fill={c2} />
     </g>
   );
 }
@@ -157,12 +181,58 @@ export function SUV({ x, y, color }: { x: number; y: number; color: string }) {
   );
 }
 
+// A patch of pixel wildflowers for color.
+export function FlowerPatch({ x, y }: { x: number; y: number }) {
+  const [px, py] = iso(x, y);
+  return (
+    <g transform={`translate(${px} ${py})`} shapeRendering="crispEdges">
+      <rect x="-8" y="-3" width="4" height="3" fill="#3f8236" />
+      <rect x="0" y="-4" width="4" height="4" fill="#3f8236" />
+      <rect x="7" y="-3" width="4" height="3" fill="#3f8236" />
+      <rect x="-8" y="-7" width="4" height="4" fill="#e05a7a" />
+      <rect x="0" y="-8" width="4" height="4" fill="#f2c53d" />
+      <rect x="7" y="-7" width="4" height="4" fill="#9b7fd4" />
+    </g>
+  );
+}
+
+// LA's little red hydrant.
+export function Hydrant({ x, y }: { x: number; y: number }) {
+  const [px, py] = iso(x, y);
+  return (
+    <g transform={`translate(${px} ${py})`} shapeRendering="crispEdges">
+      <rect x="-4" y="-2.6" width="8" height="2.6" fill="#a83428" />
+      <rect x="-3" y="-11" width="6" height="8.4" fill="#d94436" />
+      <rect x="-4.6" y="-8" width="1.8" height="3" fill="#d94436" />
+      <rect x="2.8" y="-8" width="1.8" height="3" fill="#d94436" />
+      <rect x="-2" y="-13" width="4" height="2.4" fill="#a83428" />
+      <rect x="-3" y="-11" width="6" height="1.4" fill="#fff" opacity="0.35" />
+    </g>
+  );
+}
+
+// A sidewalk bench.
+export function Bench({ x, y }: { x: number; y: number }) {
+  const [px, py] = iso(x, y);
+  return (
+    <g transform={`translate(${px} ${py})`} shapeRendering="crispEdges">
+      <rect x="-12" y="-9" width="24" height="3" fill="#b8926a" />
+      <rect x="-12" y="-5" width="24" height="2" fill="#a3805c" />
+      <rect x="-11" y="-3" width="2.6" height="3" fill="#1a1a18" />
+      <rect x="8.4" y="-3" width="2.6" height="3" fill="#1a1a18" />
+      <rect x="-12" y="-14" width="24" height="2.4" fill="#b8926a" />
+    </g>
+  );
+}
+
 export function Bin({ x, y, color }: { x: number; y: number; color: string }) {
   const [px, py] = iso(x, y);
   return (
-    <g transform={`translate(${px} ${py})`} stroke={INK} strokeWidth="1" strokeLinejoin="round">
-      <rect x="-5" y="-16" width="10" height="15" rx="1.5" fill={color} />
-      <rect x="-6.5" y="-19" width="13" height="3.5" rx="1.5" fill={color} />
+    <g transform={`translate(${px} ${py})`} shapeRendering="crispEdges">
+      <rect x="-5" y="-16" width="10" height="15" fill={color} />
+      <rect x="-6.5" y="-19" width="13" height="3.5" fill={color} />
+      <rect x="-6.5" y="-19" width="13" height="1.4" fill="#fff" opacity="0.35" />
+      <rect x="-3" y="-13" width="6" height="1.6" fill="#1a1a18" opacity="0.3" />
     </g>
   );
 }
@@ -170,10 +240,13 @@ export function Bin({ x, y, color }: { x: number; y: number; color: string }) {
 export function Planter({ x, y }: { x: number; y: number }) {
   const [px, py] = iso(x, y);
   return (
-    <g transform={`translate(${px} ${py})`} stroke={INK} strokeWidth="1">
-      <rect x="-9" y="-8" width="18" height="8" fill="#c4beb0" />
-      <circle cx="-3" cy="-11" r="4.5" fill="#57a84e" />
-      <circle cx="4" cy="-12" r="5" fill="#4c9440" />
+    <g transform={`translate(${px} ${py})`} shapeRendering="crispEdges">
+      <rect x="-9" y="-8" width="18" height="8" fill="#b8926a" />
+      <rect x="-9" y="-8" width="18" height="1.6" fill="#fff" opacity="0.3" />
+      <rect x="-7" y="-13" width="6" height="5" fill="#4c9440" />
+      <rect x="1" y="-14" width="6" height="6" fill="#57a84e" />
+      <rect x="-4" y="-16" width="4" height="4" fill="#e05a7a" />
+      <rect x="3" y="-17" width="3" height="3" fill="#f2c53d" />
     </g>
   );
 }
@@ -181,9 +254,10 @@ export function Planter({ x, y }: { x: number; y: number }) {
 export function LampPost({ x, y }: { x: number; y: number }) {
   const [px, py] = iso(x, y);
   return (
-    <g transform={`translate(${px} ${py})`} stroke={INK} strokeWidth="1.2">
-      <path d="M0 0 V-34" strokeWidth="2.2" />
-      <circle cx="0" cy="-36" r="3.5" fill="#f2c53d" />
+    <g transform={`translate(${px} ${py})`} shapeRendering="crispEdges">
+      <rect x="-1.2" y="-34" width="2.4" height="34" fill="#1a1a18" />
+      <rect x="-3.4" y="-40" width="6.8" height="6.4" fill="#f2c53d" />
+      <rect x="-2" y="-38.6" width="4" height="3.6" fill="#ffe08a" />
     </g>
   );
 }
@@ -191,11 +265,16 @@ export function LampPost({ x, y }: { x: number; y: number }) {
 export function WaterTower({ x, y }: { x: number; y: number }) {
   const [px, py] = iso(x, y);
   return (
-    <g transform={`translate(${px} ${py})`} stroke={INK} strokeWidth="1.2" strokeLinejoin="round">
-      <path d="M-12 0 L-4 -34 M12 0 L4 -34 M-9 -12 L9 -12 M-7 -24 L7 -24" fill="none" />
-      <path d="M-11 -34 H11 V-52 C11 -52 6 -56 0 -56 C-6 -56 -11 -52 -11 -52Z" fill="#b5ab9c" />
-      <path d="M-11 -52 C-6 -49 6 -49 11 -52" fill="none" />
-      <path d="M0 -56 V-62" strokeWidth="1.6" />
+    <g transform={`translate(${px} ${py})`} shapeRendering="crispEdges">
+      <rect x="-11" y="-34" width="3" height="34" fill="#6b5a44" />
+      <rect x="8" y="-34" width="3" height="34" fill="#6b5a44" />
+      <rect x="-9" y="-13" width="18" height="2.4" fill="#6b5a44" />
+      <rect x="-8" y="-24" width="16" height="2.4" fill="#6b5a44" />
+      <rect x="-12" y="-52" width="24" height="18" fill="#b5926a" />
+      <rect x="-12" y="-52" width="24" height="2.6" fill="#8a6f4d" />
+      <rect x="-9" y="-57" width="18" height="5" fill="#8a6f4d" />
+      <rect x="-1.2" y="-63" width="2.4" height="6" fill="#1a1a18" />
+      <rect x="-12" y="-44" width="24" height="1.6" fill="#8a6f4d" opacity="0.5" />
     </g>
   );
 }
@@ -277,13 +356,15 @@ export function CrossRoads() {
 
 // The Erewhon cart, drawn as a real isometric object: iso-box body with
 // sign and jars flat on the visible faces, umbrella overhead, grounded wheels.
+// The Erewhon cart — pixel build: blocky striped umbrella, straight marquee
+// sign, produce crates on the counter, square wheels.
 export function Cart({ x, y, rival = false }: { x: number; y: number; rival?: boolean }) {
   const [px, py] = iso(x, y);
-  const body = rival ? '#d8ecec' : '#faf7f0';
-  const face = rival ? '#c4e0e0' : '#f0e9da';
-  const stripe = rival ? '#4a9ea8' : '#c9b99a';
+  const body = rival ? '#d8ecec' : '#fdfaf2';
+  const face = rival ? '#c4e0e0' : '#efe8da';
+  const stripe = rival ? '#4a9ea8' : '#9db98a';
+  const counter = rival ? '#3f8a94' : '#c9b99a';
   const sign = rival ? 'MOON JUUS' : 'EREWHON';
-  // footprint corners (local): back, right, front(bottom), left — height 34
   const P0: [number, number] = [0, -10];
   const P1: [number, number] = [38, 9];
   const P2: [number, number] = [8, 24];
@@ -292,62 +373,60 @@ export function Cart({ x, y, rival = false }: { x: number; y: number; rival?: bo
   const up = (p: [number, number]): [number, number] => [p[0], p[1] - H];
   const [T0, T1, T2, T3] = [P0, P1, P2, P3].map(up) as [number, number][];
   return (
-    <g
-      transform={`translate(${px} ${py - 22})`}
-      stroke={INK}
-      strokeWidth="1.2"
-      strokeLinejoin="round"
-    >
-      <ellipse cx="4" cy="22" rx="40" ry="9" fill={INK} opacity="0.1" stroke="none" />
-      {/* wheels tucked under the body */}
-      <ellipse cx="24" cy="18" rx="5.5" ry="6" fill="#4a4740" />
-      <ellipse cx="24" cy="18" rx="2" ry="2.2" fill="#c9b99a" />
-      <ellipse cx="-16" cy="12" rx="5.5" ry="6" fill="#4a4740" />
-      <ellipse cx="-16" cy="12" rx="2" ry="2.2" fill="#c9b99a" />
-      {/* body: right + front faces, counter top */}
-      <polygon points={poly([T1, T2, P2, P1])} fill={face} />
-      <polygon points={poly([T2, T3, P3, P2])} fill={body} />
-      <polygon points={poly([T0, T1, T2, T3])} fill={stripe} />
-      {/* jars on the right face (skewed to the face slope) */}
-      <g transform="translate(12 -6) skewY(-26.565)" stroke={INK} strokeWidth="1">
-        <rect x="0" y="0" width="6.5" height="8" rx="1" fill="#e05a7a" />
-        <rect x="9.5" y="0" width="6.5" height="8" rx="1" fill="#57a84e" />
-        <rect x="19" y="0" width="6.5" height="8" rx="1" fill="#3f97d9" />
+    <g transform={`translate(${px} ${py - 22})`}>
+      <ellipse cx="4" cy="22" rx="40" ry="9" fill={INK} opacity="0.1" />
+      {/* square pixel wheels */}
+      <g shapeRendering="crispEdges">
+        <rect x="19" y="12" width="10" height="10" fill="#1a1a18" />
+        <rect x="22" y="15" width="4" height="4" fill={counter} />
+        <rect x="-21" y="6" width="10" height="10" fill="#1a1a18" />
+        <rect x="-18" y="9" width="4" height="4" fill={counter} />
       </g>
-      {/* sign mounted on the front-left face */}
-      <polygon
-        points={poly([[-27, -20], [4, -4.5], [4, 5.5], [-27, -10]])}
-        fill={body}
-      />
+      {/* iso body */}
+      <g stroke={INK} strokeWidth="1.1" strokeLinejoin="round">
+        <polygon points={poly([T1, T2, P2, P1])} fill={face} />
+        <polygon points={poly([T2, T3, P3, P2])} fill={body} />
+        <polygon points={poly([T0, T1, T2, T3])} fill={counter} />
+      </g>
+      {/* produce crates on the counter */}
+      <g shapeRendering="crispEdges">
+        <rect x="-8" y="-44" width="9" height="6" fill="#e05a7a" />
+        <rect x="3" y="-46" width="9" height="7" fill="#57a84e" />
+        <rect x="14" y="-42" width="8" height="6" fill="#3f97d9" />
+        <rect x="-8" y="-44" width="9" height="1.6" fill="#fff" opacity="0.4" />
+        <rect x="3" y="-46" width="9" height="1.6" fill="#fff" opacity="0.4" />
+      </g>
+      {/* straight marquee sign — no more glitch-skewed lettering */}
+      <g shapeRendering="crispEdges">
+        <rect x="-31" y="-32" width="50" height="14" fill="#fdfaf2" stroke={INK} strokeWidth="1.4" />
+        <rect x="-31" y="-32" width="50" height="3" fill={stripe} />
+      </g>
       <text
-        x="-11.5"
-        y="-4.5"
+        x="-6"
+        y="-21.5"
         textAnchor="middle"
         fontFamily="'Press Start 2P', monospace"
-        fontSize="5.4"
+        fontSize="6.4"
         fill={INK}
-        stroke="none"
         letterSpacing="0.5"
-        transform="rotate(26.565 -11.5 -4.5)"
       >
         {sign}
       </text>
-      {/* umbrella: pole from the counter, striped iso dome above */}
-      <path d="M4 -36 V-64" stroke="#8a6f4d" strokeWidth="2.8" />
-      <g strokeLinejoin="round">
-        <defs>
-          <clipPath id={rival ? 'rival-canopy' : 'cart-canopy'}>
-            <path d="M-34 -56 C-26 -78 34 -82 42 -62 C28 -66 12 -64 4 -63 C-8 -62 -24 -59 -34 -56Z" />
-          </clipPath>
-        </defs>
-        <path d="M-34 -56 C-26 -78 34 -82 42 -62 C28 -66 12 -64 4 -63 C-8 -62 -24 -59 -34 -56Z" fill={body} stroke="none" />
-        <g clipPath={rival ? 'url(#rival-canopy)' : 'url(#cart-canopy)'} stroke="none">
-          <rect x="-34" y="-84" width="19" height="30" fill={stripe} />
-          <rect x="-4" y="-84" width="19" height="30" fill={stripe} />
-          <rect x="26" y="-84" width="19" height="30" fill={stripe} />
-        </g>
-        <path d="M-34 -56 C-26 -78 34 -82 42 -62 C28 -66 12 -64 4 -63 C-8 -62 -24 -59 -34 -56Z" fill="none" />
-        <circle cx="4" cy="-73" r="2.3" fill="#c9b99a" />
+      {/* pixel umbrella: stepped striped dome with a scalloped edge */}
+      <g shapeRendering="crispEdges">
+        <rect x="2" y="-56" width="4" height="22" fill="#8a6f4d" />
+        <rect x="-8" y="-84" width="20" height="6" fill={stripe} />
+        <rect x="-20" y="-78" width="44" height="6" fill={body} />
+        <rect x="-30" y="-72" width="64" height="6" fill={stripe} />
+        <rect x="-36" y="-66" width="76" height="6" fill={body} />
+        {/* scallops */}
+        <rect x="-36" y="-60" width="10" height="4" fill={stripe} />
+        <rect x="-18" y="-60" width="10" height="4" fill={stripe} />
+        <rect x="0" y="-60" width="10" height="4" fill={stripe} />
+        <rect x="18" y="-60" width="10" height="4" fill={stripe} />
+        <rect x="30" y="-60" width="10" height="4" fill={stripe} />
+        {/* finial */}
+        <rect x="0" y="-88" width="8" height="4" fill="#e05a7a" />
       </g>
     </g>
   );

@@ -21,7 +21,11 @@ type Accessory =
   | 'visor'     // power-walker visor
   | 'coffee'    // industry coffee cup
   | 'tote'      // canvas tote at the hip
-  | 'shades';   // just the sunglasses
+  | 'shades'    // just the sunglasses
+  | 'beret'     // paint-splattered artist
+  | 'longhair'  // brandy melville teenager
+  | 'laptop'    // screenwriter, laptop under arm
+  | 'hat';      // wide-brim wealthy lady
 
 interface Outfit {
   skin: string;
@@ -63,7 +67,30 @@ const OUTFITS: Outfit[] = [
   { skin: '#a86a44', hair: '#33241a', top: '#cf9c3f', bottom: '#2e6b33', accessory: 'tote', accent: '#e8dfc8' },
   // shades-only cool person
   { skin: '#e8b48f', hair: '#3a2a1a', top: '#e05a7a', bottom: '#4a4740', accessory: 'shades' },
+  // zesty designer/artist: beret, paint-splattered overalls
+  { skin: '#d69a6e', hair: '#141210', top: '#7fb4c9', bottom: '#4a5a8a', accessory: 'beret', accent: '#d94436' },
+  // brandy melville teen: white baby tee, light denim, long hair
+  { skin: '#f0d0b0', hair: '#8a5a2f', top: '#ffffff', bottom: '#9db8d9', accessory: 'longhair' },
+  // screenwriter: flannel-ish top, laptop under the arm, cap
+  { skin: '#e8c39e', hair: '#3a2a1a', top: '#a84438', bottom: '#3a3733', cap: '#2e6b33', accessory: 'laptop', accent: '#b8b4ac' },
+  // old-money lady: beige on beige, wide hat, enormous shades
+  { skin: '#e8b48f', hair: '#d0d0d0', top: '#e8dfc8', bottom: '#c9b99a', accessory: 'hat', accent: '#f0ede4' },
 ];
+
+// Who actually walks around each neighborhood — weighted casting pools of
+// OUTFITS indices, so Venice reads surfer and Culver reads lanyard.
+const CASTS: Record<string, number[]> = {
+  driveway: [0, 1, 2, 3, 9, 9, 8, 12, 17, 4],
+  silverlake: [16, 16, 14, 14, 10, 7, 8, 0, 2, 18, 17],
+  culver: [6, 6, 18, 18, 13, 1, 3, 0, 7, 14],
+  studio: [13, 13, 18, 18, 7, 6, 1, 2, 12],
+  venice: [11, 11, 10, 16, 7, 17, 3, 0, 15, 8],
+  santamonica: [17, 17, 7, 9, 11, 12, 0, 1, 4, 15],
+  calabasas: [4, 5, 19, 19, 7, 9, 17, 12, 3],
+  beverlygrove: [4, 5, 19, 7, 13, 14, 15, 2, 17],
+  beverlyhills: [19, 19, 13, 15, 7, 4, 6, 3],
+  palisades: [12, 12, 9, 4, 5, 8, 19, 0, 2, 18],
+};
 
 export default function Person({
   variant,
@@ -72,6 +99,7 @@ export default function Person({
   x,
   y,
   moveSeconds = 1.45,
+  locId,
 }: {
   variant: number;
   walking: boolean;
@@ -79,8 +107,13 @@ export default function Person({
   x: number;
   y: number;
   moveSeconds?: number;
+  locId?: string;
 }) {
-  const o = OUTFITS[((variant % OUTFITS.length) + OUTFITS.length) % OUTFITS.length];
+  const pool = locId ? CASTS[locId] : undefined;
+  const h = Math.imul(variant + 1, 2654435761) >>> 8;
+  const o = pool
+    ? OUTFITS[pool[h % pool.length]]
+    : OUTFITS[((variant % OUTFITS.length) + OUTFITS.length) % OUTFITS.length];
   return (
     <g
       style={{
@@ -138,6 +171,20 @@ export default function Person({
           {o.accessory === 'coffee' && (
             <rect x="5" y="-17.5" width="2.6" height="3.6" fill={o.accent} />
           )}
+          {o.accessory === 'laptop' && (
+            <>
+              <rect x="5" y="-19.5" width="3.2" height="6" fill={o.accent} />
+              <rect x="5" y="-19.5" width="3.2" height="1.4" fill="#8a877f" />
+            </>
+          )}
+          {o.accessory === 'beret' && (
+            <>
+              {/* paint splatter on the overalls */}
+              <rect x="-3" y="-22" width="2" height="2" fill={o.accent} />
+              <rect x="1.4" y="-18.6" width="1.8" height="1.8" fill="#f2c53d" />
+              <rect x="-1" y="-16" width="1.6" height="1.6" fill="#e05a7a" />
+            </>
+          )}
           {o.accessory === 'phone' && (
             <>
               <rect x="4.8" y="-30" width="2" height="6.5" fill={o.skin} />
@@ -153,7 +200,24 @@ export default function Person({
           {o.accessory === 'shades' || o.accessory === 'phone' || o.accessory === 'coffee' ? (
             <rect x="-3.2" y="-31.8" width="6.4" height="2" fill="#1a1a18" />
           ) : null}
-          {o.accessory === 'visor' ? (
+          {o.accessory === 'longhair' && (
+            <>
+              <rect x="-5.2" y="-34" width="1.8" height="12" fill={o.hair} />
+              <rect x="3.4" y="-34" width="1.8" height="12" fill={o.hair} />
+            </>
+          )}
+          {o.accessory === 'hat' ? (
+            <>
+              <rect x="-6.8" y="-35" width="13.6" height="2.2" fill={o.accent} />
+              <rect x="-3.8" y="-38" width="7.6" height="3" fill={o.accent} />
+              <rect x="-3.2" y="-31.8" width="6.4" height="2.2" fill="#1a1a18" />
+            </>
+          ) : o.accessory === 'beret' ? (
+            <>
+              <rect x="-4.6" y="-36.2" width="8" height="3" fill={o.accent} />
+              <rect x="2.6" y="-37.4" width="2" height="2" fill={o.accent} />
+            </>
+          ) : o.accessory === 'visor' ? (
             <>
               <rect x="-3.8" y="-35" width="7.6" height="1.8" fill={o.accent} />
               <rect x="2.6" y="-34.4" width="3.6" height="1.6" fill={o.accent} />

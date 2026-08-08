@@ -1,7 +1,9 @@
 import { useState } from 'react';
 import type { DayResult, GameState } from '../../game/types';
 import { LOCATION_BY_ID } from '../../game/content/locations';
-import { calendar, fmtMoney } from '../../game/economy';
+import { C, calendar, fmtMoney } from '../../game/economy';
+import { UPGRADES } from '../../game/content/upgrades';
+import { UNIT_VALUE } from '../../game/content/supplies';
 import { PixelIcon } from '../icons';
 
 interface MonthAgg {
@@ -136,41 +138,149 @@ function ProfitLoss({ state }: { state: GameState }) {
   );
 }
 
+// ——— Charts: the original tracked temperature/revenues/visitors/sales.
+// Ours adds satisfaction, because reputation is the compounding asset here.
+const CHART_W = 430;
+const CHART_H = 180;
+
+function Charts({ state }: { state: GameState }) {
+  const days = state.results.slice(-28);
+  if (days.length < 2) {
+    return (
+      <div className="tagline" style={{ fontSize: 12, color: 'var(--ink-soft)' }}>
+        Charts need at least two trading days. Go sell something.
+      </div>
+    );
+  }
+  const xs = (i: number) => 8 + (i / (days.length - 1)) * (CHART_W - 16);
+  const line = (vals: (number | undefined)[], lo: number, hi: number) =>
+    vals
+      .map((v, i) =>
+        v === undefined
+          ? null
+          : `${xs(i).toFixed(1)},${(CHART_H - 10 - ((Math.min(Math.max(v, lo), hi) - lo) / (hi - lo)) * (CHART_H - 24)).toFixed(1)}`,
+      )
+      .filter(Boolean)
+      .join(' ');
+  const maxMoney = Math.max(...days.map((d) => d.revenue), 1);
+  const maxPeople = Math.max(...days.map((d) => d.customersTotal), 1);
+  const series: { label: string; color: string; pts: string }[] = [
+    { label: 'temperature', color: '#8fc94e', pts: line(days.map((d) => d.tempF), 40, 110) },
+    { label: 'revenues', color: '#1a1a18', pts: line(days.map((d) => d.revenue), 0, maxMoney) },
+    { label: 'visitors', color: '#f2c53d', pts: line(days.map((d) => d.customersTotal), 0, maxPeople) },
+    { label: 'sales', color: '#e8724a', pts: line(days.map((d) => d.cupsSold), 0, maxPeople) },
+    { label: 'satisfaction', color: '#e05a7a', pts: line(days.map((d) => d.satisfactionPct), 0, 100) },
+  ];
+  const weekEnd = days.length > 7 ? xs(6) : xs(days.length - 1);
+  return (
+    <div style={{ display: 'flex', gap: 14, alignItems: 'center' }}>
+      <div style={{ fontSize: 11, lineHeight: 1.9, flexShrink: 0 }}>
+        {series.map((s) => (
+          <div key={s.label} style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
+            <span style={{ width: 16, height: 4, background: s.color, display: 'inline-block' }} />
+            {s.label}
+          </div>
+        ))}
+      </div>
+      <svg
+        viewBox={`0 0 ${CHART_W} ${CHART_H + 16}`}
+        style={{ flex: 1, minWidth: 0, background: 'rgba(255,255,255,0.35)', border: '2px solid var(--ink)' }}
+      >
+        {[0.25, 0.5, 0.75].map((t) => (
+          <line key={t} x1="0" y1={CHART_H * t} x2={CHART_W} y2={CHART_H * t} stroke="#1a1a18" opacity="0.08" />
+        ))}
+        {series.map((s) => (
+          <polyline key={s.label} points={s.pts} fill="none" stroke={s.color} strokeWidth="2" strokeLinejoin="round" />
+        ))}
+        <line x1={xs(0)} y1={CHART_H + 6} x2={weekEnd} y2={CHART_H + 6} stroke="#1a1a18" strokeWidth="1.5" />
+        <line x1={xs(0)} y1={CHART_H + 2} x2={xs(0)} y2={CHART_H + 10} stroke="#1a1a18" strokeWidth="1.5" />
+        <line x1={weekEnd} y1={CHART_H + 2} x2={weekEnd} y2={CHART_H + 10} stroke="#1a1a18" strokeWidth="1.5" />
+        <text x={(xs(0) + weekEnd) / 2} y={CHART_H + 14} textAnchor="middle" fontSize="9" fill="#1a1a18">
+          {days.length > 7 ? '1 week' : `${days.length} days`}
+        </text>
+      </svg>
+    </div>
+  );
+}
+
+// ——— Balance Sheet: cash + stock at standard cost + equipment at purchase
+// price, balanced against starting capital and retained earnings.
+function BalanceSheet({ state }: { state: GameState }) {
+  const stockValue = (Object.keys(state.stock) as (keyof typeof state.stock)[]).reduce(
+    (sum, id) => sum + state.stock[id] * (UNIT_VALUE[id] ?? 0),
+    0,
+  );
+  const equipment = UPGRADES.filter((u) => state.upgrades.includes(u.id)).reduce(
+    (sum, u) => sum + u.price,
+    0,
+  );
+  const total = state.cash + stockValue + equipment;
+  return (
+    <div>
+      <div className="info-row" style={{ fontFamily: "'Press Start 2P', monospace", fontSize: 9 }}>
+        <span>Assets</span>
+      </div>
+      <div className="info-row"><span className="label">Cash</span><span><Money n={state.cash} /></span></div>
+      <div className="info-row"><span className="label">Stock</span><span><Money n={stockValue} /></span></div>
+      <div className="info-row"><span className="label">Equipment</span><span><Money n={equipment} /></span></div>
+      <div className="info-row total"><span className="label">Total</span><span><Money n={total} /></span></div>
+      <div className="info-row" style={{ fontFamily: "'Press Start 2P', monospace", fontSize: 9, marginTop: 12 }}>
+        <span>Equity</span>
+      </div>
+      <div className="info-row"><span className="label">Share capital</span><span><Money n={C.START_CASH} /></span></div>
+      <div className="info-row"><span className="label">Profit / Loss</span><span><Money n={total - C.START_CASH} /></span></div>
+      <div className="info-row total"><span className="label">Total</span><span><Money n={total} /></span></div>
+      <div className="tagline" style={{ fontSize: 11, color: 'var(--ink-soft)', marginTop: 8 }}>
+        {total - C.START_CASH >= 0
+          ? 'The books balance. Your accountant (you) is thriving.'
+          : 'Technically underwater, spiritually aligned.'}
+      </div>
+    </div>
+  );
+}
+
+type BookView = 'yesterday' | 'charts' | 'pl' | 'balance';
+
+const BOOK_TABS: { id: BookView; icon: 'calendar' | 'chart' | 'bookred' | 'bookgold'; title: string }[] = [
+  { id: 'yesterday', icon: 'calendar', title: "Yesterday's Results" },
+  { id: 'charts', icon: 'chart', title: 'Charts' },
+  { id: 'pl', icon: 'bookred', title: 'Profit & Loss' },
+  { id: 'balance', icon: 'bookgold', title: 'Balance Sheet' },
+];
+
 export default function ResultsTab({ state }: { state: GameState }) {
-  const [view, setView] = useState<'yesterday' | 'pl'>('yesterday');
+  const [view, setView] = useState<BookView>('yesterday');
   const last = state.results[state.results.length - 1];
   return (
     <div className="panel">
-      <h2 className="panel-title">
-        {view === 'yesterday' ? "Yesterday's Results" : 'Profit & Loss'}
-      </h2>
+      <h2 className="panel-title">{BOOK_TABS.find((t) => t.id === view)!.title}</h2>
       <div className="info-row">
         <span className="label">Lifetime revenue</span>
         <span>{fmtMoney(state.lifetimeRevenue)}</span>
       </div>
       <div className="subtabs">
-        <button
-          className={`subtab ${view === 'yesterday' ? 'active' : ''}`}
-          onClick={() => setView('yesterday')}
-          title="Yesterday's results"
-        >
-          <PixelIcon name="ledger" size={18} />
-        </button>
-        <button
-          className={`subtab ${view === 'pl' ? 'active' : ''}`}
-          onClick={() => setView('pl')}
-          title="Profit & loss by month"
-        >
-          <PixelIcon name="tag" size={18} />
-        </button>
+        {BOOK_TABS.map((t) => (
+          <button
+            key={t.id}
+            className={`subtab ${view === t.id ? 'active' : ''}`}
+            onClick={() => setView(t.id)}
+            title={t.title}
+          >
+            <PixelIcon name={t.icon} size={18} />
+          </button>
+        ))}
       </div>
       <div className="subtab-body">
-        {!last ? (
+        {view === 'balance' ? (
+          <BalanceSheet state={state} />
+        ) : !last ? (
           <div className="tagline" style={{ fontSize: 12, color: 'var(--ink-soft)' }}>
             No trading days yet. The ledger is as clean as your gut lining.
           </div>
         ) : view === 'yesterday' ? (
           <Yesterday r={last} />
+        ) : view === 'charts' ? (
+          <Charts state={state} />
         ) : (
           <ProfitLoss state={state} />
         )}
