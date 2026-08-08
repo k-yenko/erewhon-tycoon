@@ -110,6 +110,7 @@ export default function DayView({
   useEffect(() => {
     const now = performance.now();
     for (const [id, t] of targets.current) {
+      if (id === sim.pausedId) continue; // frozen in their tracks until unhover
       const a = anims.current.get(id);
       if (!a) {
         anims.current.set(id, { fx: t.x, fy: t.y, tx: t.x, ty: t.y, t0: now, dur: tickMs, mode: 'walk' });
@@ -172,10 +173,28 @@ export default function DayView({
     if (!rect) return;
     setHover({ id, x: e.clientX - rect.left, y: e.clientY - rect.top, w: rect.width, h: rect.height });
     sim.pausedId = id;
+    // stop them in their tracks THIS frame, not at the end of their stride
+    const a = anims.current.get(id);
+    if (a) {
+      const now = performance.now();
+      const [cx, cy] = samplePos(a, now);
+      a.fx = a.tx = cx;
+      a.fy = a.ty = cy;
+      a.t0 = now;
+    }
   };
   const hoverLeave = (id: number) => () => {
     setHover((h) => (h?.id === id ? null : h));
     if (sim.pausedId === id) sim.pausedId = null;
+    // and off they go again — resume the glide toward their current target
+    const a = anims.current.get(id);
+    const t = targets.current.get(id);
+    if (a && t) {
+      a.tx = t.x;
+      a.ty = t.y;
+      a.t0 = performance.now();
+      a.dur = tickMs;
+    }
   };
 
   return (
