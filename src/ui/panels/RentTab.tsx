@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import type { GameState } from '../../game/types';
 import { LOCATIONS } from '../../game/content/locations';
-import { fmtMoney, rentFor } from '../../game/economy';
+import { fmtMoney, rentFor, rivalActive } from '../../game/economy';
 import Meter from '../Meter';
 
 function noveltyRead(n: number): string | null {
@@ -86,7 +86,7 @@ export default function RentTab({
               {noveltyRead(ls.novelty ?? 1)}
             </div>
           )}
-          {state.settings?.rival && state.daily?.rivalLocationId === loc.id && (
+          {rivalActive(state) && state.daily?.rivalLocationId === loc.id && (
             <div style={{ fontSize: 11, color: 'var(--alert)', marginTop: 4 }}>
               {state.daily?.rivalIntent === 'undercut'
                 ? '⚠ Moon Juus is parked here and undercutting you today. It’s personal now.'

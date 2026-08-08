@@ -2,7 +2,7 @@
 // Render every location scene to a static SVG for visual inspection.
 import { renderToStaticMarkup } from 'react-dom/server';
 import { writeFileSync } from 'fs';
-import IsoScene, { Cart, iso } from '../src/ui/scene/IsoScene';
+import IsoScene, { Cart, CartExtras, iso } from '../src/ui/scene/IsoScene';
 import Person from '../src/ui/scene/Person';
 import { LAYOUTS, walkPoint, queueSpot } from '../src/ui/scene/layouts';
 import { LOCATIONS } from '../src/game/content/locations';
@@ -28,6 +28,13 @@ for (const loc of LOCATIONS) {
   const svg = renderToStaticMarkup(
     <IsoScene loc={loc} weatherId={weatherFor[loc.id] ?? 'perfect75'}>
       <Cart x={layout.cart[0]} y={layout.cart[1]} stage={stageFor[loc.id] ?? 0} />
+      {loc.id === 'venice' && (
+        <CartExtras
+          x={layout.cart[0]}
+          y={layout.cart[1]}
+          upgrades={['shadesail', 'soundbath', 'ledhalo', 'mister', 'valet', 'icemaker', 'billboard']}
+        />
+      )}
       {[0, 1, 2].map((qi) => {
         const [gx, gy] = queueSpot(layout, qi);
         const [px, py] = iso(gx, gy);

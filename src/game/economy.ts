@@ -49,6 +49,12 @@ export function era(state: GameState): 1 | 2 | 3 {
   return state.lifetimeRevenue >= ERA_3_AT ? 3 : state.lifetimeRevenue >= ERA_2_AT ? 2 : 1;
 }
 
+// Moon Juus is part of the story: it rolls into town in Act II no matter what.
+// The advanced-mode toggle just invites it from day 1.
+export function rivalActive(state: GameState): boolean {
+  return !!state.settings?.rival || era(state) >= 2;
+}
+
 export interface Mods {
   serveTicks: number;
   blendTicks: number;

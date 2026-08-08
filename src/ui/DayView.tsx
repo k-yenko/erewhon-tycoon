@@ -1,11 +1,11 @@
 import { useEffect, useRef, useState } from 'react';
 import type { SimState, GameState } from '../game/types';
-import { C, calendar, computeMods } from '../game/economy';
+import { C, calendar, computeMods, rivalActive } from '../game/economy';
 import { sfx } from '../game/audio';
 import { cardFor } from '../game/content/archetypes';
 import { SIGNS, signFor, readingFor } from '../game/content/astrology';
 import { LOCATION_BY_ID } from '../game/content/locations';
-import IsoScene, { Cart, iso } from './scene/IsoScene';
+import IsoScene, { Cart, CartExtras, iso } from './scene/IsoScene';
 import {
   LAYOUTS, walkPoint, queueSpot, pointAlongPolyline, avoidObstacles, EXIT_X, QUEUE_JOIN_X,
 } from './scene/layouts';
@@ -352,7 +352,8 @@ export default function DayView({
             <>
               {behind}
               <Cart x={layout.cart[0]} y={layout.cart[1]} stage={computeMods(state).standTier} />
-              {state.settings?.rival &&
+              <CartExtras x={layout.cart[0]} y={layout.cart[1]} upgrades={state.upgrades} />
+              {rivalActive(state) &&
                 state.daily?.rivalLocationId === state.locationId && (
                   <Cart x={layout.cart[0] + 2.4} y={layout.cart[1]} rival />
                 )}

@@ -92,6 +92,7 @@ export interface UpgradeDef {
   name: string;
   price: number;
   tagline: string;
+  benefit?: string; // plain-language what-you-actually-get line
   icon: IconName;
   era?: 1 | 2 | 3; // which act of the game this belongs to (default 1)
   effect:

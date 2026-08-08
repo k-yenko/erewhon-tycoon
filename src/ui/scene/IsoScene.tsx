@@ -25,7 +25,7 @@ function GroundTexture({ ground }: { ground: string }) {
 }
 
 export { iso, VIEW_W, VIEW_H } from './iso';
-export { Cart } from './parts';
+export { Cart, CartExtras } from './parts';
 
 // ——— pixel-art weather pieces (blocky, like the sprites) ———
 

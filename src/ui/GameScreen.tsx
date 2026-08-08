@@ -10,7 +10,7 @@ import {
   stepSim,
   type SimContext,
 } from '../game/simulation';
-import { C, calendar, computeMods, fmtMoney, rentFor } from '../game/economy';
+import { C, calendar, computeMods, fmtMoney, rentFor, rivalActive } from '../game/economy';
 import { forecastRange } from '../game/simulation';
 import { sfx, unlock } from '../game/audio';
 import { weatherFor } from '../game/dailyContent';
@@ -19,7 +19,7 @@ import { DROP_BY_ID } from '../game/content/products';
 import TopBar from './TopBar';
 import TabBar, { type TabId } from './TabBar';
 import DayView from './DayView';
-import IsoScene, { Cart } from './scene/IsoScene';
+import IsoScene, { Cart, CartExtras } from './scene/IsoScene';
 import { LAYOUTS } from './scene/layouts';
 import ResultsModal from './ResultsModal';
 import SeasonReport from './SeasonReport';
@@ -236,7 +236,7 @@ export default function GameScreen({
                   <span className="label">Forecast</span>
                   <span>
                     ~{forecastRange(state)[0]}–{forecastRange(state)[1]} customers
-                    {state.settings?.rival && daily.rivalLocationId === state.locationId ? ' (rival here)' : ''}
+                    {rivalActive(state) && daily.rivalLocationId === state.locationId ? ' (rival here)' : ''}
                   </span>
                 </div>
               )}
@@ -341,7 +341,12 @@ export default function GameScreen({
                   y={(LAYOUTS[viewLoc.id] ?? LAYOUTS.silverlake).cart[1]}
                   stage={mods.standTier}
                 />
-                {state.settings?.rival && daily?.rivalLocationId === viewLoc.id && (
+                <CartExtras
+                  x={(LAYOUTS[viewLoc.id] ?? LAYOUTS.silverlake).cart[0]}
+                  y={(LAYOUTS[viewLoc.id] ?? LAYOUTS.silverlake).cart[1]}
+                  upgrades={state.upgrades}
+                />
+                {rivalActive(state) && daily?.rivalLocationId === viewLoc.id && (
                   <Cart
                     x={(LAYOUTS[viewLoc.id] ?? LAYOUTS.silverlake).cart[0] + 2.4}
                     y={(LAYOUTS[viewLoc.id] ?? LAYOUTS.silverlake).cart[1]}

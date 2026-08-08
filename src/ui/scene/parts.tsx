@@ -687,6 +687,80 @@ export function CrossRoads() {
 
 // ——— the Erewhon cart ———
 
+// Owned upgrades, visible in the world: buy the gear, see the gear.
+export function CartExtras({ x, y, upgrades }: { x: number; y: number; upgrades: string[] }) {
+  const [px, py] = iso(x, y);
+  const has = (id: string) => upgrades.includes(id);
+  return (
+    <g transform={`translate(${px} ${py - 22})`} shapeRendering="crispEdges">
+      {/* linen shade sail on a lean pole, left of the cart */}
+      {has('shadesail') && (
+        <g>
+          <rect x="-62" y="-58" width="3" height="62" fill="#8a6f4d" />
+          <rect x="-78" y="-56" width="30" height="20" fill="#f0e9da" stroke={INK} strokeWidth="1" />
+          <rect x="-78" y="-56" width="30" height="4" fill="#e0d5c0" />
+          <rect x="-74" y="-36" width="6" height="3" fill="#f0e9da" />
+          <rect x="-62" y="-36" width="6" height="3" fill="#f0e9da" />
+        </g>
+      )}
+      {/* sound bath speaker on a stand, right of the cart */}
+      {has('soundbath') && (
+        <g>
+          <rect x="47" y="-4" width="2.4" height="16" fill="#1a1a18" />
+          <rect x="42" y="-20" width="13" height="16" fill="#3a3733" stroke={INK} strokeWidth="1" />
+          <rect x="45.5" y="-16" width="6" height="6" fill="#f2c53d" />
+          <rect x="46.8" y="-14.6" width="3.4" height="3.4" fill="#1a1a18" />
+          <rect x="57" y="-26" width="3" height="3" fill="#f2c53d" />
+          <rect x="61" y="-32" width="3" height="3" fill="#e05a7a" />
+        </g>
+      )}
+      {/* LED halo, hovering above everything like a blessed UFO */}
+      {has('ledhalo') && (
+        <g shapeRendering="auto">
+          <ellipse cx="4" cy="-98" rx="22" ry="7" fill="#ffe08a" opacity="0.3" />
+          <ellipse cx="4" cy="-98" rx="16" ry="5" fill="none" stroke="#f2c53d" strokeWidth="3" />
+        </g>
+      )}
+      {/* misting system: soft fog puffs by the queue */}
+      {has('mister') && (
+        <g opacity="0.55">
+          <rect x="-42" y="6" width="2.4" height="14" fill="#7d8a90" />
+          <rect x="-48" y="0" width="14" height="5" fill="#dff0f8" />
+          <rect x="-52" y="-5" width="10" height="4" fill="#dff0f8" opacity="0.7" />
+          <rect x="-40" y="-8" width="8" height="4" fill="#dff0f8" opacity="0.5" />
+        </g>
+      )}
+      {/* valet podium, front right */}
+      {has('valet') && (
+        <g>
+          <rect x="56" y="4" width="13" height="16" fill="#b8926a" stroke={INK} strokeWidth="1" />
+          <rect x="56" y="0" width="13" height="4" fill="#8a6f4d" />
+          <rect x="60" y="-6" width="5" height="5" fill="#f2c53d" />
+        </g>
+      )}
+      {/* automatic ice maker chest humming behind */}
+      {has('icemaker') && (
+        <g>
+          <rect x="-64" y="6" width="18" height="14" fill="#dff0f8" stroke={INK} strokeWidth="1" />
+          <rect x="-64" y="6" width="18" height="3.5" fill="#7fb4c9" />
+          <rect x="-60" y="12" width="4" height="4" fill="#7fb4c9" />
+        </g>
+      )}
+      {/* counter-billboard: the war is public */}
+      {has('billboard') && (
+        <g>
+          <rect x="72" y="-66" width="3" height="60" fill="#4a4740" />
+          <rect x="58" y="-92" width="52" height="28" fill="#fdfaf2" stroke={INK} strokeWidth="1.4" />
+          <rect x="58" y="-92" width="52" height="6" fill="#d94436" />
+          <rect x="63" y="-82" width="30" height="4" fill="#1a1a18" opacity="0.8" />
+          <rect x="63" y="-75" width="42" height="4" fill="#1a1a18" opacity="0.5" />
+          <rect x="63" y="-69" width="22" height="3" fill="#d94436" opacity="0.8" />
+        </g>
+      )}
+    </g>
+  );
+}
+
 // A slanted strip that follows one of the cart's iso faces (slope ±0.5),
 // for skirt stripes, seams, and boards that sit flat on the body.
 function faceStrip(xa: number, xb: number, ya: number, h: number, slope: number, fill: string, opacity?: number) {

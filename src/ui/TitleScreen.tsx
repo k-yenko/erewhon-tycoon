@@ -82,7 +82,7 @@ export default function TitleScreen({
             </label>
             <label style={{ display: 'flex', gap: 8, alignItems: 'center', fontSize: 12, cursor: 'pointer', marginTop: 6 }}>
               <input type="checkbox" checked={settings.rival} onChange={() => onToggle('rival')} />
-              Rival cart — the Moon Juus truck competes for corners
+              Early rival — Moon Juus competes from day 1 (it always shows up in Act II)
             </label>
           </div>
         )}

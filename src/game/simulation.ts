@@ -6,7 +6,7 @@ import type {
   SimState,
   StockId,
 } from './types';
-import { C, calendar, computeMods, adBoost, era, rentFor, tasteQuality, type Mods } from './economy';
+import { C, calendar, computeMods, adBoost, era, rentFor, rivalActive, tasteQuality, type Mods } from './economy';
 import { LOCATION_BY_ID } from './content/locations';
 import { EVENT_BY_ID } from './content/events';
 import { weatherFor } from './dailyContent';
@@ -125,7 +125,7 @@ export function expectedTraffic(state: GameState): number {
   const { popularity: pop, satisfaction: sat, novelty } = state.locations[state.locationId];
   const repeatMult =
     C.SAT_TRAFFIC_MIN + C.SAT_TRAFFIC_SPAN * (loc.quirk?.loyalty ?? 1) * mods.loyaltyMult * sat;
-  const rivalHere = state.settings?.rival && daily.rivalLocationId === state.locationId;
+  const rivalHere = rivalActive(state) && daily.rivalLocationId === state.locationId;
   let rival = rivalHere ? (daily.rivalIntent === 'undercut' ? 0.7 : C.RIVAL_TRAFFIC) : 1;
   if (rivalHere && mods.rivalResist) rival = 1 - (1 - rival) / 2; // billboard war
   // Day of the week: office districts fill on weekdays and thin out on
@@ -170,7 +170,7 @@ export function createSimContext(state: GameState): SimContext {
   const ev = activeEvent(daily, state.locationId);
 
   const sat = state.locations[state.locationId].satisfaction;
-  const rivalHere = !!state.settings?.rival && daily.rivalLocationId === state.locationId;
+  const rivalHere = rivalActive(state) && daily.rivalLocationId === state.locationId;
   const expectedCustomers = expectedTraffic(state);
 
   return {

@@ -43,6 +43,11 @@ export default function UpgradesTab({
         <div className="body">
           <div className="name">{u.name}</div>
           <div className="tagline">{u.tagline}</div>
+          {u.benefit && (
+            <div style={{ fontSize: 11, color: 'var(--go, #2e6b33)', marginTop: 2 }}>
+              ▸ {u.benefit}
+            </div>
+          )}
         </div>
         {owned ? (
           <button
@@ -93,12 +98,17 @@ export default function UpgradesTab({
             >
               {ERA_META[e].title}
             </div>
-            {lockedLine && (
+            {lockedLine ? (
+              // locked acts stay a mystery: just the promise, not the goods
               <div style={{ fontSize: 11, color: 'var(--kraft-dark)', marginBottom: 6 }}>
                 {lockedLine}
+                <div style={{ marginTop: 4, letterSpacing: 2 }}>
+                  {items.map((u) => '?'.repeat(Math.min(10, u.name.length))).join(' · ')}
+                </div>
               </div>
+            ) : (
+              items.map((u) => renderItem(u, false))
             )}
-            {items.map((u) => renderItem(u, lockedLine !== null))}
           </div>
         );
       })}
