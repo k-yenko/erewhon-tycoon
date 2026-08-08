@@ -28,14 +28,25 @@ export function unlock(): void {
     if (ctx.state === 'suspended') void ctx.resume();
     return;
   }
-  ctx = new AudioContext();
-  master = ctx.createGain();
-  master.gain.value = 1;
-  master.connect(ctx.destination);
-  musicGain = ctx.createGain();
-  musicGain.gain.value = muted ? 0 : MUSIC_VOL;
-  musicGain.connect(master);
-  startMusic();
+  try {
+    ctx = new AudioContext();
+    master = ctx.createGain();
+    master.gain.value = 1;
+    master.connect(ctx.destination);
+    musicGain = ctx.createGain();
+    musicGain.gain.value = muted ? 0 : MUSIC_VOL;
+    musicGain.connect(master);
+    if (ctx.state === 'suspended') void ctx.resume();
+  } catch {
+    ctx = null;
+    return;
+  }
+  // The music engine must never be able to take the sound effects down with it.
+  try {
+    startMusic();
+  } catch {
+    /* silence the beat, keep the clicks */
+  }
 }
 
 function tone(
@@ -50,6 +61,7 @@ function tone(
   } = {},
 ) {
   if (!ctx || !master) return;
+  try {
   const { type = 'sine', at = 0, dur = 0.15, vol = 0.12, slide, dest = master } = opts;
   const t = ctx.currentTime + at;
   const osc = ctx.createOscillator();
@@ -63,6 +75,9 @@ function tone(
   osc.connect(g).connect(dest);
   osc.start(t);
   osc.stop(t + dur + 0.05);
+  } catch {
+    /* one bad note never blocks the next */
+  }
 }
 
 export type Sfx =
@@ -79,6 +94,7 @@ export type Sfx =
 
 export function sfx(name: Sfx): void {
   if (!ctx) return;
+  if (ctx.state === 'suspended') void ctx.resume();
   switch (name) {
     case 'click': // cute little tick on every button
       tone(660, { type: 'triangle', dur: 0.045, vol: 0.06 });
