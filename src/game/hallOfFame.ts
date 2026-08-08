@@ -1,6 +1,7 @@
 // The season ends on Day 60 (Feb 30). The Empire Score is what you built,
 // not just what you banked — worth + reputation + devotion, arcade rules.
 import type { GameState } from './types';
+import { C } from './economy';
 import { UNIT_VALUE, BUYBACK_RATE } from './content/supplies';
 import { UPGRADE_BY_ID, RESALE_RATE } from './content/upgrades';
 import { LOCATIONS } from './content/locations';
@@ -40,7 +41,9 @@ export function empireScore(state: GameState): ScoreBreakdown {
   const reputation = Math.round(avg((l) => l.popularity) * 3000);
   const devotion = Math.round(avg((l) => l.satisfaction) * 3000);
   const flagshipBonus =
-    state.lifetimeRevenue >= 15000 && state.upgrades.includes('stand3') ? 2500 : 0;
+    state.lifetimeRevenue >= C.WIN_LIFETIME_REVENUE && state.upgrades.includes('stand3')
+      ? 2500
+      : 0;
   return {
     netWorth,
     reputation,
@@ -73,6 +76,6 @@ export function runCard(initials: string, s: ScoreBreakdown, state: GameState): 
     `EREWHON TYCOON — SEASON REPORT (${initials})`,
     `EMPIRE SCORE: ${s.total.toLocaleString()}`,
     `net worth ${s.netWorth.toLocaleString()} · reputation ${s.reputation.toLocaleString()} · devotion ${s.devotion.toLocaleString()}${s.flagshipBonus ? ' · FLAGSHIP +2,500' : ''}`,
-    `lifetime revenue $${Math.round(state.lifetimeRevenue).toLocaleString()} over 60 days`,
+    `lifetime revenue $${Math.round(state.lifetimeRevenue).toLocaleString()} over 60 days${state.wonDay ? ` · flagship dream achieved day ${state.wonDay}` : ''}`,
   ].join('\n');
 }

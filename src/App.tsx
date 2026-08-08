@@ -136,6 +136,7 @@ export default function App() {
         state={gs}
         onContinue={() => {
           gs.wonShown = true;
+          gs.wonDay = gs.wonDay ?? gs.day;
           commit();
           setScreen('game');
         }}

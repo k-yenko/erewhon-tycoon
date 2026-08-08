@@ -107,6 +107,8 @@ export interface UpgradeDef {
     | { kind: 'batchSize'; cups: number }         // bigger batches, fewer stalls
     | { kind: 'rentCap' }                         // halves the landlord's premium
     | { kind: 'noveltyGuard' }                    // the city forgets you slower
+    | { kind: 'heatPatience'; mult: number }      // patience boost on hot days only
+    | { kind: 'lineCap'; add: number }            // the line can grow deeper
     | { kind: 'loyaltyBoost'; mult: number }      // satisfaction repays more traffic
     | { kind: 'storageBoost'; mult: number }      // more room for everything
     | { kind: 'rivalResist' }                     // halves Moon Juus's bite
@@ -189,7 +191,6 @@ export interface GameState {
   day: number;          // 1-based, in-game day counter
   // calendar derived from day: Year/Month/Day
   stock: Record<StockId, number>;
-  stockAge: { strawberries: number; coconutCream: number }; // days held
   recipe: Recipe;
   price: number;
   adSpend: number;
@@ -201,6 +202,7 @@ export interface GameState {
   results: DayResult[]; // history
   daily: DailyContent | null;
   wonShown: boolean;
+  wonDay?: number;        // the day the Flagship Dream was achieved
   gameOver: boolean;
   seasonScored?: boolean; // the Day-60 season report has been shown
 }

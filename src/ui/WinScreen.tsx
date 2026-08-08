@@ -11,13 +11,16 @@ export default function WinScreen({
   const totalCups = state.results.reduce((s, r) => s + r.cupsSold, 0);
   return (
     <div className="fullscreen">
-      <h1 className="wordmark" style={{ letterSpacing: 6 }}>YOU ARE</h1>
-      <div className="subtitle">E R E W H O N &nbsp; N O W</div>
+      <h1 className="wordmark" style={{ letterSpacing: 6 }}>THE FLAGSHIP</h1>
+      <div className="subtitle">D R E A M &nbsp; · &nbsp; A C H I E V E D</div>
       <p className="quote">
-        Flagship cart. Reserve-tier revenue. In {state.day} days you sold {totalCups} smoothies
+        Day {state.day}. Flagship cart. Reserve-tier revenue. You sold {totalCups} smoothies
         and grossed {fmtMoney(state.lifetimeRevenue)}. Paparazzi photograph strangers holding
         your cups. A celebrity wants a collab. You may now charge whatever you want — you
         already were.
+      </p>
+      <p className="quote" style={{ fontSize: 11 }}>
+        The season runs to Day 60 — the Empire Score will remember this day.
       </p>
       <button className="pixel-btn primary" onClick={onContinue}>
         Keep Blending

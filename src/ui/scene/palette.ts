@@ -13,11 +13,6 @@ export function shade(hex: string, amt: number): string {
 }
 
 // Distant-layer tones: always muted, always cooler than the foreground.
-export const HILL_FAR = '#a9c49b';
-export const HILL_NEAR = '#8fb684';
-export const SKYLINE_FAR = '#c3c9cc';
-export const SKYLINE_NEAR = '#aab3b8';
-export const SKYLINE_WINDOW = '#dfe5e8';
 export const OCEAN_DEEP = '#2f7fc0';
 export const OCEAN_FOAM = '#dff0f8';
 export const SAIL = '#fdfaf2';

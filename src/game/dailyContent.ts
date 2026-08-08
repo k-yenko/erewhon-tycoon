@@ -4,7 +4,7 @@ import { WEATHERS, WEATHER_WEIGHTS, WEATHER_BY_ID } from './content/weather';
 import { EVENTS } from './content/events';
 import { DROPS, SHELF_POOL } from './content/products';
 import { LOCATIONS } from './content/locations';
-import { C } from './economy';
+import { C, ERA_3_AT, RIVAL_UNDERCUT_AT } from './economy';
 
 const STOCK_IDS: StockId[] = ['strawberries', 'coconutCream', 'seaMoss', 'ice', 'cups'];
 
@@ -48,16 +48,16 @@ export function generateDaily(
   });
   if (event.shock) marketPrices[event.shock.ingredient] = event.shock.mult;
 
-  // The Moon Juus truck parks somewhere busy most days — and once your revenue
-  // proves you're worth hunting, it starts parking where YOU are: stalking
-  // past $3k lifetime, actively undercutting past $8k.
-  const rivalTier = lifetimeRevenue >= 8000 ? 2 : lifetimeRevenue >= 3000 ? 1 : 0;
-  const stalkChance = rivalTier === 2 ? 0.55 : rivalTier === 1 ? 0.35 : 0;
+  // The Moon Juus arc follows the acts: in Act II it merely arrives and
+  // wanders (the landlord is your problem); Act III opens the Juice Wars —
+  // it hunts your location — and deep into Act III it starts undercutting.
+  const hunting = lifetimeRevenue >= ERA_3_AT;
+  const stalkChance = lifetimeRevenue >= RIVAL_UNDERCUT_AT ? 0.55 : hunting ? 0.35 : 0;
   let rivalLocationId = '';
   let rivalIntent: 'wander' | 'stalk' | 'undercut' = 'wander';
-  if (rivalTier > 0 && playerLocationId && dayRand() < stalkChance) {
+  if (hunting && playerLocationId && dayRand() < stalkChance) {
     rivalLocationId = playerLocationId;
-    rivalIntent = rivalTier === 2 ? 'undercut' : 'stalk';
+    rivalIntent = lifetimeRevenue >= RIVAL_UNDERCUT_AT ? 'undercut' : 'stalk';
   } else if (dayRand() >= 0.2) {
     rivalLocationId = pickWeighted(
       dayRand,

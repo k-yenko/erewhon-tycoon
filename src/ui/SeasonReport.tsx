@@ -50,7 +50,9 @@ export default function SeasonReport({
         </div>
         {s.flagshipBonus > 0 && (
           <div className="info-row">
-            <span className="label">Flagship dream, achieved</span>
+            <span className="label">
+              Flagship Dream{state.wonDay ? `, achieved Day ${state.wonDay}` : ''}
+            </span>
             <span>+{s.flagshipBonus.toLocaleString()}</span>
           </div>
         )}

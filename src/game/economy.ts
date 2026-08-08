@@ -28,6 +28,8 @@ export const C = {
   VIRAL_CHANCE: 0.18,     // per real date
   RIVAL_TRAFFIC: 0.75,    // Moon Juus parked here: they take a cut of the crowd
   RIVAL_PAY: 0.85,        // ...and having an alternative makes people price-picky
+  RIVAL_TRAFFIC_UNDERCUT: 0.7,  // when the price war is on, the cut gets deeper
+  RIVAL_PAY_UNDERCUT: 0.8,
   SPOILAGE_RATE: 0.1,     // nightly loss fraction for perishables
   SAT_CARRY: 0.6,         // satisfaction = carry×old + (1−carry)×today
   SAT_TRAFFIC_MIN: 0.6,   // repeat-customer traffic mult at satisfaction 0
@@ -45,6 +47,7 @@ export const C = {
 // Which act of the game you're in: 1 grind, 2 the landlord notices, 3 juice war.
 export const ERA_2_AT = 3000;
 export const ERA_3_AT = 8000;
+export const RIVAL_UNDERCUT_AT = 12000; // deep in Act III the war turns personal
 export function era(state: GameState): 1 | 2 | 3 {
   return state.lifetimeRevenue >= ERA_3_AT ? 3 : state.lifetimeRevenue >= ERA_2_AT ? 2 : 1;
 }
@@ -75,6 +78,8 @@ export interface Mods {
   supplyCostMult: number; // ingredient order discount
   tasteAdd: number;       // recipe floor from the R&D chef
   shelfGlobalMult: number;// merch empire attach multiplier
+  heatPatience: number;   // extra patience on 85°F+ days (misting system)
+  balkLine: number;       // how deep the line can grow before people balk
   storage: Record<string, number>;
 }
 
@@ -99,6 +104,8 @@ export function computeMods(state: GameState): Mods {
     supplyCostMult: 1,
     tasteAdd: 0,
     shelfGlobalMult: 1,
+    heatPatience: 1,
+    balkLine: C.BALK_LINE,
     storage: { ...DEFAULT_STORAGE },
   };
   let storageBoost = 1;
@@ -124,6 +131,8 @@ export function computeMods(state: GameState): Mods {
     else if (e.kind === 'supplyDiscount') m.supplyCostMult *= e.mult;
     else if (e.kind === 'tasteBoost') m.tasteAdd += e.add;
     else if (e.kind === 'shelfBoost') m.shelfGlobalMult *= e.mult;
+    else if (e.kind === 'heatPatience') m.heatPatience *= e.mult;
+    else if (e.kind === 'lineCap') m.balkLine += e.add;
     else if (e.kind === 'stand' && e.tier > m.standTier) {
       m.standTier = e.tier;
       m.drawMult *= e.draw;

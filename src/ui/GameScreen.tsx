@@ -10,7 +10,7 @@ import {
   stepSim,
   type SimContext,
 } from '../game/simulation';
-import { C, calendar, computeMods, fmtMoney, rentFor, rivalActive } from '../game/economy';
+import { C, ERA_2_AT, ERA_3_AT, calendar, computeMods, era, fmtMoney, rentFor, rivalActive } from '../game/economy';
 import { forecastRange } from '../game/simulation';
 import { sfx, unlock } from '../game/audio';
 import { weatherFor } from '../game/dailyContent';
@@ -292,6 +292,18 @@ export default function GameScreen({
                 <div className="date-line">
                   {cal.monthName} {cal.dayOfMonth} · {cal.weekday.toUpperCase()} · Year {cal.year}
                 </div>
+                {(() => {
+                  const e = era(state);
+                  const next = e === 1 ? ERA_2_AT : e === 2 ? ERA_3_AT : null;
+                  const name = e === 1 ? 'ACT I · THE HUSTLE' : e === 2 ? 'ACT II · THE LANDLORD ERA' : 'ACT III · THE JUICE WARS';
+                  return (
+                    <div style={{ fontFamily: "'Press Start 2P', monospace", fontSize: 7, color: 'var(--kraft-dark)', margin: '2px 0 4px' }}>
+                      {name}
+                      {next !== null &&
+                        ` · ${Math.round(state.lifetimeRevenue).toLocaleString()} / ${next.toLocaleString()} $`}
+                    </div>
+                  );
+                })()}
                 <div className="cw-label">Current Weather</div>
                 {weather && (
                   <div className="weather-line">

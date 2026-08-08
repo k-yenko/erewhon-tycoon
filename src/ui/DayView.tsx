@@ -84,6 +84,7 @@ export default function DayView({
 }) {
   const loc = LOCATION_BY_ID[state.locationId];
   const layout = LAYOUTS[state.locationId] ?? LAYOUTS.silverlake;
+  const mods = computeMods(state);
   const tickMs = C.MS_PER_TICK / speed;
 
   // Legs only move when the body actually moves: track last targets and
@@ -217,7 +218,7 @@ export default function DayView({
 
             if (queued) {
               const qi = sim.queue.indexOf(c.id);
-              const [gx, gy] = queueSpot(layout, Math.min(Math.max(qi, 0), C.BALK_LINE - 1));
+              const [gx, gy] = queueSpot(layout, Math.min(Math.max(qi, 0), mods.balkLine - 1));
               [px, py] = iso(gx + q.sway * 0.4, gy + q.sway);
             } else {
               const strolling = !c.willBuy && q.reversed;
@@ -351,7 +352,7 @@ export default function DayView({
           return (
             <>
               {behind}
-              <Cart x={layout.cart[0]} y={layout.cart[1]} stage={computeMods(state).standTier} />
+              <Cart x={layout.cart[0]} y={layout.cart[1]} stage={mods.standTier} />
               <CartExtras x={layout.cart[0]} y={layout.cart[1]} upgrades={state.upgrades} />
               {rivalActive(state) &&
                 state.daily?.rivalLocationId === state.locationId && (

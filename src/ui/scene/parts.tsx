@@ -1,52 +1,7 @@
 // Shared vector building blocks for the location scenes.
 import type { ReactNode } from 'react';
 import { iso, poly, INK, ASPHALT, ASPHALT_D, CONCRETE, CONCRETE_D, DASH } from './iso';
-import { HILL_FAR, HILL_NEAR, SKYLINE_FAR, SKYLINE_NEAR, SKYLINE_WINDOW, OCEAN_FOAM, SAIL } from './palette';
-
-// ——— distant layers: every scene gets a horizon ———
-
-// Rolling hill silhouettes across the top of the frame (the Valley, the
-// canyons, wherever money hides).
-export function Hills({ y = 66 }: { y?: number }) {
-  const bumps = (yy: number, seed: number, h: number) => {
-    const pts: [number, number][] = [[-10, yy]];
-    for (let x = 0; x <= 980; x += 70) {
-      const k = Math.sin((x + seed) / 97) * 0.5 + Math.sin((x + seed) / 41) * 0.5;
-      pts.push([x, yy - h - k * h * 0.7]);
-    }
-    pts.push([980, yy], [-10, yy]);
-    return pts.map((p) => p.join(',')).join(' ');
-  };
-  return (
-    <g>
-      <polygon points={bumps(y, 40, 26)} fill={HILL_FAR} />
-      <polygon points={bumps(y + 14, 260, 20)} fill={HILL_NEAR} />
-    </g>
-  );
-}
-
-// A hazy rooftop skyline strip — LA flat-topped, water towers and all.
-export function Skyline({ y = 64 }: { y?: number }) {
-  const towers: ReactNode[] = [];
-  for (let i = 0; i < 14; i++) {
-    const x = i * 72 + ((i * 37) % 22) - 10;
-    const h = 22 + ((i * 53) % 30);
-    const w = 34 + ((i * 29) % 26);
-    const far = i % 2 === 0;
-    towers.push(
-      <g key={i}>
-        <rect x={x} y={y - h} width={w} height={h} fill={far ? SKYLINE_FAR : SKYLINE_NEAR} />
-        {i % 3 === 0 && (
-          <rect x={x + w * 0.25} y={y - h - 5} width={4} height={5} fill={far ? SKYLINE_FAR : SKYLINE_NEAR} />
-        )}
-        {Array.from({ length: 3 }, (_, j) => (
-          <rect key={j} x={x + 5 + j * 9} y={y - h + 6} width={3.5} height={3.5} fill={SKYLINE_WINDOW} />
-        ))}
-      </g>,
-    );
-  }
-  return <g shapeRendering="crispEdges">{towers}</g>;
-}
+import { OCEAN_FOAM, SAIL } from './palette';
 
 // Foam lines, sun glints, and a couple of tiny sailboats for ocean bands.
 export function OceanDetail({ y0, y1 }: { y0: number; y1: number }) {
@@ -259,22 +214,6 @@ export function Hedge({ x, y, w }: { x: number; y: number; w: number }) {
           </g>
         );
       })}
-    </g>
-  );
-}
-
-export function Umbrella({ x, y, c1, c2 }: { x: number; y: number; c1: string; c2: string }) {
-  const [px, py] = iso(x, y);
-  return (
-    <g transform={`translate(${px} ${py})`} shapeRendering="crispEdges">
-      <rect x="-1.4" y="-26" width="2.8" height="26" fill="#8a6f4d" />
-      <rect x="-6" y="-34" width="12" height="5" fill={c1} />
-      <rect x="-13" y="-30" width="26" height="5" fill={c2} />
-      <rect x="-19" y="-26" width="38" height="5" fill={c1} />
-      <rect x="-19" y="-21" width="6" height="3" fill={c2} />
-      <rect x="-7" y="-21" width="6" height="3" fill={c2} />
-      <rect x="5" y="-21" width="6" height="3" fill={c2} />
-      <rect x="-1.5" y="-37" width="3" height="3" fill={c2} />
     </g>
   );
 }

@@ -126,7 +126,11 @@ export function expectedTraffic(state: GameState): number {
   const repeatMult =
     C.SAT_TRAFFIC_MIN + C.SAT_TRAFFIC_SPAN * (loc.quirk?.loyalty ?? 1) * mods.loyaltyMult * sat;
   const rivalHere = rivalActive(state) && daily.rivalLocationId === state.locationId;
-  let rival = rivalHere ? (daily.rivalIntent === 'undercut' ? 0.7 : C.RIVAL_TRAFFIC) : 1;
+  let rival = rivalHere
+    ? daily.rivalIntent === 'undercut'
+      ? C.RIVAL_TRAFFIC_UNDERCUT
+      : C.RIVAL_TRAFFIC
+    : 1;
   if (rivalHere && mods.rivalResist) rival = 1 - (1 - rival) / 2; // billboard war
   // Day of the week: office districts fill on weekdays and thin out on
   // weekends; beach crowds do the reverse. And commuters still commute in an
@@ -186,12 +190,16 @@ export function createSimContext(state: GameState): SimContext {
       ev.pay *
       (rivalHere
         ? (() => {
-            const base = daily.rivalIntent === 'undercut' ? 0.8 : C.RIVAL_PAY;
+            const base =
+              daily.rivalIntent === 'undercut' ? C.RIVAL_PAY_UNDERCUT : C.RIVAL_PAY;
             return mods.rivalResist ? 1 - (1 - base) / 2 : base;
           })()
         : 1),
     patienceMult:
-      ev.patience * mods.patienceMult * (C.SAT_PATIENCE_MIN + C.SAT_PATIENCE_SPAN * sat),
+      ev.patience *
+      mods.patienceMult *
+      (daily.tempF >= 85 ? mods.heatPatience : 1) * // misting system earns its keep
+      (C.SAT_PATIENCE_MIN + C.SAT_PATIENCE_SPAN * sat),
     dropPrice: DROP_BY_ID[daily.dropId]?.price ?? state.price,
     shelfAttachChance: shelfAttachChance(state),
     wtpSd: C.WTP_SD * (loc.quirk?.wtpSpread ?? 1),
@@ -329,7 +337,7 @@ export function stepSim(ctx: SimContext, sim: SimState): SimState {
           // faster serving and a second server directly shorten the estimated wait
           sim.queue.length * (ctx.mods.serveTicks / (ctx.mods.secondServer ? 2 : 1)) >
             c.patienceLeft ||
-          sim.queue.length >= C.BALK_LINE
+          sim.queue.length >= ctx.mods.balkLine
         ) {
           c.state = 'leaving';
           c.bubble = 'wait';
@@ -555,6 +563,7 @@ export function settleDay(state: GameState, sim: SimState): DayResult {
     tips.push(`The landlord noticed your line: rent here is now ${rent.toFixed(2)} $.`);
   if (earnings > 0 && tips.length === 0)
     tips.push('A profitable day of wellness. The algorithm smiles upon you.');
+  tips.splice(3); // era news leads; never a wall of advice
 
   const result: DayResult = {
     day: state.day,

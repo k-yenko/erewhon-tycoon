@@ -13,7 +13,6 @@ export function newGame(): GameState {
     cash: C.START_CASH,
     day: 1,
     stock: { strawberries: 0, coconutCream: 0, seaMoss: 0, ice: 0, cups: 0 },
-    stockAge: { strawberries: 0, coconutCream: 0 },
     recipe: { strawberries: 4, coconutCream: 2, seaMoss: 1, ice: 2 },
     price: 18,
     adSpend: 0,
