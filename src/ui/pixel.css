@@ -435,10 +435,79 @@ button {
   0% { transform: scale(0.3); opacity: 0; }
   100% { transform: scale(1); opacity: 1; }
 }
-.rain-layer { animation: rain-drift 0.8s linear infinite; }
-@keyframes rain-drift {
-  0% { transform: translate(0, 0); }
-  100% { transform: translate(-9px, 24px); }
+/* Each drop falls the full frame on its own clock (negative delays pre-scatter
+   the field), so rain streams continuously — no layer-wide snap-back. */
+.rain-drop { animation: rain-fall 1.6s linear infinite; }
+@keyframes rain-fall {
+  0% { transform: translate(14px, -40px); }
+  100% { transform: translate(-14px, 500px); }
+}
+
+/* ——— archetype trading card ——— */
+.person-card {
+  position: absolute;
+  width: 224px;
+  z-index: 30;
+  pointer-events: none;
+  background: var(--cream, #f5f0e4);
+  border: 2px solid var(--ink, #1a1a18);
+  box-shadow: 3px 3px 0 rgba(26, 26, 24, 0.35);
+  font-size: 10px;
+  line-height: 1.5;
+  animation: bubble-pop 0.12s ease-out;
+}
+.person-card .pc-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 8px;
+  border-bottom: 2px solid var(--ink, #1a1a18);
+  font-family: 'Press Start 2P', monospace;
+  font-size: 9px;
+  text-transform: uppercase;
+  color: #1a1a18;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.45);
+}
+.person-card .pc-aura { font-size: 8px; white-space: nowrap; }
+.person-card .pc-body {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  padding: 6px 8px 2px;
+}
+.person-card .pc-body svg { flex: none; }
+.person-card .pc-title {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 8px;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+.person-card .pc-types {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 7px;
+  color: var(--kraft-dark, #8a6f4d);
+  text-transform: uppercase;
+}
+.person-card .pc-moves {
+  padding: 4px 8px;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 7px;
+  line-height: 1.9;
+  text-transform: uppercase;
+}
+.person-card .pc-weak {
+  padding: 0 8px 4px;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 7px;
+  text-transform: uppercase;
+  color: var(--alert, #d94436);
+}
+.person-card .pc-quote {
+  padding: 5px 8px 7px;
+  border-top: 1.5px solid rgba(26, 26, 24, 0.25);
+  font-style: italic;
+  font-size: 11px;
 }
 .cloud-drift { animation: cloud-drift 46s linear infinite; }
 @keyframes cloud-drift {

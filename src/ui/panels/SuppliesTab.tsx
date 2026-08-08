@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import type { GameState, StockId } from '../../game/types';
-import { SUPPLIES } from '../../game/content/supplies';
+import { SUPPLIES, UNIT_VALUE, BUYBACK_RATE } from '../../game/content/supplies';
 import { computeMods, fmtMoney, stockCoverage } from '../../game/economy';
 import { sfx, unlock } from '../../game/audio';
 import { PixelIcon } from '../icons';
@@ -21,6 +21,7 @@ export default function SuppliesTab({
     marketOn ? (state.daily?.marketPrices?.[id] ?? 1) : 1; // today's market
   const [activeId, setActiveId] = useState<StockId>(supplies[0].id);
   const [order, setOrder] = useState<Record<string, number>>({});
+  const [sellQty, setSellQty] = useState(0);
 
   const active = supplies.find((s) => s.id === activeId) ?? supplies[0];
   const cap = mods.storage[active.id] ?? 999;
@@ -99,6 +100,39 @@ export default function SuppliesTab({
           </b>{' '}
           vs. usual{px(active.id) < 0.9 ? ' — a good day to stock up' : px(active.id) > 1.3 ? ' — maybe wait it out' : ''}
         </div>
+        )}
+        {state.stock[active.id] > 0 && (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
+            <div style={{ flex: 1, fontSize: 13 }}>
+              Sell back
+              <div style={{ fontSize: 11, color: 'var(--ink-soft)' }}>
+                {fmtMoney(UNIT_VALUE[active.id] * BUYBACK_RATE)}/unit — cash-flow problems
+                happen to the best of us
+              </div>
+            </div>
+            <Stepper
+              value={Math.min(sellQty, state.stock[active.id])}
+              onChange={setSellQty}
+              step={6}
+              min={0}
+              max={state.stock[active.id]}
+            />
+            <button
+              className="pixel-btn"
+              disabled={Math.min(sellQty, state.stock[active.id]) === 0}
+              onClick={() => {
+                unlock();
+                const n = Math.min(sellQty, state.stock[active.id]);
+                state.stock[active.id] -= n;
+                state.cash += Math.round(n * UNIT_VALUE[active.id] * BUYBACK_RATE * 100) / 100;
+                setSellQty(0);
+                sfx('sale');
+                commit();
+              }}
+            >
+              Sell
+            </button>
+          </div>
         )}
         {active.tiers.map((t, i) => {
           const key = `${active.id}_${i}`;

@@ -191,27 +191,42 @@ export default function IsoScene({
       )}
       {rainy && (
         <g>
-          <rect x="0" y="0" width={VIEW_W} height={VIEW_H} fill="#4a5560" opacity={storming ? 0.22 : 0.16} />
+          <rect x="0" y="0" width={VIEW_W} height={VIEW_H} fill="#4a5560" opacity={storming ? 0.24 : 0.12} />
           {storming && (
             <g className="cloud-drift-slow">
               <PixelCloud x={120} y={44} s={1.1} shade />
               <PixelCloud x={560} y={30} s={0.8} shade />
             </g>
           )}
-          <g className="rain-layer" opacity="0.8" shapeRendering="crispEdges">
-            {Array.from({ length: storming ? 64 : 40 }, (_, i) => {
-              const x = (i * 53) % VIEW_W;
-              const y = (i * 97) % VIEW_H;
+          {/* every drop falls on its own clock: gentle drizzle vs. full deluge */}
+          <g opacity={storming ? 0.85 : 0.4}>
+            {Array.from({ length: storming ? 110 : 34 }, (_, i) => {
+              const x = (i * 89) % VIEW_W;
+              const dur = storming ? 0.7 + (i % 5) * 0.07 : 1.7 + (i % 7) * 0.12;
+              const delay = -((i * 0.37) % dur);
               return (
-                <rect key={i} x={x} y={y} width="3" height="12" fill="#cfe3ea" transform={`skewX(-14)`} />
+                <g key={i} className="rain-drop" style={{ animationDuration: `${dur}s`, animationDelay: `${delay}s` }}>
+                  <rect
+                    x={x}
+                    y={0}
+                    width={storming ? 2.6 : 1.3}
+                    height={storming ? 15 : 7}
+                    fill="#cfe3ea"
+                    transform="skewX(-8)"
+                  />
+                </g>
               );
             })}
-            {Array.from({ length: 12 }, (_, i) => {
-              const x = (i * 151 + 40) % VIEW_W;
-              const y = VIEW_H - 60 + ((i * 37) % 40);
-              return <rect key={`sp${i}`} x={x} y={y} width="4" height="3" fill="#e6f2fa" />;
-            })}
           </g>
+          {storming && (
+            <g shapeRendering="crispEdges" opacity="0.7">
+              {Array.from({ length: 12 }, (_, i) => {
+                const x = (i * 151 + 40) % VIEW_W;
+                const y = VIEW_H - 60 + ((i * 37) % 40);
+                return <rect key={`sp${i}`} x={x} y={y} width="4" height="3" fill="#e6f2fa" />;
+              })}
+            </g>
+          )}
           {storming && (
             <rect x="0" y="0" width={VIEW_W} height={VIEW_H} fill="#fff" opacity="0" className="storm-flash" />
           )}

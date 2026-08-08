@@ -6,7 +6,7 @@ import type {
   SimState,
   StockId,
 } from './types';
-import { C, computeMods, adBoost, tasteQuality, type Mods } from './economy';
+import { C, calendar, computeMods, adBoost, tasteQuality, type Mods } from './economy';
 import { LOCATION_BY_ID } from './content/locations';
 import { EVENT_BY_ID } from './content/events';
 import { weatherFor } from './dailyContent';
@@ -119,9 +119,21 @@ export function expectedTraffic(state: GameState): number {
   const repeatMult = C.SAT_TRAFFIC_MIN + C.SAT_TRAFFIC_SPAN * sat;
   const rival =
     state.settings?.rival && daily.rivalLocationId === state.locationId ? C.RIVAL_TRAFFIC : 1;
+  // Day of the week: office districts fill on weekdays and thin out on
+  // weekends; beach crowds do the reverse. And commuters still commute in an
+  // atmospheric river — bad weather can't empty a work neighborhood on a
+  // weekday, it just mutes it.
+  const cal = calendar(state.day);
+  const weekMult = cal.weekend
+    ? 1 - 0.22 * loc.industry + 0.3 * loc.touristy
+    : 1 + 0.16 * loc.industry - 0.18 * loc.touristy;
+  const weatherTraffic = cal.weekend
+    ? weather.traffic
+    : weather.traffic + Math.max(0, 0.75 - weather.traffic) * loc.industry;
   return (
     loc.baseTraffic *
-    weather.traffic *
+    weatherTraffic *
+    weekMult *
     ev.traffic *
     (0.5 + pop) *
     repeatMult *
@@ -186,6 +198,7 @@ export function createSim(): SimState {
     shelfSold: 0,
     stockUsed: { strawberries: 0, coconutCream: 0, seaMoss: 0, ice: 0, cups: 0 },
     finished: false,
+    pausedId: null,
   };
 }
 
@@ -270,7 +283,9 @@ export function stepSim(ctx: SimContext, sim: SimState): SimState {
 
   // — Movement & queue joining —
   for (const c of sim.customers) {
-    if (c.state === 'walking') {
+    if (c.id === sim.pausedId) {
+      // being perceived: they stand still for their card
+    } else if (c.state === 'walking') {
       c.x += 0.12 * c.pace;
       if (c.x >= 0.45) {
         if (sim.soldOut) {
@@ -313,6 +328,7 @@ export function stepSim(ctx: SimContext, sim: SimState): SimState {
       continue;
     }
     if (qi < beingServed) continue;
+    if (c.id === sim.pausedId) continue; // no bailing while under inspection
     c.patienceLeft -= 1;
     if (c.patienceLeft <= 0) {
       sim.queue = sim.queue.filter((q) => q !== id);
@@ -528,9 +544,12 @@ export function overnight(state: GameState): void {
 
   state.day += 1; // staff stay hired (and paid daily) until fired, like the original
 
-  // Bankruptcy: can't afford even a minimal free-location day.
-  const minimalDay = 60; // rough cost of smallest useful supply run
-  if (state.cash < minimalDay && state.stock.cups === 0) {
+  // Bankruptcy: even selling every last jar back wouldn't fund a supply run.
+  const liquidation = Object.entries(state.stock).reduce(
+    (s, [id, n]) => s + (UNIT_VALUE[id] ?? 0) * n * 0.6,
+    0,
+  );
+  if (state.cash + liquidation < 45) {
     state.gameOver = true;
   }
 }

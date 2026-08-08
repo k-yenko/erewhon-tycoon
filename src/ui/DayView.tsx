@@ -1,11 +1,14 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { SimState, GameState } from '../game/types';
 import { C, computeMods } from '../game/economy';
 import { sfx } from '../game/audio';
+import { cardFor } from '../game/content/archetypes';
 import { LOCATION_BY_ID } from '../game/content/locations';
 import IsoScene, { Cart, iso } from './scene/IsoScene';
-import { LAYOUTS, walkPoint, queueSpot, pointAlongPolyline, EXIT_X, QUEUE_JOIN_X } from './scene/layouts';
-import Person from './scene/Person';
+import {
+  LAYOUTS, walkPoint, queueSpot, pointAlongPolyline, avoidObstacles, EXIT_X, QUEUE_JOIN_X,
+} from './scene/layouts';
+import Person, { outfitIndexFor, outfitAccent } from './scene/Person';
 
 // Stable per-person quirks so the crowd doesn't march in a file:
 // a lateral drift off the path, a loose queue stance, and some window-shoppers
@@ -19,6 +22,7 @@ function quirks(id: number) {
     reversed: ((h >> 16) & 1) === 0,                  // half stroll right-to-left
     fromRight: ((h >> 18) & 1) === 1,                 // half the buyers approach from the right
     route: (h >> 20) & 7,                             // which wander route they take
+    side: (((h >> 12) & 1) === 0 ? 1 : -1) as 1 | -1, // which edge they round obstacles on
   };
 }
 
@@ -43,6 +47,9 @@ function samplePos(a: Anim, now: number): [number, number] {
       : Math.min(1.35, Math.max(0, raw)); // linear glide, tolerant of timer jitter
   return [a.fx + (a.tx - a.fx) * k, a.fy + (a.ty - a.fy) * k];
 }
+
+const CARD_W = 224;
+const CARD_H = 250;
 
 export default function DayView({
   state,
@@ -71,6 +78,16 @@ export default function DayView({
   const nodes = useRef(new Map<number, SVGGElement>());
   const anims = useRef(new Map<number, Anim>());
   const targets = useRef(new Map<number, { x: number; y: number; queued: boolean }>());
+
+  // Hover card: pause the person and read their whole deal.
+  const sceneRef = useRef<HTMLDivElement | null>(null);
+  const [hover, setHover] = useState<{ id: number; x: number; y: number; w: number; h: number } | null>(null);
+  useEffect(() => {
+    if (hover && !sim.customers.some((c) => c.id === hover.id)) {
+      setHover(null);
+      sim.pausedId = null;
+    }
+  });
 
   // Retarget every sim tick (after commit, so mount order never matters).
   useEffect(() => {
@@ -133,8 +150,19 @@ export default function DayView({
     };
   });
 
+  const hoverEnter = (id: number) => (e: React.MouseEvent) => {
+    const rect = sceneRef.current?.getBoundingClientRect();
+    if (!rect) return;
+    setHover({ id, x: e.clientX - rect.left, y: e.clientY - rect.top, w: rect.width, h: rect.height });
+    sim.pausedId = id;
+  };
+  const hoverLeave = (id: number) => () => {
+    setHover((h) => (h?.id === id ? null : h));
+    if (sim.pausedId === id) sim.pausedId = null;
+  };
+
   return (
-    <div className="scene">
+    <div className="scene" ref={sceneRef}>
       <IsoScene loc={loc} weatherId={state.daily?.weatherId}>
         {/* People render in STABLE id order (so DOM nodes never churn) —
             split only into behind/in-front of the cart, the one occlusion
@@ -142,21 +170,18 @@ export default function DayView({
         {(() => {
           const cartDepth = iso(layout.cart[0], layout.cart[1])[1];
           const routes = [layout.path, ...(layout.ambient ?? [])];
-          const behind: React.ReactNode[] = [];
-          const front: React.ReactNode[] = [];
-          const seen = new Set<number>();
 
+          // Pass 1: raw targets (with street furniture avoidance in grid space)
+          const entries: { c: (typeof sim.customers)[number]; px: number; py: number; queued: boolean }[] = [];
           for (const c of sim.customers) {
             const q = quirks(c.id);
-            let px: number, py: number;
-            let walking = true;
             const queued = c.state === 'queued';
+            let px: number, py: number;
 
             if (queued) {
               const qi = sim.queue.indexOf(c.id);
               const [gx, gy] = queueSpot(layout, Math.min(Math.max(qi, 0), 11));
               [px, py] = iso(gx + q.sway * 0.4, gy + q.sway);
-              walking = false;
             } else {
               const strolling = !c.willBuy && q.reversed;
               const progress = strolling ? Math.max(0, EXIT_X - c.x) : c.x;
@@ -179,10 +204,61 @@ export default function DayView({
                 gx += q.wander * 0.3;
                 gy += q.wander;
               }
+              [gx, gy] = avoidObstacles(state.locationId, gx, gy, q.side);
               [px, py] = iso(gx, gy);
+            }
+            entries.push({ c, px, py, queued });
+          }
+
+          // Pass 2: personal space — nudge overlapping walkers apart.
+          // Queued and inspected people hold their ground; walkers flow around.
+          for (let iter = 0; iter < 2; iter++) {
+            for (let i = 0; i < entries.length; i++) {
+              for (let j = i + 1; j < entries.length; j++) {
+                const a = entries[i];
+                const b = entries[j];
+                const aFixed = a.queued || a.c.id === sim.pausedId;
+                const bFixed = b.queued || b.c.id === sim.pausedId;
+                if (aFixed && bFixed) continue;
+                let dx = b.px - a.px;
+                let dy = (b.py - a.py) * 1.9; // iso foreshortening: y gaps read half as wide
+                let d = Math.hypot(dx, dy);
+                if (d >= 13) continue;
+                if (d < 0.01) {
+                  dx = i % 2 ? 1 : -1;
+                  dy = 0.5;
+                  d = 1;
+                }
+                const push = (13 - d) / d;
+                const ux = dx * push;
+                const uy = (dy * push) / 1.9;
+                if (aFixed) {
+                  b.px += ux;
+                  b.py += uy;
+                } else if (bFixed) {
+                  a.px -= ux;
+                  a.py -= uy;
+                } else {
+                  a.px -= ux / 2;
+                  a.py -= uy / 2;
+                  b.px += ux / 2;
+                  b.py += uy / 2;
+                }
+              }
+            }
+          }
+
+          // Pass 3: build stable-order elements and hand targets to the animator.
+          const behind: React.ReactNode[] = [];
+          const front: React.ReactNode[] = [];
+          const seen = new Set<number>();
+          for (const { c, px, py, queued } of entries) {
+            let walking = !queued;
+            if (!queued) {
               const was = lastPos.current.get(c.id);
               walking = !was || Math.hypot(px - was[0], py - was[1]) > 0.5;
             }
+            if (c.id === sim.pausedId) walking = false;
             lastPos.current.set(c.id, [px, py]);
             targets.current.set(c.id, { x: px, y: py, queued });
             seen.add(c.id);
@@ -194,7 +270,9 @@ export default function DayView({
                   if (node) nodes.current.set(c.id, node);
                   else nodes.current.delete(c.id);
                 }}
-                style={{ transform: `translate(${px}px, ${py}px)` }}
+                style={{ transform: `translate(${px}px, ${py}px)`, cursor: 'pointer' }}
+                onMouseEnter={hoverEnter(c.id)}
+                onMouseLeave={hoverLeave(c.id)}
               >
                 <Person
                   variant={c.id}
@@ -231,6 +309,41 @@ export default function DayView({
           );
         })()}
       </IsoScene>
+
+      {/* the trading card: who this person is as a person */}
+      {hover &&
+        (() => {
+          const c = sim.customers.find((k) => k.id === hover.id);
+          if (!c) return null;
+          const oi = outfitIndexFor(c.id, state.locationId);
+          const card = cardFor(oi, c.id);
+          const left = Math.max(8, Math.min(hover.x + 16, hover.w - CARD_W - 8));
+          const top = Math.max(8, Math.min(hover.y - 30, hover.h - CARD_H - 8));
+          return (
+            <div className="person-card" style={{ left, top }}>
+              <div className="pc-head" style={{ background: outfitAccent(oi) }}>
+                <span>{card.name}</span>
+                <span className="pc-aura">AURA {card.aura}</span>
+              </div>
+              <div className="pc-body">
+                <svg viewBox="-14 -48 28 54" width="42" height="81" aria-hidden>
+                  <Person variant={c.id} walking={false} bubble={null} x={0} y={0} moveSeconds={0} locId={state.locationId} />
+                </svg>
+                <div>
+                  <div className="pc-title">{card.title}</div>
+                  <div className="pc-types">{card.types}</div>
+                </div>
+              </div>
+              <div className="pc-moves">
+                {card.moves.map((m) => (
+                  <div key={m}>- {m}</div>
+                ))}
+              </div>
+              <div className="pc-weak">weakness: {card.weakness}</div>
+              <div className="pc-quote">"{card.quote}"</div>
+            </div>
+          );
+        })()}
 
       {sim.soldOut && (
         <div className="scene-flag" style={{ background: 'var(--alert)', color: 'var(--cream)' }}>

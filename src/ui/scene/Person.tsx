@@ -92,6 +92,18 @@ const CASTS: Record<string, number[]> = {
   palisades: [12, 12, 9, 4, 5, 8, 19, 0, 2, 18],
 };
 
+// Which OUTFITS entry a given customer resolves to — shared with the
+// archetype cards so the sprite and the bio always agree.
+export function outfitIndexFor(variant: number, locId?: string): number {
+  const pool = locId ? CASTS[locId] : undefined;
+  const h = Math.imul(variant + 1, 2654435761) >>> 8;
+  return pool ? pool[h % pool.length] : ((variant % OUTFITS.length) + OUTFITS.length) % OUTFITS.length;
+}
+
+export function outfitAccent(index: number): string {
+  return OUTFITS[index]?.top ?? '#c9b99a';
+}
+
 export default function Person({
   variant,
   walking,
@@ -109,11 +121,7 @@ export default function Person({
   moveSeconds?: number;
   locId?: string;
 }) {
-  const pool = locId ? CASTS[locId] : undefined;
-  const h = Math.imul(variant + 1, 2654435761) >>> 8;
-  const o = pool
-    ? OUTFITS[pool[h % pool.length]]
-    : OUTFITS[((variant % OUTFITS.length) + OUTFITS.length) % OUTFITS.length];
+  const o = OUTFITS[outfitIndexFor(variant, locId)];
   return (
     <g
       style={{

@@ -89,6 +89,39 @@ export const LAYOUTS: Record<string, SceneLayout> = {
 export const QUEUE_JOIN_X = 0.45;
 export const EXIT_X = 1.3;
 
+// Street furniture near the walk bands, as [x, y, radius] no-walk circles —
+// keeps pedestrians from standing inside fountains, planters, and bikes.
+export const OBSTACLES: Record<string, [number, number, number][]> = {
+  driveway: [[5.1, 6.95, 0.45], [5.1, 7.35, 0.45], [7.15, 5.85, 0.35], [0.6, 7.3, 0.45], [0.4, 3.85, 0.3], [2.75, 3.35, 0.35], [7.2, 3.15, 0.35], [1.6, 7.5, 0.4]],
+  silverlake: [[2.35, 6.45, 0.4], [0.4, 6.3, 0.4], [6.2, 6.45, 0.35], [9.7, 5.85, 0.3], [8.4, 6.25, 0.4], [6.5, 3.45, 0.5], [5.6, 3.3, 0.4]],
+  culver: [[1.9, 6.55, 0.5], [1.2, 6.7, 0.4], [7.4, 6.7, 0.4], [6.1, 6.5, 0.3], [8.9, 6.55, 0.45], [9.5, 6.7, 0.45], [3.1, 3.1, 0.4]],
+  studio: [[4.6, 6.45, 0.4], [2.4, 6.5, 0.5], [0.5, 6.4, 0.45], [9.7, 6.35, 0.45], [7.2, 6.4, 0.4], [8.3, 6.45, 0.35], [0.7, 3.35, 0.35], [3.75, 3.35, 0.35]],
+  venice: [[9.9, 5.5, 0.5], [0.2, 6.9, 0.4], [1.0, 3.6, 0.45], [5.3, 3.1, 0.45], [9.8, 3.7, 0.45], [6.3, 3.35, 0.35], [2.15, 2.4, 0.5], [7.25, 1.9, 0.5]],
+  santamonica: [[3.6, 4.95, 0.5], [5.4, 5.0, 0.45], [8.8, 5.0, 0.45], [1.2, 5.0, 0.4], [10.6, 5.0, 0.35], [-0.5, 6.9, 0.3], [2.2, 6.9, 0.3], [6.8, 6.9, 0.3], [9.5, 6.9, 0.3]],
+  calabasas: [[4.2, 4.25, 0.4], [6.6, 4.25, 0.4], [1.9, 4.32, 0.35], [8.9, 4.32, 0.35], [0.5, 6.15, 0.3], [9.4, 6.7, 0.35], [0.2, 4.15, 0.3], [8.7, 4.15, 0.3]],
+  beverlygrove: [[0.4, 6.85, 0.3], [3.3, 7.35, 0.35], [8.9, 7.2, 0.4], [11.1, 6.0, 0.4], [4.4, 5.0, 0.4], [0.0, 4.85, 0.7], [2.4, 4.85, 0.7], [6.0, 4.85, 0.7], [9.6, 4.85, 0.7]],
+  beverlyhills: [[9.6, 6.6, 0.75], [1.5, 6.7, 0.4], [8.2, 6.7, 0.4], [0.5, 6.5, 0.35], [6.4, 6.5, 0.35], [1.35, 3.7, 0.4], [3.25, 3.7, 0.4], [7.25, 3.7, 0.4], [9.15, 3.7, 0.4], [8.3, 3.85, 0.65]],
+  palisades: [[4.5, 5.35, 0.5], [5.8, 5.6, 0.45], [1.6, 5.2, 0.45], [7.6, 5.0, 0.45], [9.6, 7.0, 0.45], [9.8, 6.7, 0.35], [0.5, 5.4, 0.35], [6.5, 5.7, 0.35]],
+};
+
+// Push a walk target out of any obstacle circle. `side` biases which way a
+// head-on approach deflects, so a person consistently rounds the same edge.
+export function avoidObstacles(locId: string, gx: number, gy: number, side: 1 | -1): GridPt {
+  const obs = OBSTACLES[locId];
+  if (!obs) return [gx, gy];
+  for (const [ox, oy, r] of obs) {
+    let dx = gx - ox;
+    let dy = gy - oy;
+    if (Math.abs(dy) < 0.14) dy = 0.14 * side; // pick a lane before the bumper
+    const d = Math.hypot(dx, dy);
+    if (d < r) {
+      gx = ox + (dx / d) * r;
+      gy = oy + (dy / d) * r;
+    }
+  }
+  return [gx, gy];
+}
+
 export function pointAlongPolyline(pts: GridPt[], f: number): GridPt {
   if (pts.length === 1) return pts[0];
   const lens: number[] = [];

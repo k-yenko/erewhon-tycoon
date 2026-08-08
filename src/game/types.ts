@@ -242,4 +242,5 @@ export interface SimState {
   shelfSold: number;    // today's shelf-item units sold
   stockUsed: Record<StockId, number>;
   finished: boolean;
+  pausedId?: number | null; // customer frozen mid-stroll while the player inspects them
 }

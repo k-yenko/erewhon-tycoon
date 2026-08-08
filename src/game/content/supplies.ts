@@ -75,3 +75,7 @@ export const UNIT_VALUE: Record<string, number> = {
   ice: 0.06,
   cups: 0.12,
 };
+
+// Sell-back rate for the pantry buyback: enough to un-stick a bad week,
+// not enough to make supplies a savings account.
+export const BUYBACK_RATE = 0.6;
