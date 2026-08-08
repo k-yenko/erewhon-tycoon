@@ -5,10 +5,21 @@
 const MUTE_KEY = 'erewhon-tycoon:muted';
 const MUSIC_VOL = 0.09; // well under the sfx
 
-let ctx: AudioContext | null = null;
-let master: GainNode | null = null;
-let musicGain: GainNode | null = null;
-let musicTimer: number | null = null;
+// The audio engine lives on globalThis so a hot-reloaded copy of this module
+// adopts the running context instead of splitting into two audio worlds
+// (music on the old context, silent clicks on a new one).
+interface AudioEngine {
+  ctx: AudioContext;
+  master: GainNode;
+  musicGain: GainNode;
+  musicTimer: number | null;
+}
+const G = globalThis as { __erewhonAudio?: AudioEngine };
+
+let ctx: AudioContext | null = G.__erewhonAudio?.ctx ?? null;
+let master: GainNode | null = G.__erewhonAudio?.master ?? null;
+let musicGain: GainNode | null = G.__erewhonAudio?.musicGain ?? null;
+let musicTimer: number | null = G.__erewhonAudio?.musicTimer ?? null;
 let muted = localStorage.getItem(MUTE_KEY) === '1';
 
 export function isMuted(): boolean {
@@ -37,6 +48,7 @@ export function unlock(): void {
     musicGain.gain.value = muted ? 0 : MUSIC_VOL;
     musicGain.connect(master);
     if (ctx.state === 'suspended') void ctx.resume();
+    G.__erewhonAudio = { ctx, master, musicGain, musicTimer: null };
   } catch {
     ctx = null;
     return;
@@ -294,4 +306,5 @@ function startMusic(): void {
   };
   tick();
   musicTimer = window.setInterval(tick, 250);
+  if (G.__erewhonAudio) G.__erewhonAudio.musicTimer = musicTimer;
 }

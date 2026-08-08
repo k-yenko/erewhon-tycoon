@@ -680,14 +680,14 @@ export function Cart({ x, y, rival = false, stage = 0 }: { x: number; y: number;
         />
         {faceStrip(-27.4, 3.4, -22, 3, 0.5, P.stripe)}
         <text
-          x="-12"
-          y="-6"
+          x="-11.5"
+          y="-6.2"
           textAnchor="middle"
-          fontFamily="'Press Start 2P', monospace"
-          fontSize={rival ? 3.9 : 4.7}
+          fontFamily="'Silkscreen', monospace"
+          fontSize={rival ? 4.6 : 5.6}
           fill={INK}
-          letterSpacing="0.2"
-          transform="rotate(26.565 -12 -8.5)"
+          letterSpacing="0.4"
+          transform="rotate(26.565 -11.5 -8.5)"
         >
           {sign}
         </text>
