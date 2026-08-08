@@ -111,17 +111,16 @@ function WindLeaf({ x, y, delay, dur, fill }: { x: number; y: number; delay: num
   );
 }
 
-function PixelFogBand({ y, widths, drift }: { y: number; widths: number[]; drift: 'fog-drift' | 'fog-drift-rev' }) {
-  // a stepped bar of misaligned blocks reads as low marine layer
-  let x = -80;
-  const blocks = widths.map((w, i) => {
-    const el = <rect key={i} x={x} y={y + (i % 2) * 6} width={w} height={16} fill="#cfd4d8" />;
-    x += w + 26;
-    return el;
-  });
+// Soft marine-layer fog: overlapping blurred blobs, not bars. It drifts,
+// it breathes, it ruins beach plans.
+function FogBank({ y, drift, opacity = 0.34 }: { y: number; drift: 'fog-drift' | 'fog-drift-rev'; opacity?: number }) {
   return (
-    <g className={drift} opacity="0.4" shapeRendering="crispEdges">
-      {blocks}
+    <g className={drift} filter="url(#fogblur)" opacity={opacity} transform={`translate(0 ${y})`}>
+      <ellipse cx="120" cy="0" rx="150" ry="15" fill="#e6eaed" />
+      <ellipse cx="330" cy="9" rx="120" ry="12" fill="#dde3e7" />
+      <ellipse cx="540" cy="-3" rx="160" ry="14" fill="#e6eaed" />
+      <ellipse cx="780" cy="7" rx="130" ry="12" fill="#dde3e7" />
+      <ellipse cx="960" cy="0" rx="110" ry="11" fill="#e6eaed" />
     </g>
   );
 }
@@ -154,6 +153,9 @@ export default function IsoScene({
           <rect x="0" y="0" width="2" height="2" fill="#1a1a18" />
           <rect x="2" y="2" width="2" height="2" fill="#1a1a18" />
         </pattern>
+        <filter id="fogblur" x="-20%" y="-150%" width="140%" height="400%">
+          <feGaussianBlur stdDeviation="9" />
+        </filter>
         <pattern id="speckle" width="26" height="22" patternUnits="userSpaceOnUse">
           <circle cx="5" cy="6" r="1" fill="#1a1a18" />
           <circle cx="18" cy="14" r="1.2" fill="#ffffff" />
@@ -185,8 +187,9 @@ export default function IsoScene({
       {gloomy && (
         <g>
           <rect x="0" y="0" width={VIEW_W} height={VIEW_H} fill="#6a6d70" opacity="0.14" />
-          <PixelFogBand y={44} widths={[180, 120, 220, 150]} drift="fog-drift" />
-          <PixelFogBand y={110} widths={[140, 240, 110, 200]} drift="fog-drift-rev" />
+          <FogBank y={54} drift="fog-drift" />
+          <FogBank y={150} drift="fog-drift-rev" opacity={0.28} />
+          <FogBank y={280} drift="fog-drift" opacity={0.22} />
           <g className="cloud-drift-slow">
             <PixelCloud x={300} y={40} s={0.8} shade />
           </g>
