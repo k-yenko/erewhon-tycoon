@@ -48,9 +48,11 @@ export const C = {
 } as const;
 
 // Which act of the game you're in: 1 grind, 2 the landlord notices, 3 juice war.
-export const ERA_2_AT = 3000;
-export const ERA_3_AT = 8000;
-export const RIVAL_UNDERCUT_AT = 12000; // deep in Act III the war turns personal
+// Tuned so a strong run hits Act II mid-week-two and Act III around week four —
+// the acts should be chapters, not speed bumps.
+export const ERA_2_AT = 5000;
+export const ERA_3_AT = 12000;
+export const RIVAL_UNDERCUT_AT = 18000; // deep in Act III the war turns personal
 export function era(state: GameState): 1 | 2 | 3 {
   return state.lifetimeRevenue >= ERA_3_AT ? 3 : state.lifetimeRevenue >= ERA_2_AT ? 2 : 1;
 }

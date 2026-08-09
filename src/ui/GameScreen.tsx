@@ -59,6 +59,7 @@ export default function GameScreen({
   const [mode, setMode] = useState<'manage' | 'day'>('manage');
   const [speed, setSpeed] = useState<1 | 2>(1);
   const [result, setResult] = useState<DayResult | null>(null);
+  const [actBreak, setActBreak] = useState<2 | 3 | null>(null);
   const [showSeason, setShowSeason] = useState(false);
   const [warning, setWarning] = useState<string | null>(null);
   const ctxRef = useRef<SimContext | null>(null);
@@ -91,8 +92,10 @@ export default function GameScreen({
   const settle = () => {
     if (settledRef.current || !ctxRef.current || !simRef.current) return;
     settledRef.current = true;
+    const eraBefore = era(state);
     const r = settleDay(state, simRef.current);
     overnight(state); // fills stock-lost on r, advances the calendar
+    if (era(state) > eraBefore) setActBreak(era(state) as 2 | 3); // curtain up after the ledger
     commit();
     setResult(r);
     sfx('results');
@@ -137,16 +140,21 @@ export default function GameScreen({
     settle();
   };
 
-  const nextMorning = () => {
-    setResult(null);
-    setMode('manage');
-    refreshDaily();
+  const proceedMorning = () => {
     if (state.day > SEASON_DAYS && !state.seasonScored) {
       setShowSeason(true);
       return; // the season report takes the stage before win/lose screens
     }
     if (state.gameOver) onGameOver();
     else onWin();
+  };
+
+  const nextMorning = () => {
+    setResult(null);
+    setMode('manage');
+    refreshDaily();
+    if (actBreak) return; // the act card takes the stage; its button continues
+    proceedMorning();
   };
 
   const sim = simRef.current;
@@ -299,9 +307,10 @@ export default function GameScreen({
                   const name = e === 1 ? 'ACT I · THE HUSTLE' : e === 2 ? 'ACT II · THE LANDLORD ERA' : 'ACT III · THE JUICE WARS';
                   return (
                     <div style={{ fontFamily: PXFONT, fontSize: 7, color: 'var(--kraft-dark)', margin: '2px 0 4px' }}>
-                      {name}
-                      {next !== null &&
-                        ` · ${Math.round(state.lifetimeRevenue).toLocaleString()} / ${next.toLocaleString()} $`}
+                      {name} ·{' '}
+                      {next !== null
+                        ? `${Math.round(state.lifetimeRevenue).toLocaleString()} / ${next.toLocaleString()} $`
+                        : `${Math.round(state.lifetimeRevenue).toLocaleString()} $ lifetime`}
                     </div>
                   );
                 })()}
@@ -394,6 +403,32 @@ export default function GameScreen({
       </div>
 
       {result && <ResultsModal result={result} onContinue={nextMorning} />}
+      {!result && actBreak && (
+        <div className="modal-overlay">
+          <div className="panel modal" style={{ maxWidth: 440, textAlign: 'center' }}>
+            <div style={{ fontFamily: PXFONT, fontSize: 22, margin: '10px 0 4px' }}>
+              ACT {actBreak === 2 ? 'II' : 'III'}
+            </div>
+            <div style={{ fontFamily: PXFONT, fontSize: 11, color: 'var(--kraft-dark)', marginBottom: 12 }}>
+              {actBreak === 2 ? 'THE LANDLORD ERA' : 'THE JUICE WARS'}
+            </div>
+            <div style={{ fontSize: 13, marginBottom: 14 }}>
+              {actBreak === 2
+                ? 'The city has noticed you. Rent follows fame now, neighborhoods get bored of you, and a teal truck just rolled into town. New equipment is waiting in the upgrades tab.'
+                : 'Moon Juus knows your name and wants your corners. From here on, it parks where you park. Wartime equipment is unlocked in the upgrades tab.'}
+            </div>
+            <button
+              className="pixel-btn primary"
+              onClick={() => {
+                setActBreak(null);
+                proceedMorning();
+              }}
+            >
+              Bring It On
+            </button>
+          </div>
+        </div>
+      )}
       {showSeason && (
         <SeasonReport
           state={state}
