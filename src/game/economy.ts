@@ -43,16 +43,16 @@ export const C = {
   UNVISITED_DRIFT: 0.06,  // unvisited spots drift toward their baselines
   AD_MAX_BOOST: 0.5,      // ad boost asymptote (+50% traffic)
   AD_HALFSCALE: 20,       // $ spend where the boost curve bends
-  WIN_LIFETIME_REVENUE: 15000, // Reserve-tier spend, but you're the one earning it
+  WIN_LIFETIME_REVENUE: 30000, // the dream lands mid-Juice-Wars, where a climax belongs
   START_CASH: 300,
 } as const;
 
 // Which act of the game you're in: 1 grind, 2 the landlord notices, 3 juice war.
-// Tuned so a strong run hits Act II mid-week-two and Act III around week four —
-// the acts should be chapters, not speed bumps.
-export const ERA_2_AT = 5000;
-export const ERA_3_AT = 12000;
-export const RIVAL_UNDERCUT_AT = 18000; // deep in Act III the war turns personal
+// Tuned as thirds of the 60-day season: a strong run enters Act II around
+// day 18-20 and Act III around day 40 — chapters, not speed bumps.
+export const ERA_2_AT = 10000;
+export const ERA_3_AT = 25000;
+export const RIVAL_UNDERCUT_AT = 35000; // deep in Act III the war turns personal
 export function era(state: GameState): 1 | 2 | 3 {
   return state.lifetimeRevenue >= ERA_3_AT ? 3 : state.lifetimeRevenue >= ERA_2_AT ? 2 : 1;
 }

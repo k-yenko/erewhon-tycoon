@@ -14,9 +14,9 @@ npm run dev
 - one season = 60 in-game days (jan 1 → feb 30, the calendar is real-ish, weekdays matter)
 - three acts, unlocked by lifetime revenue, each with its own upgrade list:
   - **act I — the hustle**: blenders, tip screens, fridges, stand tiers. classic ladder
-  - **act II — the landlord era** ($5k): the city notices you. rent gets repriced where you're popular, neighborhoods get *over* you if you camp them, and moon juus (a wellness-truck pastiche) rolls into town. counter-tools: a lease lawyer, a residency program, a misting system, a valet stand
-  - **act III — the juice wars** ($12k): moon juus starts parking wherever YOU are, and past $18k it undercuts you. counter-billboards, celebrity collabs, exclusive supplier contracts, a merch empire
-- the flagship dream (flagship cart + $15k lifetime) can land any day — the season keeps going
+  - **act II — the landlord era** ($10k): the city notices you. rent gets repriced where you're popular, neighborhoods get *over* you if you camp them, and moon juus (a wellness-truck pastiche) rolls into town. counter-tools: a lease lawyer, a residency program, a misting system, a valet stand
+  - **act III — the juice wars** ($25k): moon juus starts parking wherever YOU are, and past $35k it undercuts you. counter-billboards, celebrity collabs, exclusive supplier contracts, a merch empire
+- the flagship dream (flagship cart + $30k lifetime) usually lands mid-juice-wars — the season keeps going
 - day 60: **empire score** = net worth + city-wide reputation + city-wide devotion + flagship bonus → arcade initials → local hall of fame on the title screen
 
 ## the machine
